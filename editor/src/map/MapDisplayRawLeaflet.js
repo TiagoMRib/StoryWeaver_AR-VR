@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
+import { Typography } from "@mui/material";
 import { iconAnchor, MarkerTypeToIcon } from "./MarkerIcon";
 import { createRoot } from "react-dom/client";
 import { flushSync } from "react-dom";
@@ -42,6 +43,10 @@ export default function MapDisplayRawLeaflet(props) {
       flushSync(() => {
         if (anchorType == MarkerTypes.anchor) {
           root.render(
+            <>
+            <Typography variant="h6" sx={{ color: "black", textAlign: "center" }}>
+              {mapInfo.anchors.find(anchor => anchor.anchorId == anchorId)?.name || "Sem nome"}
+            </Typography>
             <PopupAnchor
               anchorId={anchorId}
               mapInfo={mapInfo}
@@ -51,6 +56,7 @@ export default function MapDisplayRawLeaflet(props) {
               setAlertDisplay={setAlertDisplay}
               setAlertText={setAlertText}
             />
+            </>
           );
         } else {
           root.render(

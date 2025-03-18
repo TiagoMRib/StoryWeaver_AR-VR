@@ -27,6 +27,8 @@ export default function PopupAnchor(props) {
   const inputEventListener = (e) => {
     const latitude = document.getElementById("latitude-coords-" + anchorId);
     const longitude = document.getElementById("longitude-coords-" + anchorId);
+    const nameField = document.getElementById("location-name-" + anchorId);
+    
     const anchor = mapInfo.anchors.find(
       (anchor) => anchor.anchorId == anchorId
     );
@@ -40,6 +42,7 @@ export default function PopupAnchor(props) {
 
     anchor.coords.lat = newLat;
     anchor.coords.lng = newLong;
+    anchor.name = nameField.value;
 
     const newMaps = maps.filter((map) => map.id != mapInfo.id);
     newMaps.push(mapInfo);
@@ -68,10 +71,16 @@ export default function PopupAnchor(props) {
     localStorage.setItem("maps", JSON.stringify(newMaps));
   };
   const fillCurrentPosition = () => {
+    const nameField = document.getElementById("location-name-" + anchorId);
     const latitude = document.getElementById("latitude-coords-" + anchorId);
     const longitude = document.getElementById("longitude-coords-" + anchorId);
+    nameField.value = "Minha Posição";
     latitude.value = "Carregando...";
     longitude.value = "Carregando...";
+
+    const anchor = mapInfo.anchors.find((anchor) => anchor.anchorId == anchorId);
+    anchor.name = nameField.value;
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         latitude.value = position.coords.latitude;
@@ -167,6 +176,55 @@ export default function PopupAnchor(props) {
         backgroundColor: primaryColor,
       }}
     >
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ py: 1, px: 2, color: textColor, m: 0, textAlign: "start" }}
+        >
+          Nome do Local:
+        </Typography>
+        <TextField
+          id={"location-name-" + anchorId}
+          defaultValue={
+            mapInfo.anchors.find((anchor) => anchor.anchorId == anchorId)?.name || ""
+          }
+          inputProps={{
+            style: {
+              borderRadius: 0,
+              color: "black",
+              height: 40,
+              padding: 0,
+              margin: 0,
+              borderColor: "transparent",
+              borderWidth: 0,
+              backgroundColor: "#ffffff",
+              borderRadius: 10,
+              textAlign: "start",
+            },
+          }}
+          sx={{
+            flexGrow: 1,
+            py: 0,
+            px: 1,
+            color: textColor,
+            mx: "10px",
+            borderRadius: 0,
+            ".MuiInputBase-root": {
+              borderRadius: 2,
+              backgroundColor: "#ffffff",
+            },
+          }}
+        />
+      </Box>
+
       <Box
         sx={{
           display: "flex",
