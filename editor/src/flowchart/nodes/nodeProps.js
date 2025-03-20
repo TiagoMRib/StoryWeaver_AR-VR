@@ -82,6 +82,22 @@ const ThreeDModelProps = {
       name: "rotation",
     },
     {
+      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
+      label: "Inicia em local", 
+      initialValue: false, // Default is unchecked
+      name: "isSiteTriggered",
+    },
+    {
+      type: [InputFieldType.select_site],
+      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
+      label: "Localização",
+      initialValue: {
+        map: "", // Default map
+        place: "", // Default site name
+      },
+      name: "site_type",
+    },       
+    {
       type: [InputFieldType.checkbox],
       label: "Auto-play animações",
       initialValue: false,
@@ -106,8 +122,8 @@ const ThreeDModelProps = {
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
       initialValue: {
         trigger_mode: "GPS Coords",
-        map: "Map 1",
-        place: "place",
+        map: "",
+        place: "",
         qr_code: "qr_code",
         tolerance: 5,
         image: { inputType: "url", filename: "", blob: null },
@@ -219,6 +235,22 @@ const VideoProps = {
       acceptedType: FileTypesInput.Video,
     },
     {
+      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
+      label: "Inicia em local", 
+      initialValue: false, // Default is unchecked
+      name: "isSiteTriggered",
+    },
+    {
+      type: [InputFieldType.select_site],
+      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
+      label: "Localização",
+      initialValue: {
+        map: "", // Default map
+        place: "", // Default site name
+      },
+      name: "site_type",
+    }, 
+    {
       type: [InputFieldType.checkbox],
       label: "Permitir AR? ",
       initialValue: false,
@@ -258,8 +290,8 @@ const VideoProps = {
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
       initialValue: {
         trigger_mode: "GPS Coords",
-        map: "Map 1",
-        place: "place",
+        map: "",
+        place: "",
         tolerance: 5,
         qr_code: "qr_code",
         image: { inputType: "url", filename: "", blob: null },
@@ -320,7 +352,22 @@ const ImageProps = {
       name: "file",
       acceptedType: FileTypesInput.Image,
     },
-
+    {
+      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
+      label: "Inicia em local", 
+      initialValue: false, // Default is unchecked
+      name: "isSiteTriggered",
+    },
+    {
+      type: [InputFieldType.select_site],
+      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
+      label: "Localização",
+      initialValue: {
+        map: "", // Default map
+        place: "", // Default site name
+      },
+      name: "site_type",
+    }, 
     {
       type: [InputFieldType.checkbox],
       label: "Permitir AR? ",
@@ -361,8 +408,8 @@ const ImageProps = {
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
       initialValue: {
         trigger_mode: "GPS Coords",
-        map: "Map 1",
-        place: "place",
+        map: "",
+        place: "",
         tolerance: 5,
         qr_code: "qr_code",
         image: { inputType: "url", filename: "", blob: null },
@@ -429,6 +476,22 @@ const AudioProps = {
       name: "file",
       acceptedType: FileTypesInput.Audio,
     },
+    {
+      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
+      label: "Inicia em local", 
+      initialValue: false, // Default is unchecked
+      name: "isSiteTriggered",
+    },
+    {
+      type: [InputFieldType.select_site],
+      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
+      label: "Localização",
+      initialValue: {
+        map: "", // Default map
+        place: "", // Default site name
+      },
+      name: "site_type",
+    }, 
   ],
 };
 
@@ -481,6 +544,22 @@ const TextProps = {
       acceptedType: FileTypesInput.Image,
     },
     {
+      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
+      label: "Inicia em local", 
+      initialValue: false, // Default is unchecked
+      name: "isSiteTriggered",
+    },
+    {
+      type: [InputFieldType.select_site],
+      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
+      label: "Localização",
+      initialValue: {
+        map: "", // Default map
+        place: "", // Default site name
+      },
+      name: "site_type",
+    }, 
+    {
       type: [InputFieldType.checkbox],
       label: "Permitir AR? ",
       initialValue: false,
@@ -520,8 +599,8 @@ const TextProps = {
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
       initialValue: {
         trigger_mode: "GPS Coords",
-        map: "Map 1",
-        place: "place",
+        map: "",
+        place: "",
         tolerance: 5,
         qr_code: "qr_code",
         image: { inputType: "url", filename: "", blob: null },
@@ -574,12 +653,28 @@ const PathProps = {
       acceptedType: FileTypesInput.Image,
     },
     {
+      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
+      label: "Inicia em local", 
+      initialValue: false, // Default is unchecked
+      name: "isSiteTriggered",
+    },
+    {
+      type: [InputFieldType.select_site],
+      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
+      label: "Localização",
+      initialValue: {
+        map: "", // Default map
+        place: "", // Default site name
+      },
+      name: "site_type",
+    }, 
+    {
       type: [InputFieldType.select_location],
       label: "Destino:",
       options: ["GPS Coords"],
       initialValue: {
         trigger_mode: "GPS Coords",
-        map: "Map 1",
+        map: "",
         place: "place",
         qr_code: "qr_code",
         tolerance: 5,
@@ -619,6 +714,22 @@ const DialogProps = {
       name: "audio",
       acceptedType: FileTypesInput.Audio,
     },
+    {
+      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
+      label: "Inicia em local", 
+      initialValue: false, // Default is unchecked
+      name: "isSiteTriggered",
+    },
+    {
+      type: [InputFieldType.select_site],
+      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
+      label: "Localização",
+      initialValue: {
+        map: "", // Default map
+        place: "", // Default site name
+      },
+      name: "site_type",
+    }, 
   ],
 };
 

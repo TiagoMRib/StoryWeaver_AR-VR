@@ -34,7 +34,7 @@ function CheckboxField(props) {
                 backgroundColor: 'transparent',
             },
         }}
-         inputPropsinputProps={{ 'aria-label': 'controlled' }}
+         inputProps={{ 'aria-label': 'controlled' }} //inputPropsinputProps
             id="checkbox"
             checked={value}
             onChange={(event) => {

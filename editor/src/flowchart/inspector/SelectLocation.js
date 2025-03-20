@@ -261,7 +261,7 @@ function SelectLocationField(props) {
               O conteúdo AR será exibido quando o utilizador estiver a uma
               distância de {value.tolerance} metro(s) do local selecionado!
             </Typography>
-            <Box
+            <Box                  /////////////////////////////// MAP PART HERE
               sx={{
                 display: "flex",
                 width: "100%",

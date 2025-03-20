@@ -4,6 +4,7 @@ export enum InputFieldType {
     textFieldMultiline,
     threeDCoord,
     checkbox,
+    select_site,
     select_location,
     multichoice_check,
     file_select,
