@@ -64,3 +64,29 @@ export function getDistanceBetweenCoords(lat1, lon1, lat2, lon2) {
   console.log("Distance: ", (earthRadiusKm * c) * 1000);
   return (earthRadiusKm * c) * 1000; //return in meters
 }
+
+export function getDirectionToDestination(destLat, destLon, setDirection) {
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const userLat = position.coords.latitude;
+      const userLon = position.coords.longitude;
+
+      const dLat = destLat - userLat;
+      const dLon = destLon - userLon;
+
+      let direction = "";
+
+      if (Math.abs(dLat) > Math.abs(dLon)) {
+        direction = dLat > 0 ? "Norte" : "Sul";
+      } else {
+        direction = dLon > 0 ? "Leste" : "Oeste";
+      }
+
+      setDirection(direction);
+    },
+    (error) => console.error("Error getting user location:", error),
+    { enableHighAccuracy: true }
+  );
+}
+
+

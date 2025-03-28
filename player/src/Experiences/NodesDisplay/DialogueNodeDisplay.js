@@ -11,7 +11,7 @@ import { ApiDataRepository } from "../../api/ApiDataRepository";
 import { DialogNodeType } from "../../models/DialogNodeTypes";
 import Typewriter from "./util/TypeWriter";
 import CharacterDialogueDisplay from "./util/CharacterDialogueDisplay";
-import { useLocationCheck } from "./util/LocationCheck";
+import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
 import { ComponentState } from "../../models/ComponentState";
 import ChoiceDialogueDisplay from "./util/ChoiceDialogueDisplay";
 
@@ -25,6 +25,7 @@ export default function DialogueNodeDisplay(props) {
   const isSiteTriggered = dialogueNode.data.isSiteTriggered;
   const siteType = dialogueNode.data.site_type; // Contains map & place
   const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered); // Default true if not site-triggered
+  const [direction, setDirection] = useState(null);
 
   // Call location check if site-triggered
   if (isSiteTriggered) {
@@ -36,6 +37,14 @@ export default function DialogueNodeDisplay(props) {
     10,
     setIsOnLocation
   );
+
+
+
+  useEffect(() => {
+    if (isSiteTriggered && siteType.map) {
+      getDirectionToDestination(siteType.map.lat, siteType.map.lng, setDirection);
+    }
+  }, [isSiteTriggered, siteType]);
   
 
   const backgroundFileInfo = dialogueNode.data.background;
@@ -144,10 +153,11 @@ export default function DialogueNodeDisplay(props) {
       }}
     >
       <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
-      Continua em <strong>{siteType.place}</strong>. <br />
+      Continua em <strong>{siteType.place}</strong>. <br /> 
       {distance !== null ? (
         <>
-          Está a <strong>{distance.toFixed(2)}</strong> metros do local.
+          Está a <strong>{distance.toFixed(2)}</strong> metros do local. <br />
+          {direction ? `Siga para ${direction}.` : "Calculando direção..."}
         </>
       ) : (
         "Calculando distância..."
