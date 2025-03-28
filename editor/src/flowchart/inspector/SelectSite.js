@@ -52,7 +52,7 @@ function SelectSiteField(props) {
           }}
         >
           <Typography variant="h7" component="div" sx={{ px: 2, color: textColor, m: 0, fontSize: 16, py: 1 }}>
-            O conteúdo será acionado quando o utilizador estiver a menos de {value.tolerance} metros do ponto {value.place}.
+            O conteúdo será acionado quando o utilizador estiver a menos de {value.tolerance ? value.tolerance : "X"} metros do ponto {value.place}.
           </Typography>
           
           {/* Map Selection */}

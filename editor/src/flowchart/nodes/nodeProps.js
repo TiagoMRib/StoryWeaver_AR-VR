@@ -181,6 +181,22 @@ const QuizProps = {
       initialValue: ["Resposta 1", "Resposta 2", "Resposta 3", "Resposta 4"],
       name: "answers",
     },
+    {
+      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
+      label: "Inicia em local", 
+      initialValue: false, // Default is unchecked
+      name: "isSiteTriggered",
+    },
+    {
+      type: [InputFieldType.select_site],
+      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
+      label: "Localização",
+      initialValue: {
+        map: "", // Default map
+        place: "", // Default site name
+      },
+      name: "site_type",
+    },
   ],
 };
 
@@ -686,6 +702,8 @@ const PathProps = {
   ],
 };
 
+////////////////// DIALOG STUFF 
+
 const DialogProps = {
   nodeType: "Diálogo",
   type: DialogNodeType.dialogNode,
@@ -714,22 +732,6 @@ const DialogProps = {
       name: "audio",
       acceptedType: FileTypesInput.Audio,
     },
-    {
-      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
-      label: "Inicia em local", 
-      initialValue: false, // Default is unchecked
-      name: "isSiteTriggered",
-    },
-    {
-      type: [InputFieldType.select_site],
-      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
-      label: "Localização",
-      initialValue: {
-        map: "", // Default map
-        place: "", // Default site name
-      },
-      name: "site_type",
-    }, 
   ],
 };
 
@@ -807,7 +809,8 @@ const defaultDialogNodes = [
 
 const defaultDialogEdges = [];
 
-const CharacterProps = {
+// Node de dialogo da janela principal, abre tab de dialogo
+const CharacterProps = {   
   nodeType: "Cena Diálogo",
   type: NodeType.characterNode,
   fields: [
@@ -850,6 +853,22 @@ const CharacterProps = {
         edges: defaultDialogEdges,
       },
       name: "dialog",
+    },
+    {
+      type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
+      label: "Inicia em local", 
+      initialValue: false, // Default is unchecked
+      name: "isSiteTriggered",
+    },
+    {
+      type: [InputFieldType.select_site],
+      conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
+      label: "Localização",
+      initialValue: {
+        map: "", // Default map
+        place: "", // Default site name
+      },
+      name: "site_type",
     },
   ],
 };

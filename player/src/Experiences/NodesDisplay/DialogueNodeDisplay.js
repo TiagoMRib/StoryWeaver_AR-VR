@@ -5,12 +5,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { backgroundColor, secondaryColor, textColor } from "../../themes";
 import { ApiDataRepository } from "../../api/ApiDataRepository";
 import { DialogNodeType } from "../../models/DialogNodeTypes";
 import Typewriter from "./util/TypeWriter";
 import CharacterDialogueDisplay from "./util/CharacterDialogueDisplay";
+import { useLocationCheck } from "./util/LocationCheck";
 import { ComponentState } from "../../models/ComponentState";
 import ChoiceDialogueDisplay from "./util/ChoiceDialogueDisplay";
 
@@ -19,6 +20,23 @@ export default function DialogueNodeDisplay(props) {
   const dialogueNode = props.node;
   const possibleNextNodes = props.possibleNextNodes;
   const outGoingEdges = props.outGoingEdges;
+
+  // Location based section
+  const isSiteTriggered = dialogueNode.data.isSiteTriggered;
+  const siteType = dialogueNode.data.site_type; // Contains map & place
+  const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered); // Default true if not site-triggered
+
+  // Call location check if site-triggered
+  if (isSiteTriggered) {
+    console.log("Site coordinates: ", siteType);
+  }
+  const distance = useLocationCheck(
+    isSiteTriggered ? siteType.map : null,
+    isSiteTriggered ? siteType.place : null,
+    10,
+    setIsOnLocation
+  );
+  
 
   const backgroundFileInfo = dialogueNode.data.background;
   const dialogTree = dialogueNode.data.dialog;
@@ -115,6 +133,27 @@ export default function DialogueNodeDisplay(props) {
     >
       <Typography variant="h4">Erro ao carregar</Typography>
     </Box>
+  ) : !isOnLocation ? ( // BLOCK THE STORY UNTIL USER REACHES LOCATION
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
+      Continua em <strong>{siteType.place}</strong>. <br />
+      {distance !== null ? (
+        <>
+          Está a <strong>{distance.toFixed(2)}</strong> metros do local.
+        </>
+      ) : (
+        "Calculando distância..."
+      )}
+    </Typography>
+    </Box>
   ) : (
     <Box
       sx={{
@@ -131,9 +170,8 @@ export default function DialogueNodeDisplay(props) {
         backgroundSize: "cover",
       }}
     >
-      {currentDialogNode.type ==
-      DialogNodeType.beginDialogNode ? null : currentDialogNode.type ==
-        DialogNodeType.dialogNode ? (
+      {currentDialogNode.type == DialogNodeType.beginDialogNode ? null : 
+       currentDialogNode.type == DialogNodeType.dialogNode ? (
         <CharacterDialogueDisplay
           character={currentDialogNode.data.character}
           dialogue={currentDialogNode.data.text}
@@ -142,7 +180,7 @@ export default function DialogueNodeDisplay(props) {
             const nextNode = findNextDialogueNode(currentDialogNode);
             setCurrentDialogNode(nextNode);
           }}
-        ></CharacterDialogueDisplay>
+        />
       ) : currentDialogNode.type == DialogNodeType.dialogChoiceNode ? (
         <ChoiceDialogueDisplay
           character={currentDialogNode.data.character}
@@ -153,7 +191,7 @@ export default function DialogueNodeDisplay(props) {
             const nextNode = findNextDialogueNode(currentDialogNode, choice);
             setCurrentDialogNode(nextNode);
           }}
-        ></ChoiceDialogueDisplay>
+        />
       ) : currentDialogNode.type == DialogNodeType.endDialogNode ? (
         setNextNode(
           possibleNextNodes.find(

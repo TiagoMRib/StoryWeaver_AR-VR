@@ -33,7 +33,7 @@ export default function MapWindow(props) {
   const selectedMap = props.selectedMap;
   const setSelectedMap = props.setSelectedMap;
 
-  const continuarAction = () => {
+  const continuarAction = () => {    ///////////////////////7 SOMETHING HERE
     if (selectedMap.anchors.length < 2) {
       setDisplayAlert(true);
       setAlertText("Selecione pelo menos dois pontos.");

@@ -93,7 +93,8 @@ export default function MapDisplayRawLeaflet(props) {
               (anchor.imgCoords.lng - anchors[0].imgCoords.lng) * mapInfo.scale; // x distance from anchor in meters
             const dy =
               (anchor.imgCoords.lat - anchors[0].imgCoords.lat) * mapInfo.scale; // y distance from anchor in meters
-
+            
+            console.log("dx: ", dx, "dy: ", dy);
             const r_earth = 6371e3; // meters
             anchor.coords = {
               lat: anchors[0].coords.lat + (dy / r_earth) * (180 / Math.PI),
@@ -102,6 +103,7 @@ export default function MapDisplayRawLeaflet(props) {
                 ((dx / r_earth) * (180 / Math.PI)) /
                   Math.cos((anchors[0].coords.lat * Math.PI) / 180),
             };
+            console.log("anchor coords: ", anchor.coords);
           }
         }
         return anchor;
@@ -127,22 +129,42 @@ export default function MapDisplayRawLeaflet(props) {
     });
 
     map.on("click", (e) => {
-      if (mapInfo.progressionState != "not-started") return;
-
+      if (mapInfo.progressionState !== "not-started") return;
+    
       const anchorId = mapInfo.anchors.length + 1;
+      let newCoords = { lat: 0, lng: 0 }; // Default to (0,0) for first two anchors
+    
+      if (mapInfo.anchors.length >= 1) {
+        // If at least one anchor exists, use it as reference
+        const referenceAnchor = mapInfo.anchors[0];
+    
+        // Convert image coordinates to real-world coordinates
+        const dx = (e.latlng.lng - referenceAnchor.imgCoords.lng) * mapInfo.scale;
+        const dy = (e.latlng.lat - referenceAnchor.imgCoords.lat) * mapInfo.scale;
+    
+        newCoords = {
+          lat: referenceAnchor.coords.lat + (dy / 6371e3) * (180 / Math.PI),
+          lng: referenceAnchor.coords.lng +
+            ((dx / 6371e3) * (180 / Math.PI)) / Math.cos(referenceAnchor.coords.lat * Math.PI / 180),
+        };
+      }
+    
       mapInfo.anchors.push({
         anchorId: anchorId,
         anchorType: MarkerTypes.anchor,
-        coords: { lat: 0, lng: 0 },
+        coords: newCoords, // Now correctly set based on existing anchors
         imgCoords: e.latlng,
       });
-
-      const newMaps = maps.filter((map) => map.id != mapInfo.id);
+    
+      const newMaps = maps.filter((map) => map.id !== mapInfo.id);
       newMaps.push(mapInfo);
       setMaps(newMaps);
       localStorage.setItem("maps", JSON.stringify(newMaps));
+    
       addMarker(e.latlng, map, anchorId, MarkerTypes.anchor).openPopup();
     });
+    
+    
     repo
       .getFile(mapInfo.image)
       .then((blob) => {
