@@ -79,7 +79,7 @@ export function getDirectionToDestination(destLat, destLon, setDirection) {
       if (Math.abs(dLat) > Math.abs(dLon)) {
         direction = dLat > 0 ? "Norte" : "Sul";
       } else {
-        direction = dLon > 0 ? "Leste" : "Oeste";
+        direction = dLon > 0 ? "Este" : "Oeste";
       }
 
       setDirection(direction);

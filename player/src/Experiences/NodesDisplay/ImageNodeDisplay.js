@@ -47,6 +47,7 @@ export default function ImageNodeDisplay(props) {
 
   const [markerSrc, setMarkerSrc] = React.useState("");
 
+  //Location based section
   const isSiteTriggered = props.node.data.isSiteTriggered;
   const siteType = props.node.data.site_type; // Contains map & place
   const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered); // Default true if not site-triggered
@@ -140,36 +141,14 @@ export default function ImageNodeDisplay(props) {
       setUrl(fileInfo.filename);
     }
   }, []);
-  return !isOnLocation ? ( 
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
-        Continua em <strong>{siteType.place}</strong>. <br />
-        {distance !== null ? (
-        <>
-          Está a <strong>{distance.toFixed(2)}</strong> metros do local. <br />
-          {direction ? `Siga para ${direction}.` : "Calculando direção..."}
-        </>
-        ) : (
-          "Calculando distância..."
-        )}
-      </Typography>
-    </Box>
-  ) :  (
+  return (
     <>
       <style>
         {`
-       body{
-        overflow: hidden;
-       }
-    `}
+          body {
+            overflow: hidden;
+          }
+        `}
       </style>
       <Box
         sx={{
@@ -181,39 +160,44 @@ export default function ImageNodeDisplay(props) {
           justifyContent: "center",
           alignItems: "center",
           background:
-            backgroundURL == ""
+            backgroundURL === ""
               ? backgroundColor
-              : `${backgroundColor} url(${backgroundURL}) no-repeat center center  fixed`,
+              : `${backgroundColor} url(${backgroundURL}) no-repeat center center fixed`,
           backgroundSize: "cover",
         }}
       >
         {componentState === ComponentState.LOADING ? (
-          <Typography
-            variant="h4"
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "100%",
-              height: "100%",
-            }}
-          >
+          <Typography variant="h4" sx={{ textAlign: "center" }}>
             Loading...
           </Typography>
         ) : componentState === ComponentState.ERROR ? (
-          <Typography
-            variant="h4"
+          <Typography variant="h4" sx={{ textAlign: "center" }}>
+            Error loading
+          </Typography>
+        ) : !isOnLocation ? (
+          <Box
             sx={{
+              width: "100%",
+              height: "100%",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              width: "100%",
-              height: "100%",
             }}
           >
-            Error loading
-          </Typography>
+            <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
+              Continua em <strong>{siteType.place}</strong>. <br />
+              {distance !== null ? (
+                <>
+                  Está a <strong>{distance.toFixed(2)}</strong> metros do local. <br />
+                  {direction ? `Siga para ${direction}.` : "Calculando direção..."}
+                </>
+              ) : (
+                "Calculando distância..."
+              )}
+            </Typography>
+          </Box>
         ) : (
+          // MAIN CONTENT RENDERED HERE
           <Box
             sx={{
               width: "100%",
@@ -226,14 +210,13 @@ export default function ImageNodeDisplay(props) {
               alignItems: "center",
             }}
           >
-            {title == "" ? null : (
+            {title !== "" && (
               <>
                 <img
                   src={characterImg}
                   alt={character.name}
                   style={{
                     width: "100px",
-
                     height: "100px",
                     borderRadius: "50%",
                     border: "2px solid black",
@@ -288,26 +271,21 @@ export default function ImageNodeDisplay(props) {
                 />
               )
             ) : (
-              <>
-                <img
-                  src={url}
-                  style={{
-                    maxWidth: "90%",
-                    height: "auto",
-                    maxHeight: "60vh",
-
-                    display: "block",
-                  }}
-                />
-              </>
+              <img
+                src={url}
+                style={{
+                  maxWidth: "90%",
+                  height: "auto",
+                  maxHeight: "60vh",
+                  display: "block",
+                }}
+              />
             )}
-            <GoToNextSlideButton
-              setNextNode={setNextNode}
-              possibleNextNodes={possibleNextNodes}
-            />
+            <GoToNextSlideButton setNextNode={setNextNode} possibleNextNodes={possibleNextNodes} />
           </Box>
         )}
       </Box>
     </>
   );
+  
 }

@@ -5,7 +5,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   backgroundColor,
   secondaryColor,
@@ -18,6 +18,7 @@ import { ComponentState } from "../../models/ComponentState";
 import AudioPlayer from "mui-audio-player-plus";
 import GoToNextSlideButton from "./util/GoToNextSlideButton";
 import Typewriter from "./util/TypeWriter";
+import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
 
 export default function AudioNodeDisplay(props) {
   const repo = ApiDataRepository.getInstance();
@@ -41,6 +42,23 @@ export default function AudioNodeDisplay(props) {
   const setNextNode = props.setNextNode;
 
   const [characterImg, setCharacterImg] = React.useState("");
+
+  // Location based section
+    const isSiteTriggered = dialogueNode.data.isSiteTriggered;
+    const siteType = dialogueNode.data.site_type; // Contains map & place
+    const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered); // Default true if not site-triggered
+    const [direction, setDirection] = useState(null);
+  
+    // Call location check if site-triggered
+    if (isSiteTriggered) {
+      console.log("Site coordinates: ", siteType);
+    }
+    const distance = useLocationCheck(
+      isSiteTriggered ? siteType.map : null,
+      isSiteTriggered ? siteType.place : null,
+      10,
+      setIsOnLocation
+    );
 
   useEffect(() => {
     if (character.image.filename == "") {
@@ -139,7 +157,29 @@ export default function AudioNodeDisplay(props) {
         >
           Error loading
         </Typography>
-      ) : (
+      ) : !isOnLocation ? ( // BLOCK THE STORY UNTIL USER REACHES LOCATION
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
+            Continua em <strong>{siteType.place}</strong>. <br /> 
+            {distance !== null ? (
+              <>
+                Está a <strong>{distance.toFixed(2)}</strong> metros do local. <br />
+                {direction ? `Siga para ${direction}.` : "Calculando direção..."}
+              </>
+            ) : (
+              "Calculando distância..."
+            )}
+          </Typography>
+          </Box>
+        ) : (
         <>
           {name == "" ? null : (
             <>
