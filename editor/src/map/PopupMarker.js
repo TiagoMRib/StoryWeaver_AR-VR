@@ -164,6 +164,40 @@ export default function PopupMarker(props) {
           />
         </Box>
         <Box
+  sx={{
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  }}
+>
+  <Typography
+    variant="h6"
+    component="div"
+    sx={{ py: 1, px: 2, color: textColor, m: 0, textAlign: "start" }}
+  >
+    Coordenadas Calculadas:
+  </Typography>
+  <Typography
+    variant="body1"
+    sx={{
+      py: 1,
+      px: 2,
+      color: "black",
+      backgroundColor: "#ffffff",
+      borderRadius: 10,
+      textAlign: "start",
+    }}
+  >
+    {`Lat: ${
+      mapInfo.anchors.find((anchor) => anchor.anchorId == anchorId)?.coords.lat.toFixed(6) || "N/A"
+    }, Lng: ${
+      mapInfo.anchors.find((anchor) => anchor.anchorId == anchorId)?.coords.lng.toFixed(6) || "N/A"
+    }`}
+  </Typography>
+</Box>
+
+        <Box
           sx={{
             display: "flex",
             flexDirection: "row",
