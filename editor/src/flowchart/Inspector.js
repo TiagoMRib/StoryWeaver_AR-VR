@@ -16,6 +16,7 @@ import MultipleChoiceField from "./inspector/MultipleChoice";
 import MultipleChoiceCheckboxField from "./inspector/MultipleChoiceCheck";
 import OpenWindowField from "./inspector/OpenWindow";
 import SelectLocationField from "./inspector/SelectLocation";
+import SelectSiteField from "./inspector/SelectSite";
 import TextFieldInspector from "./inspector/TextField";
 import TextFieldExpandable from "./inspector/TextFieldExpandable";
 import TextFieldMultiline from "./inspector/TextFieldMultiline";
@@ -138,6 +139,18 @@ function Inspector(props) {
                     style={{ mt: 2 }}
                   ></ThreeDCoordField>
                 );
+              case InputFieldType.select_site:
+                  return (
+                    <SelectSiteField
+                      conditional={values[field.conditional]}
+                      key={index}
+                      id={index}
+                      onChange={handleFieldChange}
+                      value={values[field.name]}
+                      data={field}
+                      style={{ mt: 2 }}
+                    ></SelectSiteField>
+                  );
               case InputFieldType.select_location:
                 return (
                   <SelectLocationField

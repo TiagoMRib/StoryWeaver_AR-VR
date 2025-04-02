@@ -5,7 +5,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState  } from "react";
 import {
   backgroundColor,
   secondaryColor,
@@ -18,6 +18,7 @@ import { ComponentState } from "../../models/ComponentState";
 import { ARTriggerMode } from "../../models/ARTriggerModes";
 import Typewriter from "./util/TypeWriter";
 import GoToNextSlideButton from "./util/GoToNextSlideButton";
+import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
 
 function degreesToRadians(degrees) {
   return (degrees * Math.PI) / 180;
@@ -68,6 +69,28 @@ export default function PathNodeDisplay(props) {
   const setNextNode = props.setNextNode;
 
   const [characterImg, setCharacterImg] = React.useState("");
+
+  //Location based section
+    const isSiteTriggered = props.node.data.isSiteTriggered;
+    const siteType = props.node.data.site_type; // Contains map & place
+    const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered); // Default true if not site-triggered
+    const [direction, setDirection] = useState(null);
+  
+    if (isSiteTriggered) {
+      console.log("Site coordinates: ", siteType);
+    }
+    const beginning_distance = useLocationCheck(
+      isSiteTriggered ? siteType.map : null,
+      isSiteTriggered ? siteType.place : null,
+      10, // Distance threshold (adjust as needed)
+      setIsOnLocation
+    );
+  
+    useEffect(() => {
+        if (isSiteTriggered && siteType.map) {
+          getDirectionToDestination(siteType.map.lat, siteType.map.lng, setDirection);
+        }
+      }, [isSiteTriggered, siteType]);
 
   useEffect(() => {
     if (character.image.filename == "") {
@@ -187,7 +210,29 @@ export default function PathNodeDisplay(props) {
         >
           Error loading
         </Typography>
-      ) : (
+      ) : !isOnLocation ? (
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
+                    Continua em <strong>{siteType.place}</strong>. <br />
+                    {distance !== null ? (
+                      <>
+                        Está a <strong>{beginning_distance.toFixed(2)}</strong> metros do local. <br />
+                        {direction ? `Siga para ${direction}.` : "Calculando direção..."}
+                      </>
+                    ) : (
+                      "Calculando distância..."
+                    )}
+                  </Typography>
+                </Box>
+              ) : (
         <>
           {name == "" ? null : (
             <>

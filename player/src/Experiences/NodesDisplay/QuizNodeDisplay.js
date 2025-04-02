@@ -5,11 +5,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { backgroundColor, secondaryColor, textColor } from "../../themes";
 import { ApiDataRepository } from "../../api/ApiDataRepository";
 import PlayerTextFinalDisplay from "./util/PlayerTextFinalDisplay";
 import Typewriter from "./util/TypeWriter";
+import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
 
 export default function QuizNodeDisplay(props) {
   const repo = ApiDataRepository.getInstance();
@@ -32,6 +33,24 @@ export default function QuizNodeDisplay(props) {
   const [backgroundColor, setBackgroundColor] = React.useState("#A9B388");
 
   const [characterImg, setCharacterImg] = React.useState("");
+
+  // Location based section
+    const isSiteTriggered = quizNode.data.isSiteTriggered;
+    const siteType = quizNode.data.site_type; // Contains map & place
+    const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered); // Default true if not site-triggered
+    const [direction, setDirection] = useState(null);
+  
+    // Call location check if site-triggered
+    if (isSiteTriggered) {
+      console.log("Site coordinates: ", siteType);
+    }
+    const distance = useLocationCheck(
+      isSiteTriggered ? siteType.map : null,
+      isSiteTriggered ? siteType.place : null,
+      10,
+      setIsOnLocation
+    );
+  
 
   useEffect(() => {
     if (character.image.filename == "") {
@@ -70,7 +89,29 @@ export default function QuizNodeDisplay(props) {
     }
   }, [backgroundFileInfo]);
 
-  return (
+  return !isOnLocation ? ( // BLOCK THE STORY UNTIL USER REACHES LOCATION
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
+        Continua em <strong>{siteType.place}</strong>. <br /> 
+        {distance !== null ? (
+          <>
+            Está a <strong>{distance.toFixed(2)}</strong> metros do local. <br />
+            {direction ? `Siga para ${direction}.` : "Calculando direção..."}
+          </>
+        ) : (
+          "Calculando distância..."
+        )}
+      </Typography>
+      </Box>
+    ) : (
     <Box
       sx={{
         width: "100%",
