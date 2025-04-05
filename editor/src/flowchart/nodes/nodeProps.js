@@ -88,7 +88,7 @@ const ThreeDModelProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -105,7 +105,7 @@ const ThreeDModelProps = {
     },
     {
       type: [InputFieldType.checkbox],
-      label: "Permitir AR? ",
+      label: "Permitir AR/VR? ",
       initialValue: false,
       name: "ar",
     },
@@ -116,7 +116,7 @@ const ThreeDModelProps = {
       conditional: "ar",
     },
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       conditional: "ar",
       label: "Modo de acionamento:",
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
@@ -188,7 +188,7 @@ const QuizProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -257,7 +257,7 @@ const VideoProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -300,7 +300,7 @@ const VideoProps = {
       conditional: "ar",
     },
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       conditional: "ar",
       label: "Modo de acionamento:",
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
@@ -375,7 +375,7 @@ const ImageProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -418,7 +418,7 @@ const ImageProps = {
       conditional: "ar",
     },
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       conditional: "ar",
       label: "Modo de acionamento:",
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
@@ -499,7 +499,7 @@ const AudioProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -566,7 +566,7 @@ const TextProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -609,7 +609,7 @@ const TextProps = {
       conditional: "ar",
     },
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       conditional: "ar",
       label: "Modo de acionamento:",
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
@@ -675,7 +675,7 @@ const PathProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -685,7 +685,7 @@ const PathProps = {
       name: "site_type",
     }, 
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       label: "Destino:",
       options: ["GPS Coords"],
       initialValue: {
@@ -861,7 +861,7 @@ const CharacterProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {

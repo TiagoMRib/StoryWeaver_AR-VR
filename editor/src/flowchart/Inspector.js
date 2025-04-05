@@ -15,8 +15,8 @@ import FileSelectField from "./inspector/FileSelect";
 import MultipleChoiceField from "./inspector/MultipleChoice";
 import MultipleChoiceCheckboxField from "./inspector/MultipleChoiceCheck";
 import OpenWindowField from "./inspector/OpenWindow";
+import SelectARField from "./inspector/SelectAR";
 import SelectLocationField from "./inspector/SelectLocation";
-import SelectSiteField from "./inspector/SelectSite";
 import TextFieldInspector from "./inspector/TextField";
 import TextFieldExpandable from "./inspector/TextFieldExpandable";
 import TextFieldMultiline from "./inspector/TextFieldMultiline";
@@ -139,9 +139,9 @@ function Inspector(props) {
                     style={{ mt: 2 }}
                   ></ThreeDCoordField>
                 );
-              case InputFieldType.select_site:
+              case InputFieldType.select_location:
                   return (
-                    <SelectSiteField
+                    <SelectLocationField
                       conditional={values[field.conditional]}
                       key={index}
                       id={index}
@@ -149,11 +149,11 @@ function Inspector(props) {
                       value={values[field.name]}
                       data={field}
                       style={{ mt: 2 }}
-                    ></SelectSiteField>
+                    ></SelectLocationField>
                   );
-              case InputFieldType.select_location:
+              case InputFieldType.select_ar_type:
                 return (
-                  <SelectLocationField
+                  <SelectARField
                     conditional={values[field.conditional]}
                     key={index}
                     id={index}
@@ -161,7 +161,19 @@ function Inspector(props) {
                     value={values[field.name]}
                     data={field}
                     style={{ mt: 2 }}
-                  ></SelectLocationField>
+                  ></SelectARField>
+                );
+              case InputFieldType.select_vr_type:
+                return (
+                  <SelectARField
+                    conditional={values[field.conditional]}
+                    key={index}
+                    id={index}
+                    onChange={handleFieldChange}
+                    value={values[field.name]}
+                    data={field}
+                    style={{ mt: 2 }}
+                  ></SelectARField>
                 );
               case InputFieldType.checkbox:
                 return (
