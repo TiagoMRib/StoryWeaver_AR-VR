@@ -12,10 +12,11 @@ import {
 } from "../themes";
 import CheckboxField from "./inspector/Checkbox";
 import FileSelectField from "./inspector/FileSelect";
-import MultipleChoiceField from "./inspector/MultipleChoice";
+import CharacterChoiceField from "./inspector/CharacterChoice";
 import MultipleChoiceCheckboxField from "./inspector/MultipleChoiceCheck";
 import OpenWindowField from "./inspector/OpenWindow";
 import SelectARField from "./inspector/SelectAR";
+import SelectVRField from "./inspector/SelectVR";
 import SelectLocationField from "./inspector/SelectLocation";
 import TextFieldInspector from "./inspector/TextField";
 import TextFieldExpandable from "./inspector/TextFieldExpandable";
@@ -165,15 +166,16 @@ function Inspector(props) {
                 );
               case InputFieldType.select_vr_type:
                 return (
-                  <SelectARField
+                  <SelectVRField
                     conditional={values[field.conditional]}
                     key={index}
                     id={index}
                     onChange={handleFieldChange}
                     value={values[field.name]}
+                    characters={characters}
                     data={field}
                     style={{ mt: 2 }}
-                  ></SelectARField>
+                  ></SelectVRField>
                 );
               case InputFieldType.checkbox:
                 return (
@@ -244,7 +246,7 @@ function Inspector(props) {
                 );
               case InputFieldType.multiple_choice:
                 return (
-                  <MultipleChoiceField
+                  <CharacterChoiceField
                     characters={characters}
                     key={index}
                     id={index}
@@ -252,7 +254,7 @@ function Inspector(props) {
                     value={values[field.name]}
                     data={field}
                     style={{ mt: 2 }}
-                  ></MultipleChoiceField>
+                  ></CharacterChoiceField>
                 );
               case InputFieldType.color_picker:
                 return (

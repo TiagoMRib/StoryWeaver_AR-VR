@@ -105,7 +105,7 @@ const ThreeDModelProps = {
     },
     {
       type: [InputFieldType.checkbox],
-      label: "Permitir AR/VR? ",
+      label: "Permitir AR? ",
       initialValue: false,
       name: "ar",
     },
@@ -130,7 +130,7 @@ const ThreeDModelProps = {
         marker_generation: { qr_code: "Not Started", image: "Not Started" },
       },
       name: "ar_type",
-    },
+    }, 
   ],
 };
 
@@ -870,6 +870,23 @@ const CharacterProps = {
       },
       name: "site_type",
     },
+    {
+      type: [InputFieldType.checkbox], //////////////////////// Especificações VR
+      label: "Expandir secção VR", 
+      initialValue: false, // Default is unchecked
+      name: "vr",
+    },
+    {
+      type: [InputFieldType.select_vr_type],
+      conditional: "vr",
+      label: "VR:",
+      options: ["Ao entrar", "Ao interagir com ator"],
+      initialValue: {
+        trigger_mode: "Ao entrar",
+      },
+      name: "vr_type",
+    }
+    
   ],
 };
 

@@ -15,7 +15,7 @@ import {
   textColor,
 } from "../../themes";
 
-function MultipleChoiceField(props) {
+function CharacterChoiceField(props) {
   const label = props.data.label;
   const style = props.style;
   const value = props.value;
@@ -104,4 +104,4 @@ function MultipleChoiceField(props) {
   );
 }
 
-export default MultipleChoiceField;
+export default CharacterChoiceField;
