@@ -197,6 +197,22 @@ const QuizProps = {
       },
       name: "site_type",
     },
+    {
+      type: [InputFieldType.checkbox], //////////////////////// Especificações VR
+      label: "Expandir secção VR", 
+      initialValue: false, // Default is unchecked
+      name: "vr",
+    },
+    {
+      type: [InputFieldType.select_vr_type],
+      conditional: "vr",
+      label: "VR:",
+      options: ["Ao entrar", "Ao interagir com ator"],
+      initialValue: {
+        trigger_mode: "Ao entrar",
+      },
+      name: "vr_type",
+    }
   ],
 };
 
@@ -508,6 +524,22 @@ const AudioProps = {
       },
       name: "site_type",
     }, 
+    {
+      type: [InputFieldType.checkbox], //////////////////////// Especificações VR
+      label: "Expandir secção VR", 
+      initialValue: false, // Default is unchecked
+      name: "vr",
+    },
+    {
+      type: [InputFieldType.select_vr_type],
+      conditional: "vr",
+      label: "VR:",
+      options: ["Ao entrar", "Ao interagir com ator"],
+      initialValue: {
+        trigger_mode: "Ao entrar",
+      },
+      name: "vr_type",
+    }
   ],
 };
 
