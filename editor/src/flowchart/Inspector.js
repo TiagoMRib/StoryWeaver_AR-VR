@@ -33,6 +33,7 @@ function Inspector(props) {
   const setInspectorData = props.setData;
   const nodeId = props.nodeId;
   const characters = props.characters;
+  const vrLocations = JSON.parse(localStorage.getItem("vrLocations") || "[]");
   const setValues = props.setValue;
   const handleNodeDataChange = props.handleNodeDataChange;
   const handleDelete = props.handleDelete;
@@ -173,9 +174,11 @@ function Inspector(props) {
                     onChange={handleFieldChange}
                     value={values[field.name]}
                     characters={characters}
+                    vrLocations={vrLocations}
                     data={field}
                     style={{ mt: 2 }}
-                  ></SelectVRField>
+                  />
+
                 );
               case InputFieldType.checkbox:
                 return (

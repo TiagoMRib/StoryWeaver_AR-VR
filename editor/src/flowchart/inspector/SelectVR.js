@@ -16,12 +16,9 @@ import {
     const value = props.value;
     const options = props.data.options;
     const characters = props.characters;
+    const vrLocations = props.vrLocations;
     const handleFieldChange = props.onChange;
-  
-    const maps = JSON.parse(localStorage.getItem("maps")) || [];
-    const [selectedMap, setSelectedMap] = React.useState(
-      maps.find((map) => map.name == value.map)
-    );
+
   
     return (
       <Box
@@ -93,15 +90,12 @@ import {
         </Box>
   
         {value.trigger_mode === "Ao entrar" ? (
-          maps.length > 0 ? (
+          vrLocations.length > 0 ? (
             <Box
               sx={{
                 display: "flex",
-                width: "100%",
                 flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                m: 0,
+                width: "100%",
                 mt: 2,
               }}
             >
@@ -110,17 +104,16 @@ import {
                 component="div"
                 sx={{ px: 2, color: textColor, m: 0 }}
               >
-                O conteúdo será exibido quando o utilizador alcançar o local
-                selecionado!
+                O conteúdo será exibido quando o utilizador entrar no local selecionado.
               </Typography>
-  
+          
               <Box
                 sx={{
                   display: "flex",
-                  width: "100%",
                   flexDirection: "row",
                   alignItems: "center",
                   justifyContent: "space-between",
+                  width: "100%",
                   mt: 2,
                 }}
               >
@@ -129,54 +122,7 @@ import {
                   component="div"
                   sx={{ py: 1, px: 2, color: textColor, m: 0 }}
                 >
-                  Mapa:
-                </Typography>
-                <Select
-                  sx={{
-                    color: "black",
-                    backgroundColor: "white",
-                    width: "50%",
-                    height: 40,
-                    padding: 0,
-                    margin: 0,
-                    mr: "10px",
-                  }}
-                  value={value.map}
-                  onChange={(event) => {
-                    handleFieldChange(props.data.name, {
-                      ...value,
-                      map: event.target.value,
-                      place: "",
-                    });
-                    setSelectedMap(
-                      maps.find((map) => map.name == event.target.value)
-                    );
-                  }}
-                >
-                  {maps.map((map, index) => (
-                    <MenuItem key={index} value={map.name}>
-                      {map.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </Box>
-  
-              <Box
-                sx={{
-                  display: "flex",
-                  width: "100%",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  mt: 2,
-                }}
-              >
-                <Typography
-                  variant="h7"
-                  component="div"
-                  sx={{ py: 1, px: 2, color: textColor, m: 0 }}
-                >
-                  Lugar:
+                  Local:
                 </Typography>
                 <Select
                   sx={{
@@ -196,14 +142,11 @@ import {
                     });
                   }}
                 >
-                  {selectedMap?.anchors
-                    .filter((anchor) => anchor.anchorType !== "anchor")
-                    .map((place, index) => (
-                      <MenuItem key={index} value={place.name}>
-                        <Icon sx={{ fontSize: 20, mr: 1 }}>{place.icon}</Icon>
-                        {place.name}
-                      </MenuItem>
-                    ))}
+                  {vrLocations.map((location, index) => (
+                    <MenuItem key={index} value={location}>
+                      {location}
+                    </MenuItem>
+                  ))}
                 </Select>
               </Box>
             </Box>
@@ -223,8 +166,7 @@ import {
                 alignItems: "center",
               }}
             >
-              <Icon>warning</Icon>Nenhum mapa disponível - Adicione um mapa na aba
-              'Mapa'!
+              <Icon>warning</Icon>Nenhum local disponível - Faça upload de uma cena VR!
             </Typography>
           )
         ) : value.trigger_mode === "Ao interagir com ator" ? (
