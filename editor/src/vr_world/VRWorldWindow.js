@@ -32,6 +32,9 @@ export default function VRWorldWindow({ setCharacters, setMaps, setVRLocations }
   
           const updated = [...prev, ...newCharObjs];
           localStorage.setItem("characters", JSON.stringify(updated));
+
+          const vrPlayerStart = data.playerStart || "";
+          localStorage.setItem("vrPlayerStart", vrPlayerStart);
           return updated;
         });
   
