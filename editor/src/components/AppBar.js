@@ -392,7 +392,7 @@ export default function TopAppBar(props) {
             }}
             onClick={() => {
               if (
-                currentWindow === "Mapa" &&
+                currentWindow === "Mapa AR" &&
                 selectedMap.progressionState != "name-given"
               )
                 return;
@@ -425,7 +425,7 @@ export default function TopAppBar(props) {
                 if (nodeType) addNode(nodeType, nodeProps);
               }}
             ></AddNodePopup>
-          ) : currentWindow === "Mapa" ? (
+          ) : currentWindow === "Mapa AR" ? (
             <AddLocationsPopup
               open={openAddNode}
               onClose={(markerType) => {

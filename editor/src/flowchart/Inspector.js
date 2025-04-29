@@ -12,11 +12,12 @@ import {
 } from "../themes";
 import CheckboxField from "./inspector/Checkbox";
 import FileSelectField from "./inspector/FileSelect";
-import MultipleChoiceField from "./inspector/MultipleChoice";
+import CharacterChoiceField from "./inspector/CharacterChoice";
 import MultipleChoiceCheckboxField from "./inspector/MultipleChoiceCheck";
 import OpenWindowField from "./inspector/OpenWindow";
+import SelectARField from "./inspector/SelectAR";
+import SelectVRField from "./inspector/SelectVR";
 import SelectLocationField from "./inspector/SelectLocation";
-import SelectSiteField from "./inspector/SelectSite";
 import TextFieldInspector from "./inspector/TextField";
 import TextFieldExpandable from "./inspector/TextFieldExpandable";
 import TextFieldMultiline from "./inspector/TextFieldMultiline";
@@ -32,6 +33,7 @@ function Inspector(props) {
   const setInspectorData = props.setData;
   const nodeId = props.nodeId;
   const characters = props.characters;
+  const vrLocations = JSON.parse(localStorage.getItem("vrLocations") || "[]");
   const setValues = props.setValue;
   const handleNodeDataChange = props.handleNodeDataChange;
   const handleDelete = props.handleDelete;
@@ -139,9 +141,9 @@ function Inspector(props) {
                     style={{ mt: 2 }}
                   ></ThreeDCoordField>
                 );
-              case InputFieldType.select_site:
+              case InputFieldType.select_location:
                   return (
-                    <SelectSiteField
+                    <SelectLocationField
                       conditional={values[field.conditional]}
                       key={index}
                       id={index}
@@ -149,11 +151,11 @@ function Inspector(props) {
                       value={values[field.name]}
                       data={field}
                       style={{ mt: 2 }}
-                    ></SelectSiteField>
+                    ></SelectLocationField>
                   );
-              case InputFieldType.select_location:
+              case InputFieldType.select_ar_type:
                 return (
-                  <SelectLocationField
+                  <SelectARField
                     conditional={values[field.conditional]}
                     key={index}
                     id={index}
@@ -161,7 +163,22 @@ function Inspector(props) {
                     value={values[field.name]}
                     data={field}
                     style={{ mt: 2 }}
-                  ></SelectLocationField>
+                  ></SelectARField>
+                );
+              case InputFieldType.select_vr_type:
+                return (
+                  <SelectVRField
+                    conditional={values[field.conditional]}
+                    key={index}
+                    id={index}
+                    onChange={handleFieldChange}
+                    value={values[field.name]}
+                    characters={characters}
+                    vrLocations={vrLocations}
+                    data={field}
+                    style={{ mt: 2 }}
+                  />
+
                 );
               case InputFieldType.checkbox:
                 return (
@@ -232,7 +249,7 @@ function Inspector(props) {
                 );
               case InputFieldType.multiple_choice:
                 return (
-                  <MultipleChoiceField
+                  <CharacterChoiceField
                     characters={characters}
                     key={index}
                     id={index}
@@ -240,7 +257,7 @@ function Inspector(props) {
                     value={values[field.name]}
                     data={field}
                     style={{ mt: 2 }}
-                  ></MultipleChoiceField>
+                  ></CharacterChoiceField>
                 );
               case InputFieldType.color_picker:
                 return (

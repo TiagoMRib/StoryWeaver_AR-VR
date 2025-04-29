@@ -1,4 +1,4 @@
-import { Checkbox, TextField, Typography } from '@mui/material';
+import { Checkbox, TextField, Typography, Divider } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import { primaryColor, secondaryColor, tertiaryColor, textColor } from '../../themes';
@@ -10,40 +10,58 @@ function CheckboxField(props) {
   const handleFieldChange = props.onChange;
 
   return (
-      <Box sx={{display: 'flex', width:'100%', flexDirection: 'row', alignItems:'center', justifyContent:'space-between', ...style}}>
-        
-        <Typography variant="h7" component="div" sx={{  py:1, px:2, color: textColor, m:0, justifySelf:'start',
-         justifyContent:'start', textAlign:'start'}}>
-            {label}
+    <>
+      <Divider sx={{ my: 2, backgroundColor: secondaryColor }} /> {/* horizontal line */}
+      <Box sx={{
+        display: 'flex',
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        ...style
+      }}>
+        <Typography
+          variant="h7"
+          component="div"
+          sx={{
+            py: 1,
+            px: 2,
+            color: textColor,
+            m: 0,
+            justifySelf: 'start',
+            justifyContent: 'start',
+            textAlign: 'start'
+          }}
+        >
+          {label}
         </Typography>
         <Checkbox
-        sx={{ py:0, px:2, color: textColor, mx:'10px', borderRadius:0,
-        textAlign:'end',
-       
-          '.MuiInputBase-root': {
-            borderRadius: 2,
-            backgroundColor: "#ffffff",
-          },
-          ':hover': {
-            backgroundColor: 'transparent',
-          },
-           '&:focused': {
-                backgroundColor: 'transparent',
+          sx={{
+            py: 0,
+            px: 2,
+            color: textColor,
+            mx: '10px',
+            borderRadius: 0,
+            textAlign: 'end',
+            '.MuiInputBase-root': {
+              borderRadius: 2,
+              backgroundColor: "#ffffff",
             },
-            '&:active': {
-                backgroundColor: 'transparent',
-            },
-        }}
-         inputProps={{ 'aria-label': 'controlled' }} //inputPropsinputProps
-            id="checkbox"
-            checked={value}
-            onChange={(event) => {
-                handleFieldChange(props.data.name, event.target.checked);
-            }}
-            />
-
+            ':hover': { backgroundColor: 'transparent' },
+            '&:focused': { backgroundColor: 'transparent' },
+            '&:active': { backgroundColor: 'transparent' },
+          }}
+          inputProps={{ 'aria-label': 'controlled' }}
+          id="checkbox"
+          checked={value}
+          onChange={(event) => {
+            handleFieldChange(props.data.name, event.target.checked);
+          }}
+        />
       </Box>
-    );
+    </>
+  );
+  
 }
 
 export default CheckboxField;

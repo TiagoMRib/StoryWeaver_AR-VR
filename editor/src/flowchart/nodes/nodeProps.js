@@ -88,7 +88,7 @@ const ThreeDModelProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -116,7 +116,7 @@ const ThreeDModelProps = {
       conditional: "ar",
     },
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       conditional: "ar",
       label: "Modo de acionamento:",
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
@@ -130,7 +130,7 @@ const ThreeDModelProps = {
         marker_generation: { qr_code: "Not Started", image: "Not Started" },
       },
       name: "ar_type",
-    },
+    }, 
   ],
 };
 
@@ -188,7 +188,7 @@ const QuizProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -197,6 +197,22 @@ const QuizProps = {
       },
       name: "site_type",
     },
+    {
+      type: [InputFieldType.checkbox], //////////////////////// Especificações VR
+      label: "Expandir secção VR", 
+      initialValue: false, // Default is unchecked
+      name: "vr",
+    },
+    {
+      type: [InputFieldType.select_vr_type],
+      conditional: "vr",
+      label: "VR:",
+      options: ["Ao entrar", "Ao interagir com ator"],
+      initialValue: {
+        trigger_mode: "Ao entrar",
+      },
+      name: "vr_type",
+    }
   ],
 };
 
@@ -257,7 +273,7 @@ const VideoProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -300,7 +316,7 @@ const VideoProps = {
       conditional: "ar",
     },
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       conditional: "ar",
       label: "Modo de acionamento:",
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
@@ -375,7 +391,7 @@ const ImageProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -418,7 +434,7 @@ const ImageProps = {
       conditional: "ar",
     },
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       conditional: "ar",
       label: "Modo de acionamento:",
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
@@ -499,7 +515,7 @@ const AudioProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -508,6 +524,22 @@ const AudioProps = {
       },
       name: "site_type",
     }, 
+    {
+      type: [InputFieldType.checkbox], //////////////////////// Especificações VR
+      label: "Expandir secção VR", 
+      initialValue: false, // Default is unchecked
+      name: "vr",
+    },
+    {
+      type: [InputFieldType.select_vr_type],
+      conditional: "vr",
+      label: "VR:",
+      options: ["Ao entrar", "Ao interagir com ator"],
+      initialValue: {
+        trigger_mode: "Ao entrar",
+      },
+      name: "vr_type",
+    }
   ],
 };
 
@@ -566,7 +598,7 @@ const TextProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -609,7 +641,7 @@ const TextProps = {
       conditional: "ar",
     },
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       conditional: "ar",
       label: "Modo de acionamento:",
       options: ["GPS Coords", "QR-Code", "Image Tracking"],
@@ -675,7 +707,7 @@ const PathProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -685,7 +717,7 @@ const PathProps = {
       name: "site_type",
     }, 
     {
-      type: [InputFieldType.select_location],
+      type: [InputFieldType.select_ar_type],
       label: "Destino:",
       options: ["GPS Coords"],
       initialValue: {
@@ -861,7 +893,7 @@ const CharacterProps = {
       name: "isSiteTriggered",
     },
     {
-      type: [InputFieldType.select_site],
+      type: [InputFieldType.select_location],
       conditional: "isSiteTriggered", // Only show if "Inicia em local" is checked
       label: "Localização",
       initialValue: {
@@ -870,6 +902,23 @@ const CharacterProps = {
       },
       name: "site_type",
     },
+    {
+      type: [InputFieldType.checkbox], //////////////////////// Especificações VR
+      label: "Expandir secção VR", 
+      initialValue: false, // Default is unchecked
+      name: "vr",
+    },
+    {
+      type: [InputFieldType.select_vr_type],
+      conditional: "vr",
+      label: "VR:",
+      options: ["Ao entrar", "Ao interagir com ator"],
+      initialValue: {
+        trigger_mode: "Ao entrar",
+      },
+      name: "vr_type",
+    }
+    
   ],
 };
 

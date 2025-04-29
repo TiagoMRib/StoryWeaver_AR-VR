@@ -25,6 +25,7 @@ export default function ExperiencePlay(props) {
   const projectId = props.projectId;
 
   const setExperience = props.setExperience;
+  const [playMode, setPlayMode] = React.useState(undefined);
   const [currentNode, setCurrentNode] = React.useState(undefined);
   const [nextNodes, setNextNodes] = React.useState([]);
   const [projectInfo, setProjectInfo] = React.useState(undefined);
@@ -34,6 +35,8 @@ export default function ExperiencePlay(props) {
   );
 
   useEffect(() => {
+    if (!playMode) return;
+    
     repo
       .getProject(projectId)
       .then((project) => {
@@ -72,7 +75,47 @@ export default function ExperiencePlay(props) {
 
   console.log(currentNode);
 
-  return componentState === ComponentState.LOADING ? (
+  return !playMode ? (
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="h4" sx={{ mb: 3 }}>
+        Escolha o modo de jogo:
+      </Typography>
+      <ButtonBase
+        onClick={() => setPlayMode("AR")}
+        sx={{
+          backgroundColor: "#4caf50",
+          color: "white",
+          fontSize: "20px",
+          p: 2,
+          borderRadius: 3,
+          mb: 2,
+        }}
+      >
+        Jogar em AR
+      </ButtonBase>
+      <ButtonBase
+        onClick={() => setPlayMode("VR")}
+        sx={{
+          backgroundColor: "#2196f3",
+          color: "white",
+          fontSize: "20px",
+          p: 2,
+          borderRadius: 3,
+        }}
+      >
+        Jogar em VR
+      </ButtonBase>
+    </Box>
+  ) : componentState === ComponentState.LOADING ? (
     <Box
       sx={{
         width: "100%",

@@ -13,6 +13,7 @@ import { NodeType } from "../models/NodeTypes";
 
 import TopAppBar from "./AppBar";
 import MapWindow from "../map/MapWindow";
+import VRWorldWindow from "../vr_world/VRWorldWindow";
 import maps from "../data/maps";
 import DialogueTree from "../dialogue_tree/DialogueTree";
 import { CloseOutlined } from "@mui/icons-material";
@@ -41,8 +42,9 @@ const initialEdges = JSON.parse(localStorage.getItem("edges") || "[]");
 
 export default function MainWindow(props) {
   const repo = ApiDataRepository.getInstance();
-  const [windows, setWindows] = React.useState(["História", "Mapa"]);
+  const [windows, setWindows] = React.useState(["História", "Mapa AR", "Mundo VR"]);
   const [mapsState, setMaps] = React.useState(maps);
+  const [vrLocations, setVRLocations] = React.useState([]);
   const [selectedMap, setSelectedMap] = React.useState(
     maps.length > 0 ? maps[0] : null
   );
@@ -183,7 +185,7 @@ export default function MainWindow(props) {
     setEdges([]);
     setMaps([]);
     setCharacters([narrator]);
-    setWindows(["História", "Mapa"]);
+    setWindows(["História", "Mapa AR"]);
     changeDisplayedWindow("História");
     setProjectTitle("Adicione um título ao projeto");
     setName("");
@@ -421,7 +423,7 @@ export default function MainWindow(props) {
             p: 0,
             alignItems: "center",
             justifyContent: "left",
-            backgroundColor: primaryColor,
+            backgroundColor: primaryColor
           }}
         >
           {windows.map((window) => {
@@ -518,8 +520,8 @@ export default function MainWindow(props) {
             setDialogNodes={setDialogNodes}
             setDialogEdges={setDialogEdges}
             setDialogueNodeId={setDialogueNodeId}
-          ></Flow>
-        ) : displayedWindow == "Mapa" ? (
+          />
+        ) : displayedWindow === "Mapa AR" ? (
           mountMap ? (
             <MapWindow
               mapState={mapsState}
@@ -538,8 +540,15 @@ export default function MainWindow(props) {
             nodeId={dialogueNodeId}
             applyChanges={changeOneNode}
             key={dialogueNodeId}
-          ></DialogueTree>
+          />
+        ) : displayedWindow === "Mundo VR" ? (
+          <VRWorldWindow
+            setCharacters={setCharacters}
+            setMaps={setMaps}
+            setVRLocations={setVRLocations}
+          />
         ) : null}
+
       </Box>
     </>
   );

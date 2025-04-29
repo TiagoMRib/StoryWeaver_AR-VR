@@ -386,6 +386,8 @@ export default function ExportProjectPopup(props) {
                 const edges = JSON.parse(localStorage.getItem("edges"));
                 const maps = JSON.parse(localStorage.getItem("maps"));
                 const characters = JSON.parse(localStorage.getItem("characters"));
+                const vrLocations = JSON.parse(localStorage.getItem("vrLocations")) || [];
+                const vrPlayerStart = localStorage.getItem("vrPlayerStart") || "";
 
                 const exportData = {
                   projectTitle,
@@ -396,6 +398,8 @@ export default function ExportProjectPopup(props) {
                   name,
                   description,
                   tags,
+                  vrLocations,
+                  vrPlayerStart,
                 };
 
                 const jsonData = JSON.stringify(exportData, null, 2);
