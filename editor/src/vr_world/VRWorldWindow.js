@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Button, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { textColor, primaryColor, secondaryColor } from "../themes";
+import { textColor, primaryColor, secondaryColor, tertiaryColor } from "../themes";
 
 export default function VRWorldWindow({ setCharacters, setMaps, setVRLocations }) {
   const [jsonPreview, setJsonPreview] = useState(null);
@@ -122,26 +122,26 @@ export default function VRWorldWindow({ setCharacters, setMaps, setVRLocations }
     <Box
       sx={{
         padding: 4,
-        backgroundColor: primaryColor,
+        backgroundColor: textColor,
         height: "calc(100vh - 64px)",
-        color: textColor,
+        color: textColor
       }}
     >
-      <Typography variant="h5" sx={{ mb: 2 }}>
+      <Typography variant="h5" sx={{ mb: 2, color:secondaryColor }} >
         Mundo VR
       </Typography>
 
-      <Typography sx={{ mb: 2 }}>
+      <Typography sx={{ mb: 2, color:secondaryColor}}>
       Faça upload de um ficheiro .json exportado do Unity contendo os locais, os atores e a posição inicial do jogador da sua cena VR.
       Para gerar este ficheiro, basta importar e executar o script disponível para download no seu projeto Unity. Ele irá criar automaticamente o ficheiro com os dados necessários.
       </Typography>
 
       <Box sx={{ display: "flex", flexDirection: "column", mb: 3, gap: 2 }}>
-        <Button variant="contained" sx={{ ml: 2, backgroundColor: secondaryColor }} component="label">
+        <Button variant="contained" sx={{ ml: 2, backgroundColor: primaryColor }} component="label">
           Carregar JSON
           <input type="file" hidden onChange={handleFileUpload} accept=".json" />
         </Button>
-        <Button variant="contained" sx={{ ml: 2, backgroundColor: secondaryColor }} onClick={handleScriptDownload}>
+        <Button variant="contained" sx={{ ml: 2, backgroundColor: primaryColor }} onClick={handleScriptDownload}>
           Baixar Script Unity
         </Button>
       </Box>

@@ -423,7 +423,7 @@ export default function MainWindow(props) {
             p: 0,
             alignItems: "center",
             justifyContent: "left",
-            backgroundColor: primaryColor,
+            backgroundColor: primaryColor
           }}
         >
           {windows.map((window) => {

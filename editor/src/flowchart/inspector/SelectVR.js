@@ -143,7 +143,7 @@ import {
                   }}
                 >
                   {vrLocations.map((location, index) => (
-                    <MenuItem key={index} value={location}>
+                    <MenuItem sx={{ color: "black" }} key={index} value={location}>
                       {location}
                     </MenuItem>
                   ))}
