@@ -8,6 +8,10 @@ import {
 import React, { useEffect } from "react";
 import { ApiDataRepository } from "../api/ApiDataRepository";
 import { ComponentState } from "../models/ComponentState";
+
+import VRExperiencePlayer from "./VRExperiencePlayer";
+
+//Nodes
 import { NodeType } from "../models/NodeTypes";
 import EndNodeDisplay from "./NodesDisplay/EndNodeDisplay";
 import BeginNodeDisplay from "./NodesDisplay/BeginNodeDisplay";
@@ -23,9 +27,14 @@ import TextNodeDisplay from "./NodesDisplay/TextNodeDisplay";
 export default function ExperiencePlay(props) {
   const repo = ApiDataRepository.getInstance();
   const projectId = props.projectId;
+  const passedProjectData = props.projectData;
 
   const setExperience = props.setExperience;
   const [playMode, setPlayMode] = React.useState(undefined);
+  const [vrStage, setVrStage] = React.useState("select"); // "select" | "upload" | "play"
+  const [gltfUrl, setGltfUrl] = React.useState(null);
+
+
   const [currentNode, setCurrentNode] = React.useState(undefined);
   const [nextNodes, setNextNodes] = React.useState([]);
   const [projectInfo, setProjectInfo] = React.useState(undefined);
@@ -36,22 +45,39 @@ export default function ExperiencePlay(props) {
 
   useEffect(() => {
     if (!playMode) return;
-    
+  
+    if (passedProjectData) {
+      console.log("[DEBUG] Using local JSON project data");
+      setProjectInfo(passedProjectData);
+      const beginNode = passedProjectData.nodes.find((node) => node.type === NodeType.beginNode);
+      if (!beginNode) {
+        console.error("[ERROR] No beginNode found in local JSON");
+        setComponentState(ComponentState.ERROR);
+        return;
+      }
+      setCurrentNode(beginNode);
+      setComponentState(ComponentState.LOADED);
+      return;
+    }
+  
     repo
       .getProject(projectId)
       .then((project) => {
         setProjectInfo(project);
-        console.log(project);
-        setCurrentNode(
-          project.nodes.find((node) => node.type == NodeType.beginNode)
-        );
-
+        const beginNode = project.nodes.find((node) => node.type === NodeType.beginNode);
+        if (!beginNode) {
+          console.error("[ERROR] No beginNode found in backend project");
+          setComponentState(ComponentState.ERROR);
+          return;
+        }
+        setCurrentNode(beginNode);
         setComponentState(ComponentState.LOADED);
       })
       .catch((error) => {
+        console.error("[ERROR] Failed to load project:", error);
         setComponentState(ComponentState.ERROR);
       });
-  }, []);
+  }, [playMode]);
 
   useEffect(() => {
     if (currentNode === undefined) {
@@ -87,7 +113,7 @@ export default function ExperiencePlay(props) {
       }}
     >
       <Typography variant="h4" sx={{ mb: 3 }}>
-        Escolha o modo de jogo:
+        Escolha o modo:
       </Typography>
       <ButtonBase
         onClick={() => setPlayMode("AR")}
@@ -100,10 +126,13 @@ export default function ExperiencePlay(props) {
           mb: 2,
         }}
       >
-        Jogar em AR
+        AR
       </ButtonBase>
       <ButtonBase
-        onClick={() => setPlayMode("VR")}
+        onClick={() => {
+          setPlayMode("VR");
+          setVrStage("upload");
+        }}
         sx={{
           backgroundColor: "#2196f3",
           color: "white",
@@ -112,20 +141,8 @@ export default function ExperiencePlay(props) {
           borderRadius: 3,
         }}
       >
-        Jogar em VR
+        VR
       </ButtonBase>
-    </Box>
-  ) : componentState === ComponentState.LOADING ? (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Typography variant="h4">Carregando...</Typography>
     </Box>
   ) : componentState === ComponentState.ERROR ? (
     <Box
@@ -139,7 +156,58 @@ export default function ExperiencePlay(props) {
     >
       <Typography variant="h4">Erro ao carregar</Typography>
     </Box>
-  ) : (
+  ) : playMode === "VR" && vrStage === "upload" ? (
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        Faça upload do seu ficheiro .glb:
+      </Typography>
+  
+      <input
+        type="file"
+        accept=".glb,.gltf"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+  
+          const url = URL.createObjectURL(file);
+          setGltfUrl(url); // Save to state
+          setVrStage("play"); // Move to experience
+        }}
+      />
+  
+      <Typography sx={{ mt: 2 }} variant="body2">
+        O ficheiro deve conter os mesmos nomes dos objetos do JSON para funcionar corretamente.
+      </Typography>
+    </Box>): componentState === ComponentState.LOADING ? (
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Typography variant="h4">Carregando...</Typography>
+    </Box>
+  ) : playMode === "VR" && vrStage === "play" ? (
+    <VRExperiencePlayer
+    gltfUrl={gltfUrl}
+    projectData={projectInfo} 
+    locations={projectInfo?.locations}
+    actors={projectInfo?.actors}
+    storyNodes={projectInfo?.nodes}
+    setNextNode={setNextNode}
+    />) : (
     <Box
       key={currentNode.id}
       sx={{

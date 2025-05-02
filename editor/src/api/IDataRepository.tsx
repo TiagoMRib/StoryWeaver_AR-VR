@@ -10,7 +10,8 @@ export interface IDataRepository {
     saveProject(projectTitle: any, nodes: any, edges: any, characters: any, maps: any): Promise<any>;
     exportProject(projectTitle: any,
         nodes: any, edges: any, characters: any, maps: any, experienceName: string, 
-        experienceDescription: string, experienceTags: any): Promise<any>;
+        experienceDescription: string, experienceTags: any, vrLocations: string[],
+        vrPlayerStart: string): Promise<any>;
     deleteProject(projectId: string) : Promise<any>;
     getProject(projectId: string): Promise<Project>;
     getProjects(): Promise<ProjectsBaseInfo>;

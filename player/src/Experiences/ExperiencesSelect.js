@@ -52,6 +52,7 @@ export default function ExperiencesSelect(props) {
     <Box
       sx={{
         width: "100%",
+        pb: 10,
       }}
     >
       <Typography
@@ -124,6 +125,14 @@ export default function ExperiencesSelect(props) {
 
       <Box
         sx={{
+          flexGrow: 1,
+          overflowY: "auto",
+          px: 3,
+          mt: 2,
+        }}
+      >
+      <Box
+        sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "start",
@@ -164,6 +173,63 @@ export default function ExperiencesSelect(props) {
           })
         )}
       </Box>
+      <Box sx={{ mt: 4 }}>
+        <input
+          type="file"
+          accept=".json"
+          style={{ display: "none" }}
+          id="json-upload"
+          onChange={(e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              try {
+                const json = JSON.parse(event.target.result);
+                console.log("[DEBUG] Loaded JSON:", json);
+
+                // Store the JSON data in localStorage
+                localStorage.setItem("nodes", JSON.stringify(json.nodes || []));
+                localStorage.setItem("edges", JSON.stringify(json.edges || []));
+                localStorage.setItem("characters", JSON.stringify(json.characters || []));
+                localStorage.setItem("maps", JSON.stringify(json.maps || []));
+                localStorage.setItem("vrLocations", JSON.stringify(json.vrLocations || []));
+                localStorage.setItem("vrPlayerStart", json.vrPlayerStart || "");
+                localStorage.setItem("projectTitle", json.projectTitle || "Local JSON");
+
+                // Optional: for UI consistency
+                localStorage.setItem("experienceName", json.name || "");
+                localStorage.setItem("experienceDescription", json.description || "");
+                localStorage.setItem("experienceTags", JSON.stringify(json.tags || []));
+
+                // Now pass the whole experience
+                props.setExperience(json); 
+              } catch (err) {
+                alert("Erro ao carregar o ficheiro JSON.");
+                console.error(err);
+              }
+            };
+            reader.readAsText(file);
+          }}
+        />
+        <label htmlFor="json-upload">
+          <Box
+            sx={{
+              mt: 2,
+              backgroundColor: primaryColor,
+              color: "white",
+              px: 3,
+              py: 1,
+              borderRadius: 2,
+              cursor: "pointer",
+              display: "inline-block",
+            }}
+          >
+            <Typography variant="body1">Carregar história local (ficheiro JSON)</Typography>
+          </Box>
+        </label>
+      </Box>
+    </Box>
     </Box>
   );
 }

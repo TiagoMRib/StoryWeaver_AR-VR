@@ -7,17 +7,22 @@ import ExperiencesSelect from "./ExperiencesSelect";
 import ExperiencePlay from "./ExperiencePlay";
 
 export default function ExperiencesWindow(props) {
-  const experienceId = props.activeExperience;
-  const setExperienceId = props.setExperience;
+  const experience = props.activeExperience;
+  const setExperience = props.setExperience;
 
   return (
     <Box>
-      {experienceId == undefined ? (
-        <ExperiencesSelect setExperience={setExperienceId} />
+      {experience === undefined ? (
+        <ExperiencesSelect setExperience={setExperience} />
+      ) : typeof experience === "object" ? (
+        <ExperiencePlay
+          projectData={experience}
+          setExperience={setExperience}
+        />
       ) : (
         <ExperiencePlay
-          projectId={experienceId}
-          setExperience={setExperienceId}
+          projectId={experience}
+          setExperience={setExperience}
         />
       )}
     </Box>

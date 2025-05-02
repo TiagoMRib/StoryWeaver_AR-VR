@@ -146,7 +146,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
                 nodes: nodes,
                 edges: edges,
                 characters : characters,
-                maps:  maps
+                maps:  maps,
             }).then(transform).then((response) => {
                 localStorage.setItem('storyId', response.data.storyId);
             });
@@ -205,9 +205,18 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         new Error("No anchor found");
     }
 
-    public exportProject = async (projectTitle: any,
-         nodes: any, edges: any, characters: any, maps: any, experienceName: string, 
-         experienceDescription: string, experienceTags: any): Promise<any> => {
+    public exportProject = async (
+        projectTitle: any,
+        nodes: any, 
+        edges: any, 
+        characters: any, 
+        maps: any, 
+        experienceName: string, 
+        experienceDescription: string, 
+        experienceTags: any,
+        vrLocations: string[],
+        vrPlayerStart: string
+    ): Promise<any> => {
         
         const instance = this.createInstance();
         const storyID = localStorage.getItem('storyId');
@@ -227,7 +236,9 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
                     edges: edges,
                     characters : characters,
                     maps:  maps,
-                    endings: endingsWithoutDuplicates
+                    endings: endingsWithoutDuplicates,
+                    vrLocations,
+                    vrPlayerStart
                 }
             ).then(transform);
             return result;

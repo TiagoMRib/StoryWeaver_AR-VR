@@ -334,6 +334,8 @@ export default function ExportProjectPopup(props) {
                 const characters = JSON.parse(
                   localStorage.getItem("characters")
                 );
+                const vrLocations = JSON.parse(localStorage.getItem("vrLocations")) || [];
+                const vrPlayerStart = localStorage.getItem("vrPlayerStart") || "";
 
                 repo
                   .exportProject(
@@ -344,7 +346,9 @@ export default function ExportProjectPopup(props) {
                     maps,
                     name,
                     description,
-                    tags
+                    tags,
+                    vrLocations,
+                    vrPlayerStart
                   )
                   .then((res) => {
                     localStorage.setItem("experienceName", name);
@@ -367,6 +371,7 @@ export default function ExportProjectPopup(props) {
                     );
                     setDisplayAlert(true);
                   });
+
               }}
               sx={{
                 backgroundColor: tertiaryColor,

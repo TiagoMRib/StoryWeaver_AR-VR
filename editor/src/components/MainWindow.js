@@ -185,7 +185,7 @@ export default function MainWindow(props) {
     setEdges([]);
     setMaps([]);
     setCharacters([narrator]);
-    setWindows(["História", "Mapa AR"]);
+    setWindows(["História", "Mapa AR", "Mundo VR"]);
     changeDisplayedWindow("História");
     setProjectTitle("Adicione um título ao projeto");
     setName("");
