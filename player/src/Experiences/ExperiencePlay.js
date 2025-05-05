@@ -32,7 +32,7 @@ export default function ExperiencePlay(props) {
   const setExperience = props.setExperience;
   const [playMode, setPlayMode] = React.useState(undefined);
   const [vrStage, setVrStage] = React.useState("select"); // "select" | "upload" | "play"
-  const [gltfUrl, setGltfUrl] = React.useState(null);
+  const [glbUrl, setglbUrl] = React.useState(null);
 
 
   const [currentNode, setCurrentNode] = React.useState(undefined);
@@ -178,9 +178,9 @@ export default function ExperiencePlay(props) {
           const file = e.target.files[0];
           if (!file) return;
   
-          setGltfUrl(null); // Force reset first
+          setglbUrl(null); // Force reset first
           setTimeout(() => {
-            setGltfUrl(URL.createObjectURL(file));
+            setglbUrl(URL.createObjectURL(file));
           }, 0);
           setVrStage("play"); // Move to experience
         }}
@@ -203,8 +203,8 @@ export default function ExperiencePlay(props) {
     </Box>
   ) : playMode === "VR" && vrStage === "play" ? (
     <VRExperiencePlayer
-      key={projectInfo?.id || gltfUrl} 
-      gltfUrl={gltfUrl}
+      key={projectInfo?.id || glbUrl} 
+      glbUrl={glbUrl}
       projectData={projectInfo} 
       locations={projectInfo?.locations}
       actors={projectInfo?.actors}

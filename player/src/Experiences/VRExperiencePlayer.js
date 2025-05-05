@@ -6,7 +6,7 @@ function getPlayerStartPosition(playerStartName, gltfScene) {
   const startName = playerStartName;
   console.log("[VR] Looking for player start node with name:", startName);
 
-  // Log all children names in the glTF scene for debugging
+  // Log all children names in the glb scene for debugging
   const allNames = [];
   gltfScene.traverse((node) => {
     if (node.name) allNames.push(node.name);
@@ -23,7 +23,7 @@ function getPlayerStartPosition(playerStartName, gltfScene) {
   return { position: "0 1.6 0", found: false };
 }
 
-export default function VRExperiencePlayer({ gltfUrl, projectData, locations, actors, storyNodes, setNextNode }) {
+export default function VRExperiencePlayer({ glbUrl, projectData, locations, actors, storyNodes, setNextNode }) {
   const sceneRef = useRef(null);
   const modelRef = useRef(null);
   const [initialized, setInitialized] = useState(false);
@@ -31,11 +31,11 @@ export default function VRExperiencePlayer({ gltfUrl, projectData, locations, ac
 
   useEffect(() => {
 
-    console.log("[VR] Check gltfUrl:", gltfUrl);
+    console.log("[VR] Check glbUrl:", glbUrl);
     console.log("[VR] Check initialized:", initialized);
     console.log("[VR] Check modelRef.current:", modelRef.current);
   
-    if (!gltfUrl || initialized || !modelRef.current) {
+    if (!glbUrl || initialized || !modelRef.current) {   
       console.log("[VR] Skipping setup - missing conditions.");
       return;
     }
@@ -54,6 +54,19 @@ export default function VRExperiencePlayer({ gltfUrl, projectData, locations, ac
         setStatusMessage("Erro: Rig da câmara não encontrado.");
         return;
       }
+      /*
+      
+      const logPlayerPosition = () => {
+        const cameraRig = document.querySelector("#cameraRig");
+        if (cameraRig) {
+          const pos = cameraRig.getAttribute("position");
+          console.log("Player position:", pos);
+        }
+      };
+
+      // Log position every second
+      const positionLogger = setInterval(logPlayerPosition, 1000);*/
+
 
       console.log("[VR] projectData:", projectData);
   
@@ -80,8 +93,9 @@ export default function VRExperiencePlayer({ gltfUrl, projectData, locations, ac
     return () => {
       modelEntity.removeEventListener("model-loaded", handleModelLoaded);
       modelEntity.removeEventListener("model-error", handleModelError);
+      //clearInterval(positionLogger);
     };
-  }, [gltfUrl, initialized, locations]);
+  }, [glbUrl, initialized, locations]);
   
 
   return (
@@ -94,17 +108,25 @@ export default function VRExperiencePlayer({ gltfUrl, projectData, locations, ac
         renderer="antialias: true"
       >
 
-        <a-entity ref={modelRef} gltf-model={gltfUrl}></a-entity>
+        <a-entity ref={modelRef} gltf-model={glbUrl}></a-entity>
 
-        <a-entity id="cameraRig" movement-controls>
-          <a-camera
-            wasd-controls-enabled="true"
-            look-controls
-            position="0 1.6 0"
-          ></a-camera>
+
+        <a-entity id="cameraRig" movement-controls="speed: 0.1">
+          <a-entity 
+            camera 
+            position="0 1.6 0" 
+            look-controls 
+            wasd-controls
+          ></a-entity>
+          <a-entity 
+            position="0 -0.5 0" 
+            geometry="primitive: sphere; radius: 0.5" 
+            material="visible: false" 
+            kinematic-body
+          ></a-entity>
         </a-entity>
 
-        <a-sky color="#ECECEC"></a-sky>
+        <a-sky color="#0000FF"></a-sky>
       </a-scene>
 
       {statusMessage && (

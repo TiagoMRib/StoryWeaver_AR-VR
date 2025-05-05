@@ -25,7 +25,7 @@ class App extends Component {
     const repo = ApiDataRepository.getInstance();
     if(localStorage.getItem('storyId') === null){
       console.log('Story ID is not set');
-      repo.saveProject('Adicione um título ao projeto', defaultNodes, [], [narrator], []);
+      repo.saveProject('Adicione um título ao projeto', defaultNodes, [], [narrator], [], [], 'Player');
     }
     if(!localStorage.getItem('characters')){
       console.log('Characters are not set');
@@ -40,6 +40,10 @@ class App extends Component {
     if (!localStorage.getItem('experienceName')) localStorage.setItem("experienceName", "");
     if (!localStorage.getItem('experienceDescription')) localStorage.setItem("experienceDescription",  "");
     if (!localStorage.getItem('experienceTags')) localStorage.setItem("experienceTags", JSON.stringify([]));
+
+    if (!localStorage.getItem('vrLocations')) localStorage.setItem('vrLocations', JSON.stringify([]));
+    if (!localStorage.getItem('vrPlayerStart')) localStorage.setItem('vrPlayerStart', 'Player');
+
 
    
  

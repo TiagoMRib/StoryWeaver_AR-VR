@@ -131,7 +131,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         }
     }
 
-    public saveProject = async (projectTitle: any, nodes: any, edges: any, characters: any, maps: any): Promise<any> => {
+    public saveProject = async (projectTitle: any, nodes: any, edges: any, characters: any, maps: any, vrLocations: string[], vrPlayerStart: string): Promise<any> => {
         const instance = this.createInstance();
         const experienceName = localStorage.getItem('experienceName');
         const experienceDescription = localStorage.getItem('experienceDescription');
@@ -139,14 +139,16 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         try{ 
             const result = await instance.post(`${BASE_URL}/save`, {
                 storyId : localStorage.getItem('storyId'),
-                projectTitle : projectTitle,
-                experienceName : experienceName,
-                description : experienceDescription,
-                tags : experienceTags,
-                nodes: nodes,
-                edges: edges,
-                characters : characters,
-                maps:  maps,
+                projectTitle,
+                experienceName,
+                description: experienceDescription,
+                tags: experienceTags,
+                nodes,
+                edges,
+                characters,
+                maps,
+                vrLocations,
+                vrPlayerStart 
             }).then(transform).then((response) => {
                 localStorage.setItem('storyId', response.data.storyId);
             });
