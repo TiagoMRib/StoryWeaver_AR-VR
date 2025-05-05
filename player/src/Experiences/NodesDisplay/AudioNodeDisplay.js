@@ -44,8 +44,8 @@ export default function AudioNodeDisplay(props) {
   const [characterImg, setCharacterImg] = React.useState("");
 
   // Location based section
-    const isSiteTriggered = dialogueNode.data.isSiteTriggered;
-    const siteType = dialogueNode.data.site_type; // Contains map & place
+    const isSiteTriggered = audioNode.data.isSiteTriggered;
+    const siteType = audioNode.data.site_type; // Contains map & place
     const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered); // Default true if not site-triggered
     const [direction, setDirection] = useState(null);
   
