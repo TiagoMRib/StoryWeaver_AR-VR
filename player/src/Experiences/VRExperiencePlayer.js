@@ -30,7 +30,10 @@ export default function VRExperiencePlayer({ gltfUrl, projectData, locations, ac
   const [statusMessage, setStatusMessage] = useState("Carregando modelo...");
 
   useEffect(() => {
-    console.log("[VR] useEffect running. URL:", gltfUrl, "Initialized:", initialized);
+
+    console.log("[VR] Check gltfUrl:", gltfUrl);
+    console.log("[VR] Check initialized:", initialized);
+    console.log("[VR] Check modelRef.current:", modelRef.current);
   
     if (!gltfUrl || initialized || !modelRef.current) {
       console.log("[VR] Skipping setup - missing conditions.");
@@ -54,7 +57,7 @@ export default function VRExperiencePlayer({ gltfUrl, projectData, locations, ac
 
       console.log("[VR] projectData:", projectData);
   
-      const { position, found } = getPlayerStartPosition(projectData?.playerStart, gltfScene);
+      const { position, found } = getPlayerStartPosition(projectData?.vrPlayerStart, gltfScene);
       console.log("[VR] Setting camera position:", position);
       cameraRig.setAttribute("position", position);
       setInitialized(true);
