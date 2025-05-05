@@ -1,17 +1,17 @@
 import React from "react";
 import { Box, ButtonBase, Typography } from "@mui/material";
-import { NodeType } from "../models/NodeTypes";
+import { NodeType } from "../../models/NodeTypes";
 
-import BeginNodeDisplay from "./NodesDisplay/BeginNodeDisplay";
-import EndNodeDisplay from "./NodesDisplay/EndNodeDisplay";
-import QuizNodeDisplay from "./NodesDisplay/QuizNodeDisplay";
-import VideoNodeDisplay from "./NodesDisplay/VideoNodeDisplay";
-import ImageNodeDisplay from "./NodesDisplay/ImageNodeDisplay";
-import ThreeDModelDisplay from "./NodesDisplay/ThreeDModelDisplay";
-import DialogueNodeDisplay from "./NodesDisplay/DialogueNodeDisplay";
-import AudioNodeDisplay from "./NodesDisplay/AudioNodeDisplay";
-import PathNodeDisplay from "./NodesDisplay/PathNodeDisplay";
-import TextNodeDisplay from "./NodesDisplay/TextNodeDisplay";
+import BeginNodeDisplay from "../NodesDisplay/BeginNodeDisplay";
+import EndNodeDisplay from "../NodesDisplay/EndNodeDisplay";
+import QuizNodeDisplay from "../NodesDisplay/QuizNodeDisplay";
+import VideoNodeDisplay from "../NodesDisplay/VideoNodeDisplay";
+import ImageNodeDisplay from "../NodesDisplay/ImageNodeDisplay";
+import ThreeDModelDisplay from "../NodesDisplay/ThreeDModelDisplay";
+import DialogueNodeDisplay from "../NodesDisplay/DialogueNodeDisplay";
+import AudioNodeDisplay from "../NodesDisplay/AudioNodeDisplay";
+import PathNodeDisplay from "../NodesDisplay/PathNodeDisplay";
+import TextNodeDisplay from "../NodesDisplay/TextNodeDisplay";
 
 export default function ARExperiencePlayer({
   currentNode,
@@ -22,6 +22,7 @@ export default function ARExperiencePlayer({
   repo,
 }) {
   const renderNode = () => {
+    console.log("[ARPlayer] Rendering node:", currentNode);
     switch (currentNode.type) {
       case NodeType.beginNode:
         return (
