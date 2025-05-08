@@ -1,149 +1,169 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import "aframe";
+import { NodeType } from "../../models/NodeTypes";
 
-function getPlayerStartPosition(playerStartName, gltfScene) {
-  const startName = playerStartName;
-  console.log("[VR] Looking for player start node with name:", startName);
+import BeginNodeDisplay from "../NodesDisplay/BeginNodeDisplay";
+import EndNodeDisplay from "../NodesDisplay/EndNodeDisplay";
+import DialogueNodeDisplay from "../NodesDisplay/DialogueNodeDisplay";
 
-  // Log all children names in the glb scene for debugging
-  const allNames = [];
-  gltfScene.traverse((node) => {
-    if (node.name) allNames.push(node.name);
-  });
-  console.log("[VR] Available object names in scene:", allNames);
+import VRSceneWrapper from "./VRSceneWrapper";
+import * as THREE from "three";
 
-  const startNode = gltfScene.getObjectByName(startName);
 
-  if (startNode) {
-    const pos = startNode.position;
-    return { position: `${pos.x} ${pos.y} ${pos.z}`, found: true };
-  }
-
-  return { position: "0 1.6 0", found: false };
-}
-
-export default function VRExperiencePlayer({ glbUrl, projectData, locations, actors, storyNodes, setNextNode }) {
-  const sceneRef = useRef(null);
-  const modelRef = useRef(null);
-  const [initialized, setInitialized] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("Carregando modelo...");
+export default function VRExperiencePlayer({
+  glbUrl,
+  projectData,
+  locations,
+  actors,
+  storyNodes,
+  setNextNode,
+}) {
+  const [currentNode, setCurrentNode] = useState(null);
+  const [nextNodes, setNextNodes] = useState([]);
+  const [sceneEl, setSceneEl] = useState(null); // Reference to the A-Frame scene
+  const [cameraReady, setCameraReady] = useState(false);
 
   useEffect(() => {
+    const beginNode = projectData.nodes.find(
+      (node) => node.type === NodeType.beginNode
+    );
+    if (beginNode) {
+      console.log("[VRPlayer] Initial node:", beginNode);
+      setCurrentNode(beginNode);
+      const next = getNextNodes(beginNode);
+      setNextNodes(next);
+    }
+  }, [projectData]);
 
-    console.log("[VR] Check glbUrl:", glbUrl);
-    console.log("[VR] Check initialized:", initialized);
-    console.log("[VR] Check modelRef.current:", modelRef.current);
-  
-    if (!glbUrl || initialized || !modelRef.current) {   
-      console.log("[VR] Skipping setup - missing conditions.");
+  const getNextNodes = (node) => {
+    const nextIds = projectData.edges
+      .filter((edge) => edge.source === node.id)
+      .map((edge) => edge.target);
+    return projectData.nodes.filter((n) => nextIds.includes(n.id));
+  };
+
+  const handleSetCurrentNode = (node) => {
+    setCurrentNode(node);
+    setNextNodes(getNextNodes(node));
+    if (setNextNode) setNextNode(node);
+  };
+
+  // Called once A-Frame scene is fully loaded
+  const handleSceneLoaded = (scene) => {
+    console.log("[VRPlayer] A-Frame scene ready");
+    setSceneEl(scene);
+  };
+
+  // Creates a 2D panel entity for a node inside the A-Frame scene - DEV FUNCTION
+  /*
+  const spawnNodePanel = (node) => {
+    if (!sceneEl || !node) return;
+
+    // Remove previous panels
+    const oldPanels = sceneEl.querySelectorAll(".node-panel");
+    oldPanels.forEach((el) => el.parentNode.removeChild(el));
+
+    const rig = sceneEl.querySelector("#cameraRig");
+    if (!rig) {
+      console.warn("[VRPlayer] No camera rig found.");
       return;
     }
-  
-    const modelEntity = modelRef.current;
-    console.log("[VR] Model entity found:", modelEntity);
-  
-    const handleModelLoaded = (e) => {
-      console.log("[VR] model-loaded event triggered.");
-      const gltfScene = e.detail.model;
-      console.log("[VR] Loaded scene:", gltfScene);
-  
-      const cameraRig = document.querySelector("#cameraRig");
-      if (!cameraRig) {
-        console.warn("[VR] Camera rig not found.");
-        setStatusMessage("Erro: Rig da câmara não encontrado.");
-        return;
-      }
-      /*
-      
-      const logPlayerPosition = () => {
-        const cameraRig = document.querySelector("#cameraRig");
-        if (cameraRig) {
-          const pos = cameraRig.getAttribute("position");
-          console.log("Player position:", pos);
-        }
-      };
 
-      // Log position every second
-      const positionLogger = setInterval(logPlayerPosition, 1000);*/
+    const camera = rig.querySelector("[camera]");
+    const camObj = camera?.object3D;
+    if (!camObj) {
+      console.warn("[VRPlayer] No camera object3D.");
+      return;
+    }
 
+    // Create panel in front of the camera
+    const panel = document.createElement("a-entity");
+    panel.classList.add("node-panel");
+    panel.setAttribute("geometry", {
+      primitive: "plane",
+      width: 1.2,
+      height: 0.6,
+    });
+    panel.setAttribute("material", {
+      color: "#222",
+      opacity: 0.9,
+    });
 
-      console.log("[VR] projectData:", projectData);
-  
-      const { position, found } = getPlayerStartPosition(projectData?.vrPlayerStart, gltfScene);
-      console.log("[VR] Setting camera position:", position);
-      cameraRig.setAttribute("position", position);
-      setInitialized(true);
-  
-      if (!found) {
-        setStatusMessage("Atenção: Posição inicial do jogador não encontrada. Foi usada uma posição padrão.");
-      } else {
-        setStatusMessage("");
-      }
-    };
-  
-    const handleModelError = (e) => {
-      console.error("[VR] Erro ao carregar modelo 3D", e);
-      setStatusMessage("Erro: Falha ao carregar o modelo 3D. Verifique o ficheiro.");
-    };
-  
-    modelEntity.addEventListener("model-loaded", handleModelLoaded);
-    modelEntity.addEventListener("model-error", handleModelError);
-  
-    return () => {
-      modelEntity.removeEventListener("model-loaded", handleModelLoaded);
-      modelEntity.removeEventListener("model-error", handleModelError);
-      //clearInterval(positionLogger);
-    };
-  }, [glbUrl, initialized, locations]);
-  
+    // Use a look-at component so it faces the player
+    const camWorldPos = new THREE.Vector3();
+    camObj.getWorldPosition(camWorldPos);
+    panel.object3D.position.set(camWorldPos.x - 2, camWorldPos.y, camWorldPos.z);
+    panel.object3D.lookAt(camWorldPos);
+
+    // Add dynamic text content
+    panel.setAttribute("text", {
+      value: `[${node.type}] ${node.data?.text || "Sem conteúdo"}`,
+      align: "center",
+      width: 1.1,
+      color: "#FFF",
+      wrapCount: 30,
+    });
+
+    sceneEl.appendChild(panel);
+    console.log("[VRPlayer] Spawned 3D panel for node:", node);
+  };
+
+  // Spawn panel whenever the node or scene changes
+  useEffect(() => {
+    if (sceneEl && currentNode?.data?.vr !== false) {
+      spawnNodePanel(currentNode);
+    }
+  }, [sceneEl, currentNode]);
+  */
+
+  // Not being used 
+  const renderNode = () => {
+    if (!currentNode) return null;
+    console.log("[VRPlayer] Current node type:", currentNode?.type);
+    switch (currentNode.type) {
+      case NodeType.beginNode:
+        console.log("[VRPlayer] Begin node:", projectData.projectTitle);
+        return (
+          <BeginNodeDisplay
+            mode="vr"
+            node={currentNode}
+            possibleNextNodes={nextNodes}
+            setNextNode={handleSetCurrentNode}
+            experienceName={projectData.projectTitle}
+          />
+        );
+      case NodeType.characterNode:
+        return (
+          <DialogueNodeDisplay
+            mode="vr"
+            node={currentNode}
+            possibleNextNodes={nextNodes}
+            setNextNode={handleSetCurrentNode}
+            outGoingEdges={projectData.edges.filter(
+              (edge) => edge.source === currentNode.id
+            )}
+          />
+        );
+      default:
+        return <Typography>Esta cena não é suportada no modo VR.</Typography>;
+    }
+  };
 
   return (
-    <Box sx={{ width: "100vw", height: "100vh", position: "relative" }}>
-      <a-scene
-        ref={sceneRef}
-        embedded
-        vr-mode-ui="enabled: true"
-        loading-screen="enabled: true"
-        renderer="antialias: true"
+    <Box sx={{ width: "100%", height: "100%" }}>
+      <VRSceneWrapper
+        glbUrl={glbUrl}
+        currentNode={currentNode}
+        storyNodes={storyNodes}
+        setCurrentNode={handleSetCurrentNode}
+        projectData={projectData}
+        locations={locations}
+        actors={actors}
+        onSceneLoaded={handleSceneLoaded}
+        onSceneReady={() => setCameraReady(true)}
       >
-
-        <a-entity ref={modelRef} gltf-model={glbUrl}></a-entity>
-
-
-        <a-entity id="cameraRig" movement-controls="speed: 0.1">
-          <a-entity 
-            camera 
-            position="0 1.6 0" 
-            look-controls 
-            wasd-controls
-          ></a-entity>
-          <a-entity 
-            position="0 -0.5 0" 
-            geometry="primitive: sphere; radius: 0.5" 
-            material="visible: false" 
-            kinematic-body
-          ></a-entity>
-        </a-entity>
-
-        <a-sky color="#0000FF"></a-sky>
-      </a-scene>
-
-      {statusMessage && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: 10,
-            left: 10,
-            backgroundColor: "rgba(0,0,0,0.7)",
-            color: "white",
-            padding: 2,
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="body2">{statusMessage}</Typography>
-        </Box>
-      )}
+        {renderNode()} 
+      </VRSceneWrapper>
     </Box>
   );
 }

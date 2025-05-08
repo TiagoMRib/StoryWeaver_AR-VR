@@ -88,6 +88,7 @@ export default function DialogueNodeDisplay(props) {
     const beginNode = dialogNodes.find(
       (node) => node.type == DialogNodeType.beginDialogNode
     );
+    console.log("[DialogueNodeDisplay] DIALOG BEGIN NODE:", beginNode);
     setCurrentDialogNode(findNextDialogueNode(beginNode));
     setComponentState(ComponentState.LOADED);
   }, [dialogTree]);
