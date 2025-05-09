@@ -22,6 +22,8 @@ export default function ExperienceView({
         actors={projectInfo?.actors}
         storyNodes={projectInfo?.nodes}
         setNextNode={setNextNodes}
+        repo={repo}
+        setExperience={setExperience}
       />
     );
   }

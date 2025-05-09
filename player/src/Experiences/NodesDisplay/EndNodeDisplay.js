@@ -1,20 +1,98 @@
-import {
-  Box,
-  ButtonBase,
-  IconButton,
-  TextField,
-  Typography,
-} from "@mui/material";
 import React, { useEffect } from "react";
+import { Box, ButtonBase, Typography } from "@mui/material";
 import { backgroundColor, textColor } from "../../themes";
 import Typewriter from "./util/TypeWriter";
+import * as THREE from "three";
 
 export default function EndNodeDisplay(props) {
-  const endNode = props.node;
+  const { node: endNode, setNextNode, experienceName, mode } = props;
+  const endName = endNode?.data?.id;
 
-  const endName = endNode.data.id;
-  const setNextNode = props.setNextNode;
-  const experienceName = props.experienceName;
+  // Position the panel in front of the player in VR
+  useEffect(() => {
+    if (mode !== "vr") return;
+
+    setTimeout(() => {
+      const scene = document.querySelector("a-scene");
+      const camEl = scene?.querySelector("[camera]");
+      const panelEl = scene?.querySelector("#end-panel-wrapper");
+
+      if (!camEl || !panelEl) {
+        console.warn("[EndNodeDisplay] Camera or panel not found");
+        return;
+      }
+
+      const camObj = camEl.object3D;
+      const panelObj = panelEl.object3D;
+
+      const camPos = new THREE.Vector3();
+      camObj.getWorldPosition(camPos);
+
+      const forward = new THREE.Vector3();
+      camObj.getWorldDirection(forward);
+
+      const distance = 4;
+      const panelPos = camPos.clone().add(forward.multiplyScalar(-distance)); // -distance because for some reason forward is back
+
+      panelObj.position.copy(panelPos);
+      panelObj.lookAt(camPos);
+
+      console.log("[EndNodeDisplay] Panel positioned in front of player", panelPos);
+    }, 0);
+  }, [mode]);
+
+  // Attach VR click event handler
+  useEffect(() => {
+    if (mode !== "vr") return;
+
+    const buttonEl = document.querySelector("#end-button");
+    if (!buttonEl) return;
+
+    const handleClick = () => {
+      console.log("[EndNodeDisplay] Terminar clicked");
+      setNextNode(undefined);
+    };
+
+    buttonEl.addEventListener("click", handleClick);
+    return () => buttonEl.removeEventListener("click", handleClick);
+  }, [mode, setNextNode]);
+
+  console.log("[EndNodeDisplay] Rendering in mode:", mode);
+
+  if (mode === "vr") {
+    return (
+      <a-entity id="end-panel-wrapper">
+        <a-entity
+          id="end-panel"
+          geometry="primitive: plane; height: 2.2; width: 4"
+          material="color: white; side: double; opacity: 0.95"
+          text={`value: Obrigado por experienciar.\nFinal: ${endName}; align: center; color: black; wrapCount: 34`}
+          position="0 0 0.01"
+        ></a-entity>
+
+        <a-box
+          id="end-button"
+          position="0 -1.0 0.05"
+          depth="0.05"
+          height="0.5"
+          width="1.5"
+          color="#28a745"
+          class="clickable"
+          event-set__enter="_event: mouseenter; color: red"
+          event-set__leave="_event: mouseleave; color: #28a745"
+        >
+          <a-text
+            value="Terminar"
+            align="center"
+            color="white"
+            position="0 0 0.05"
+          ></a-text>
+        </a-box>
+      </a-entity>
+    );
+  }
+
+  // Fallback to AR / screen mode
   return (
     <Box
       sx={{
@@ -48,9 +126,7 @@ export default function EndNodeDisplay(props) {
           }}
         >
           <Typewriter
-            text={
-              "Obrigado por ter experienciado, \n você obteve o fim " + endName
-            }
+            text={`Obrigado por ter experienciado,\nVocê obteve o final ${endName}`}
             delay={100}
           />
         </Typography>
@@ -65,6 +141,7 @@ export default function EndNodeDisplay(props) {
           p: 2,
         }}
         onClick={() => {
+          console.log("[EndNodeDisplay] Terminar clicked (screen mode)");
           setNextNode(undefined);
         }}
       >

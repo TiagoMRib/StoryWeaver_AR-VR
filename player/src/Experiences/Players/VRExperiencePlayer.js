@@ -17,6 +17,8 @@ export default function VRExperiencePlayer({
   actors,
   storyNodes,
   setNextNode,
+  setExperience,      
+  repo
 }) {
   const [currentNode, setCurrentNode] = useState(null);
   const [nextNodes, setNextNodes] = useState([]);
@@ -144,6 +146,25 @@ export default function VRExperiencePlayer({
             )}
           />
         );
+        case NodeType.endNode:
+          return (
+            <EndNodeDisplay
+              mode="vr"
+              node={currentNode}
+              experienceName={projectData.projectTitle}
+              setNextNode={() => {
+                repo
+                  ?.markEndingObtained?.(
+                    projectData.id,
+                    currentNode.data.id,
+                    projectData.projectTitle,
+                    projectData.storyEndings
+                  )
+                  .then(() => setExperience(undefined))
+                  .catch(console.error);
+              }}
+            />
+          );
       default:
         return <Typography>Esta cena não é suportada no modo VR.</Typography>;
     }
