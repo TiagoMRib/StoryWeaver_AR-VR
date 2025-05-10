@@ -1,36 +1,36 @@
-import {
-  Box,
-  ButtonBase,
-  IconButton,
-  TextField,
-  Typography,
-} from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { backgroundColor, secondaryColor, textColor } from "../../themes";
+import { Box, Typography } from "@mui/material";
+import { backgroundColor as defaultBg, textColor } from "../../themes";
 import { ApiDataRepository } from "../../api/ApiDataRepository";
 import { DialogNodeType } from "../../models/DialogNodeTypes";
 import Typewriter from "./util/TypeWriter";
 import CharacterDialogueDisplay from "./util/CharacterDialogueDisplay";
+import ChoiceDialogueDisplay from "./util/ChoiceDialogueDisplay";
 import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
 import { ComponentState } from "../../models/ComponentState";
-import ChoiceDialogueDisplay from "./util/ChoiceDialogueDisplay";
 
-export default function DialogueNodeDisplay(props) {
+export default function DialogueNodeDisplay({
+  node: dialogueNode,
+  possibleNextNodes,
+  outGoingEdges,
+  setNextNode,
+  mode,
+}) {
   const repo = ApiDataRepository.getInstance();
-  const dialogueNode = props.node;
-  const possibleNextNodes = props.possibleNextNodes;
-  const outGoingEdges = props.outGoingEdges;
-
-  // Location based section
   const isSiteTriggered = dialogueNode.data.isSiteTriggered;
-  const siteType = dialogueNode.data.site_type; // Contains map & place
-  const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered); // Default true if not site-triggered
-  const [direction, setDirection] = useState(null);
+  const siteType = dialogueNode.data.site_type;
 
-  // Call location check if site-triggered
-  if (isSiteTriggered) {
-    console.log("Site coordinates: ", siteType);
-  }
+  const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered);
+  const [direction, setDirection] = useState(null);
+  const [componentState, setComponentState] = useState(ComponentState.LOADING);
+  const [backgroundURL, setBackgroundURL] = useState("");
+  const [backgroundColor, setBackgroundColor] = useState(defaultBg);
+  const [currentDialogNode, setCurrentDialogNode] = useState(undefined);
+
+  const dialogTree = dialogueNode.data.dialog;
+  const dialogNodes = dialogTree.nodes;
+  const dialogEdges = dialogTree.edges;
+
   const distance = useLocationCheck(
     isSiteTriggered ? siteType.map : null,
     isSiteTriggered ? siteType.place : null,
@@ -38,134 +38,163 @@ export default function DialogueNodeDisplay(props) {
     setIsOnLocation
   );
 
-
-
   useEffect(() => {
     if (isSiteTriggered && siteType.map) {
       getDirectionToDestination(siteType.map.lat, siteType.map.lng, setDirection);
     }
   }, [isSiteTriggered, siteType]);
-  
-
-  const backgroundFileInfo = dialogueNode.data.background;
-  const dialogTree = dialogueNode.data.dialog;
-  const dialogNodes = dialogTree.nodes;
-  const dialogEdges = dialogTree.edges;
-  console.log(dialogNodes);
-  console.log(dialogEdges);
-  const setNextNode = props.setNextNode;
-
-  const [componentState, setComponentState] = React.useState(
-    ComponentState.LOADING
-  );
-  const [backgroundURL, setBackgroundURL] = React.useState("");
-
-  const [currentDialogNode, setCurrentDialogNode] = React.useState(undefined);
-
-  console.log(currentDialogNode);
-  const findNextDialogueNode = (dialogNode, choice) => {
-    console.log(choice);
-    const edgesFromCurrentNode = dialogEdges.find((edge) => {
-      if (choice != undefined) {
-        return edge.source == dialogNode.id && edge.sourceHandle == choice;
-      } else {
-        return edge.source == dialogNode.id;
-      }
-    });
-
-    console.log(edgesFromCurrentNode);
-    if (edgesFromCurrentNode.length == 0) {
-      return undefined;
-    }
-    const nextNode = dialogNodes.find(
-      (node) => node.id == edgesFromCurrentNode.target
-    );
-    console.log("nextNode: ", nextNode);
-    return nextNode;
-  };
 
   useEffect(() => {
-    const beginNode = dialogNodes.find(
-      (node) => node.type == DialogNodeType.beginDialogNode
-    );
+    const beginNode = dialogNodes.find((node) => node.type === DialogNodeType.beginDialogNode);
     console.log("[DialogueNodeDisplay] DIALOG BEGIN NODE:", beginNode);
     setCurrentDialogNode(findNextDialogueNode(beginNode));
     setComponentState(ComponentState.LOADED);
   }, [dialogTree]);
 
-  const [backgroundColor, setBackgroundColor] = React.useState("#A9B388");
-
   useEffect(() => {
-    if (backgroundFileInfo.inputType == "color") {
-      setBackgroundColor(backgroundFileInfo.color);
+    const bg = dialogueNode.data.background;
+    if (bg.inputType === "color") {
+      setBackgroundColor(bg.color);
       setBackgroundURL("");
-      return;
+    } else if (bg.inputType === "url") {
+      setBackgroundURL(bg.filename);
+    } else if (bg.filename !== "") {
+      repo.getFilePath(bg.filename).then(setBackgroundURL).catch(() => setBackgroundURL(""));
     }
-    if (backgroundFileInfo.filename == "") {
-      setBackgroundURL("");
-      return;
-    }
-    if (backgroundFileInfo.inputType == "url") {
-      setBackgroundURL(backgroundFileInfo.filename);
-    } else {
-      repo
-        .getFilePath(backgroundFileInfo.filename)
-        .then((url) => {
-          setBackgroundURL(url);
-        })
-        .catch(() => {
-          setBackgroundURL("");
-        });
-    }
-  }, [backgroundFileInfo]);
+  }, [dialogueNode]);
 
-  return componentState == ComponentState.LOADING ? (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Typography variant="h4">Carregando...</Typography>
-    </Box>
-  ) : componentState == ComponentState.ERROR ? (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Typography variant="h4">Erro ao carregar</Typography>
-    </Box>
-  ) : !isOnLocation ? ( // BLOCK THE STORY UNTIL USER REACHES LOCATION
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
-      Continua em <strong>{siteType.place}</strong>. <br /> 
-      {distance !== null ? (
-        <>
-          Está a <strong>{distance.toFixed(2)}</strong> metros do local. <br />
-          {direction ? `Siga para ${direction}.` : "Calculando direção..."}
-        </>
-      ) : (
-        "Calculando distância..."
-      )}
-    </Typography>
-    </Box>
-  ) : (
+const findNextDialogueNode = (dialogNode, choice) => {
+  console.log("[findNextDialogueNode] Finding next from:", dialogNode.id, "choice:", choice);
+
+  const edgesFromCurrent = dialogEdges.filter((edge) => edge.source === dialogNode.id);
+  console.log("[findNextDialogueNode] Candidate edges:", edgesFromCurrent);
+
+  const edge = edgesFromCurrent.find((edge) =>
+    choice !== undefined
+      ? edge.sourceHandle == choice // == to allow string/number match
+      : true
+  );
+
+  if (!edge) {
+    console.warn("[findNextDialogueNode] No edge found from:", dialogNode.id, "with choice:", choice);
+    return undefined;
+  }
+
+  const nextNode = dialogNodes.find((n) => n.id === edge.target);
+  console.log("[findNextDialogueNode] Next node resolved to:", nextNode);
+  return nextNode;
+};
+
+  const renderDialogNode = () => {
+    if (!currentDialogNode) return null;
+
+    switch (currentDialogNode.type) {
+      case DialogNodeType.beginDialogNode:
+        return null;
+
+      case DialogNodeType.dialogNode:
+        return (
+          <CharacterDialogueDisplay
+            mode={mode}
+            character={currentDialogNode.data.character}
+            dialogue={currentDialogNode.data.text}
+            audioSrc={currentDialogNode.data.audio}
+            setNextDialogueNode={() => {
+              const next = findNextDialogueNode(currentDialogNode);
+              setCurrentDialogNode(next);
+            }}
+          />
+        );
+
+      case DialogNodeType.dialogChoiceNode:
+        return (
+          <ChoiceDialogueDisplay
+            mode={mode}
+            character={currentDialogNode.data.character}
+            prompt={currentDialogNode.data.prompt}
+            answers={currentDialogNode.data.answers}
+            audioSrc={currentDialogNode.data.audio}
+            setNextDialogueNode={(choice) => {
+              const next = findNextDialogueNode(currentDialogNode, choice);
+              setCurrentDialogNode(next);
+            }}
+          />
+        );
+
+      case DialogNodeType.endDialogNode: {
+        const handleId = currentDialogNode.data.id;
+        console.log("[DialogueNodeDisplay] Reached endDialogNode:", handleId);
+
+        const edge = outGoingEdges.find((edge) => edge.sourceHandle === handleId);
+        console.log("[DialogueNodeDisplay] End node edge:", edge);
+        console.log("[DialogueNodeDisplay] possibleNextNodes:", possibleNextNodes);
+
+        if (!edge) {
+          console.warn("[DialogueNodeDisplay] No edge found from dialog end node with handle:", handleId);
+          return null;
+        }
+
+        const next = possibleNextNodes.find((node) => node.id === edge.target);
+        if (!next) {
+          console.warn("[DialogueNodeDisplay] No next node found in possibleNextNodes for target:", edge.target);
+          return null;
+        }
+
+        setNextNode(next);
+        return null;
+}
+
+      default:
+        return null;
+    }
+  };
+
+  if (componentState === ComponentState.LOADING) {
+    return (
+      <Box sx={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Typography variant="h4">Carregando...</Typography>
+      </Box>
+    );
+  }
+
+  if (componentState === ComponentState.ERROR) {
+    return (
+      <Box sx={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Typography variant="h4">Erro ao carregar</Typography>
+      </Box>
+    );
+  }
+
+  if (!isOnLocation) {
+    return (
+      <Box sx={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
+          Continua em <strong>{siteType.place}</strong>. <br />
+          {distance !== null ? (
+            <>
+              Está a <strong>{distance.toFixed(2)}</strong> metros do local. <br />
+              {direction ? `Siga para ${direction}.` : "Calculando direção..."}
+            </>
+          ) : (
+            "Calculando distância..."
+          )}
+        </Typography>
+      </Box>
+    );
+  }
+
+  // === VR mode ===
+  if (mode === "vr") {
+    return (
+      <a-entity id="dialog-panel-wrapper">
+        {/* Optional future wrapper for background plane */}
+        {renderDialogNode()}
+      </a-entity>
+    );
+  }
+
+  // === AR or screen ===
+  return (
     <Box
       sx={{
         width: "100%",
@@ -175,45 +204,13 @@ export default function DialogueNodeDisplay(props) {
         justifyContent: "center",
         alignItems: "center",
         background:
-          backgroundURL == ""
+          backgroundURL === ""
             ? backgroundColor
-            : `${backgroundColor} url(${backgroundURL}) no-repeat center center  fixed`,
+            : `${backgroundColor} url(${backgroundURL}) no-repeat center center fixed`,
         backgroundSize: "cover",
       }}
     >
-      {currentDialogNode.type == DialogNodeType.beginDialogNode ? null : 
-       currentDialogNode.type == DialogNodeType.dialogNode ? (
-        <CharacterDialogueDisplay
-          character={currentDialogNode.data.character}
-          dialogue={currentDialogNode.data.text}
-          audioSrc={currentDialogNode.data.audio}
-          setNextDialogueNode={() => {
-            const nextNode = findNextDialogueNode(currentDialogNode);
-            setCurrentDialogNode(nextNode);
-          }}
-        />
-      ) : currentDialogNode.type == DialogNodeType.dialogChoiceNode ? (
-        <ChoiceDialogueDisplay
-          character={currentDialogNode.data.character}
-          prompt={currentDialogNode.data.prompt}
-          answers={currentDialogNode.data.answers}
-          audioSrc={currentDialogNode.data.audio}
-          setNextDialogueNode={(choice) => {
-            const nextNode = findNextDialogueNode(currentDialogNode, choice);
-            setCurrentDialogNode(nextNode);
-          }}
-        />
-      ) : currentDialogNode.type == DialogNodeType.endDialogNode ? (
-        setNextNode(
-          possibleNextNodes.find(
-            (node) =>
-              node.id ==
-              outGoingEdges.find(
-                (edge) => edge.sourceHandle == currentDialogNode.data.id
-              ).target
-          )
-        )
-      ) : null}
+      {renderDialogNode()}
     </Box>
   );
 }

@@ -22,6 +22,7 @@ export default function VRExperiencePlayer({
 }) {
   const [currentNode, setCurrentNode] = useState(null);
   const [nextNodes, setNextNodes] = useState([]);
+  const [hasTriggered, setHasTriggered] = useState(false); // Flag to check if the trigger has been activated
   const [sceneEl, setSceneEl] = useState(null); // Reference to the A-Frame scene
   const [cameraReady, setCameraReady] = useState(false);
 
@@ -37,6 +38,31 @@ export default function VRExperiencePlayer({
     }
   }, [projectData]);
 
+  useEffect(() => {
+    setHasTriggered(false);
+  }, [currentNode]);
+
+  // Check if player is inside location
+  useEffect(() => {
+    if (!currentNode || !sceneEl) return;
+
+    const vrData = currentNode?.data?.vr_type;
+    const triggerMode = vrData?.trigger_mode;
+    const placeName = vrData?.place;
+
+    if (!(currentNode?.data?.vr && triggerMode === "Ao entrar" && placeName)) return;
+    if (hasTriggered) return; // prevent repeat triggering
+
+    const interval = setInterval(() => {
+      if (isPlayerNearObject(placeName)) {
+        console.log(`[VRPlayer] Player entered ${placeName}, triggering node`);
+        setHasTriggered(true); // mark as triggered
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentNode, sceneEl, hasTriggered]);
+
   const getNextNodes = (node) => {
     const nextIds = projectData.edges
       .filter((edge) => edge.source === node.id)
@@ -45,10 +71,14 @@ export default function VRExperiencePlayer({
   };
 
   const handleSetCurrentNode = (node) => {
-    setCurrentNode(node);
-    setNextNodes(getNextNodes(node));
-    if (setNextNode) setNextNode(node);
-  };
+  if (!node) {
+    console.warn("[VRPlayer] Attempted to set undefined node. Ignoring.");
+    return;
+  }
+  setCurrentNode(node);
+  setNextNodes(getNextNodes(node));
+  if (setNextNode) setNextNode(node);
+};
 
   // Called once A-Frame scene is fully loaded
   const handleSceneLoaded = (scene) => {
@@ -118,10 +148,33 @@ export default function VRExperiencePlayer({
   }, [sceneEl, currentNode]);
   */
 
-  // Not being used 
   const renderNode = () => {
     if (!currentNode) return null;
     console.log("[VRPlayer] Current node type:", currentNode?.type);
+
+    const vrData = currentNode?.data?.vr_type;
+    const triggerMode = vrData?.trigger_mode;
+    const placeName = vrData?.place;
+
+    console.log("[VRPlayer] triggerMode:", triggerMode);
+    console.log("[VRPlayer] locationName:", placeName);
+
+  if (currentNode?.data?.vr && triggerMode === "Ao entrar" && placeName && !hasTriggered) {
+    const near = isPlayerNearObject(placeName);
+    if (!near) {
+      return (
+        <a-entity position="0 1.6 -2">
+          <a-text
+            value={`Vá para ${placeName}`}
+            color="white"
+            align="center"
+            wrap-count="40"
+          ></a-text>
+        </a-entity>
+      );
+    }
+  }
+
     switch (currentNode.type) {
       case NodeType.beginNode:
         console.log("[VRPlayer] Begin node:", projectData.projectTitle);
@@ -168,6 +221,36 @@ export default function VRExperiencePlayer({
       default:
         return <Typography>Esta cena não é suportada no modo VR.</Typography>;
     }
+  };
+
+  const isPlayerNearObject = (objectName, threshold = 5) => {
+    console.log("[VRPlayer] Checking distance to object:", objectName);
+    const playerRig = sceneEl?.querySelector("[camera]")?.object3D; // lets try "[camera]" instead of cameraRig
+    
+    const rootObj = sceneEl?.object3D;
+    console.log("[VRPlayer] Root object:", rootObj);
+    let targetObj = null;
+
+    rootObj?.traverse((child) => {
+      if (child.name === objectName) {
+        targetObj = child;
+      }
+    });
+
+    console.log("[VRPlayer] Player rig:", playerRig);
+    console.log("[VRPlayer] Target object:", targetObj);
+
+    if (!playerRig || !targetObj) return false;
+
+    const playerPos = new THREE.Vector3();
+    const targetPos = new THREE.Vector3();
+    playerRig.getWorldPosition(playerPos);
+    targetObj.getWorldPosition(targetPos);
+
+    console.log("Player position:", playerPos);
+    console.log("Distance to target:", playerPos.distanceTo(targetPos));
+
+    return playerPos.distanceTo(targetPos) < threshold;
   };
 
   return (

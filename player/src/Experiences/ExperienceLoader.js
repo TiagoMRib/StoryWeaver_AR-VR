@@ -33,17 +33,18 @@ export default function ExperienceLoader({ projectId, passedProjectData, setExpe
 
   // Initializes the first node in the story
   const initialize = (project) => {
-    const beginNode = project.nodes.find((n) => n.type === NodeType.beginNode);
-    if (!beginNode) {
-      console.error("[Loader] No beginNode found.");
-      setComponentState(ComponentState.ERROR);
-      return;
-    }
-    setProjectInfo(project);
-    setCurrentNode(beginNode);
-    updateNextNodes(beginNode, project);
-    setComponentState(ComponentState.LOADED);
-  };
+  const beginNode = project.nodes.find((n) => n.type === NodeType.beginNode);
+  if (!beginNode) {
+    console.error("[Loader] No beginNode found.");
+    setComponentState(ComponentState.ERROR);
+    return;
+  }
+
+  setProjectInfo(project);
+  setCurrentNode(beginNode);
+  updateNextNodes(beginNode, project);
+  setComponentState(ComponentState.LOADED);
+};
 
   // Computes possible next nodes
   const updateNextNodes = (node, project) => {
