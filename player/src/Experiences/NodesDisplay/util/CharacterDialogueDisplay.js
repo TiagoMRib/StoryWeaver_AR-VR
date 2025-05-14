@@ -102,22 +102,35 @@ export default function CharacterDialogueDisplay({
     const charName = character?.name;
     console.log("[CharacterDialogueDisplay] Looking for character:", charName);
 
-    const characterEl = scene.querySelector(`[id="${charName}"]`);
+    let characterObj = null;
+    scene?.object3D?.traverse((child) => {
+      if (child.name === charName) {
+        characterObj = child;
+      }
+    });
     const distance = 2.5;
 
     let targetPos = new THREE.Vector3();
     let lookAtPos = new THREE.Vector3();
 
-    if (characterEl && characterEl.object3D) {
-      const charObj = characterEl.object3D;
-      charObj.getWorldPosition(targetPos);
+    if (characterObj) {
+      characterObj.getWorldPosition(targetPos);
 
       const forward = new THREE.Vector3();
-      charObj.getWorldDirection(forward);
-      targetPos.add(forward.multiplyScalar(1.2));
-      lookAtPos.copy(charObj.position);
+      characterObj.getWorldDirection(forward);
+
+      // Place the panel in front the character
+      targetPos.add(forward.clone().multiplyScalar(1.2));
+
+      targetPos.y += 1.6; //offset - above the character's head
+
+      // make it look in the same direction the character is facing
+      const lookAtPos = targetPos.clone().add(forward);
 
       console.log(`[CharacterDialogueDisplay] Panel positioned near character "${charName}" at:`, targetPos);
+
+      panelObj.position.copy(targetPos);
+      panelObj.lookAt(lookAtPos); // Look in the same direction the character is facing
     } else {
       camObj.getWorldPosition(lookAtPos);
 

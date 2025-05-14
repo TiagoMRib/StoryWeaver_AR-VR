@@ -66,7 +66,7 @@ export default function EndNodeDisplay(props) {
           id="end-panel"
           geometry="primitive: plane; height: 2.2; width: 4"
           material="color: white; side: double; opacity: 0.95"
-          text={`value: Obrigado por experienciar.\nFinal: ${endName}; align: center; color: black; wrapCount: 34`}
+          text={`value: FIM!\nFinal obtido: ${endName}; align: center; color: black; wrapCount: 34`}
           position="0 0 0.01"
         ></a-entity>
 

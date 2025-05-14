@@ -1,8 +1,10 @@
+/* global AFRAME */
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import "aframe";
 import * as THREE from "three";
 
+// Gets player start position from GLTF by name
 function getPlayerStartPosition(startName, gltfScene) {
   const startNode = gltfScene.getObjectByName(startName);
   if (startNode) {
@@ -12,6 +14,7 @@ function getPlayerStartPosition(startName, gltfScene) {
   return { position: "0 1.6 0", found: false };
 }
 
+// Distance check
 function isNear(pos1, pos2, threshold = 1.5) {
   const dx = pos1.x - pos2.x;
   const dy = pos1.y - pos2.y;
@@ -25,8 +28,8 @@ export default function VRSceneWrapper({
   currentNode,
   storyNodes,
   setCurrentNode,
-  onSceneLoaded,     // Scene ready
-  onSceneReady,      // Camera positioned and ready
+  onSceneLoaded,
+  onSceneReady,
   children,
 }) {
   const sceneRef = useRef(null);
@@ -37,15 +40,14 @@ export default function VRSceneWrapper({
   const [sceneLoaded, setSceneLoaded] = useState(false);
   const [cameraPositioned, setCameraPositioned] = useState(false);
 
-  // A-Frame Scene Ready
+  // Scene is ready 
   useEffect(() => {
     const sceneEl = sceneRef.current;
     if (!sceneEl) return;
 
     const handleSceneLoaded = () => {
-      console.log("[VR] A-Frame scene fully loaded");
       setSceneLoaded(true);
-      if (onSceneLoaded) onSceneLoaded(sceneEl);
+      onSceneLoaded?.(sceneEl);
     };
 
     if (sceneEl.hasLoaded) {
@@ -59,7 +61,7 @@ export default function VRSceneWrapper({
     };
   }, [onSceneLoaded]);
 
-  // Model Loaded -> Camera Positioned -> Start VR logic
+  // GLB model loaded -> Position camera -> Notify ready
   useEffect(() => {
     if (!glbUrl || cameraPositioned || !modelRef.current) return;
 
@@ -67,6 +69,16 @@ export default function VRSceneWrapper({
 
     const handleModelLoaded = (e) => {
       const gltfScene = e.detail.model;
+
+      // Double-side all meshes + static-body setup
+      gltfScene.traverse((node) => {
+        if (node.isMesh) {
+          node.frustumCulled = false;
+          if (node.material) node.material.side = THREE.DoubleSide;
+          if (node.el) node.el.setAttribute("static-body", "");
+        }
+      });
+
       const rig = document.querySelector("#cameraRig");
       if (!rig) {
         setStatusMessage("Erro: Rig da câmara não encontrado.");
@@ -77,14 +89,12 @@ export default function VRSceneWrapper({
       rig.setAttribute("position", position);
       setStatusMessage(found ? "" : "Atenção: posição inicial padrão usada.");
 
-      console.log("[VR] Modelo carregado. Posição inicial:", position);
       setCameraPositioned(true);
-      if (onSceneReady) onSceneReady(); // <<< THIS NOTIFIES PARENT
+      onSceneReady?.();
     };
 
     modelEntity.addEventListener("model-loaded", handleModelLoaded);
-    modelEntity.addEventListener("model-error", (e) => {
-      console.error("[VR] Erro ao carregar modelo 3D", e);
+    modelEntity.addEventListener("model-error", () => {
       setStatusMessage("Erro: Falha ao carregar o modelo 3D.");
     });
 
@@ -93,12 +103,12 @@ export default function VRSceneWrapper({
     };
   }, [glbUrl, cameraPositioned, projectData, onSceneReady]);
 
-  // Trigger Zone Check
+  // Check "ao entrar"
   useEffect(() => {
     if (!sceneLoaded || !cameraPositioned || !currentNode?.data?.vr) return;
 
-    const gltfScene = modelRef.current?.getObject3D("mesh");
     const rig = document.querySelector("#cameraRig");
+    const gltfScene = modelRef.current?.getObject3D("mesh");
 
     const interval = setInterval(() => {
       const trigger = currentNode.data.vr_type?.trigger_mode;
@@ -111,7 +121,6 @@ export default function VRSceneWrapper({
 
       if (target && !triggeredPlaces.current.has(placeName)) {
         if (isNear(playerPos, target.position)) {
-          console.log("[VR] Entrou no local:", placeName);
           triggeredPlaces.current.add(placeName);
 
           const targetNode = storyNodes.find(n =>
@@ -121,7 +130,6 @@ export default function VRSceneWrapper({
           );
 
           if (targetNode) {
-            console.log("[VR] Ativando nó:", targetNode);
             setCurrentNode(targetNode);
           }
         }
@@ -130,6 +138,17 @@ export default function VRSceneWrapper({
 
     return () => clearInterval(interval);
   }, [sceneLoaded, cameraPositioned, currentNode, storyNodes, setCurrentNode]);
+
+  // Mudar a fonte - didnt work
+  useEffect(() => {
+    const scene = document.querySelector("a-scene");
+    if (!scene) return;
+
+    scene.addEventListener("loaded", () => {
+      AFRAME.components.text.schema.font.default = "/fonts/roboto-msdf.json";
+      AFRAME.components.text.schema.shader.default = "msdf";
+    });
+  }, []);
 
   return (
     <Box sx={{ width: "100vw", height: "100vh", position: "relative" }}>
@@ -141,10 +160,11 @@ export default function VRSceneWrapper({
         renderer="antialias: true"
         cursor="rayOrigin: mouse"
         raycaster="objects: .clickable"
+        physics="debug: false"
       >
         <a-entity ref={modelRef} gltf-model={glbUrl}></a-entity>
 
-        <a-entity id="cameraRig" movement-controls="speed: 0.1">
+        <a-entity id="cameraRig" dynamic-body="mass: 1" movement-controls="speed: 0.1">
           <a-entity camera position="0 1.6 0" look-controls wasd-controls />
         </a-entity>
 
