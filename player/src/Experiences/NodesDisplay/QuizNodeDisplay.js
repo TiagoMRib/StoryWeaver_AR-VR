@@ -1,145 +1,156 @@
 import {
   Box,
   ButtonBase,
-  IconButton,
-  TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { backgroundColor, secondaryColor, textColor } from "../../themes";
+import { backgroundColor as defaultBg, textColor } from "../../themes";
 import { ApiDataRepository } from "../../api/ApiDataRepository";
 import PlayerTextFinalDisplay from "./util/PlayerTextFinalDisplay";
 import Typewriter from "./util/TypeWriter";
-import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
 
-export default function QuizNodeDisplay(props) {
+export default function QuizNodeDisplay({
+  node,
+  possibleNextNodes,
+  setNextNode,
+  outGoingEdges,
+  mode,
+  experienceName,
+  hasTriggered
+}) {
   const repo = ApiDataRepository.getInstance();
-  const quizNode = props.node;
+  const quizNode = node;
   const question = quizNode.data.question;
   const answers = quizNode.data.answers;
-  const outGoingEdges = props.outGoingEdges;
-
-  const possibleNextNodes = props.possibleNextNodes;
-
   const backgroundFileInfo = quizNode.data.background;
-
   const character = quizNode.data.character;
 
-  const [backgroundURL, setBackgroundURL] = React.useState("");
+  const [backgroundURL, setBackgroundURL] = useState("");
+  const [bgColor, setBgColor] = useState("#A9B388");
+  const [characterImg, setCharacterImg] = useState("");
 
-  const setNextNode = props.setNextNode;
-  const experienceName = props.experienceName;
-
-  const [backgroundColor, setBackgroundColor] = React.useState("#A9B388");
-
-  const [characterImg, setCharacterImg] = React.useState("");
-
-  // Location based section
-    const isSiteTriggered = quizNode.data.isSiteTriggered;
-    const siteType = quizNode.data.site_type; // Contains map & place
-    const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered); // Default true if not site-triggered
-    const [direction, setDirection] = useState(null);
-  
-    // Call location check if site-triggered
-    if (isSiteTriggered) {
-      console.log("Site coordinates: ", siteType);
-    }
-    const distance = useLocationCheck(
-      isSiteTriggered ? siteType.map : null,
-      isSiteTriggered ? siteType.place : null,
-      10,
-      setIsOnLocation
-    );
-  
-
+  // Load character image
   useEffect(() => {
-    if (character.image.filename == "") {
-      return;
-    }
-    if (character.image.inputType == "url") {
+    if (!character || !character.image) return;
+
+    if (character.image.inputType === "url") {
       setCharacterImg(character.image.filename);
-    } else {
-      repo.getFilePath(character.image.filename).then((url) => {
-        setCharacterImg(url);
-      });
+    } else if (character.image.filename !== "") {
+      repo.getFilePath(character.image.filename).then(setCharacterImg);
     }
   }, [character]);
 
+  // Load background
   useEffect(() => {
-    if (backgroundFileInfo.inputType == "color") {
-      setBackgroundColor(backgroundFileInfo.color);
+    if (!backgroundFileInfo) return;
+
+    if (backgroundFileInfo.inputType === "color") {
+      setBgColor(backgroundFileInfo.color);
       setBackgroundURL("");
-      return;
-    }
-    if (backgroundFileInfo.filename == "") {
-      setBackgroundURL("");
-      return;
-    }
-    if (backgroundFileInfo.inputType == "url") {
+    } else if (backgroundFileInfo.inputType === "url") {
       setBackgroundURL(backgroundFileInfo.filename);
-    } else {
-      repo
-        .getFilePath(backgroundFileInfo.filename)
-        .then((url) => {
-          setBackgroundURL(url);
-        })
-        .catch(() => {
-          setBackgroundURL("");
-        });
+    } else if (backgroundFileInfo.filename !== "") {
+      repo.getFilePath(backgroundFileInfo.filename).then(setBackgroundURL).catch(() => setBackgroundURL(""));
     }
   }, [backgroundFileInfo]);
 
-  return !isOnLocation ? ( // BLOCK THE STORY UNTIL USER REACHES LOCATION
-      <Box
-        sx={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h4" sx={{ textAlign: "center", px: 2 }}>
-        Continua em <strong>{siteType.place}</strong>. <br /> 
-        {distance !== null ? (
-          <>
-            Está a <strong>{distance.toFixed(2)}</strong> metros do local. <br />
-            {direction ? `Siga para ${direction}.` : "Calculando direção..."}
-          </>
-        ) : (
-          "Calculando distância..."
-        )}
-      </Typography>
-      </Box>
-    ) : (
+  
+  const { vr, vr_type } = node.data || {};
+  const isVRTriggered = vr && vr_type?.trigger_mode;
+  const isBlockedInVR = mode === "vr" && isVRTriggered && !hasTriggered;
+
+  if (isBlockedInVR) {
+    return (
+      <a-entity>
+        <a-text
+          value="Interage com um objeto ou vá até o local para continuar"
+          color="white"
+          align="center"
+          position="0 1.6 -2"
+        ></a-text>
+      </a-entity>
+    );
+  }
+
+  if (mode === "vr") {
+    return (
+      <a-entity id="quiz-panel-wrapper">
+        <a-plane
+          position="0 1.6 -2"
+          width="3.8"
+          height="2.6"
+          color="white"
+          material="opacity: 0.95; side: double"
+        >
+          <a-text
+            value={question}
+            wrap-count="35"
+            color="black"
+            align="center"
+            position="0 1.1 0.01"
+          ></a-text>
+
+          {answers.map((answer, index) => {
+            const yOffset = 0.6 - index * 0.6;
+            const targetId = outGoingEdges.find(e => e.sourceHandle === index.toString())?.target;
+            const targetNode = possibleNextNodes.find(n => n.id === targetId);
+
+            return (
+              <a-box
+                key={index}
+                position={`0 ${yOffset} 0.01`}
+                width="3"
+                height="0.5"
+                color="#2196F3"
+                class="clickable"
+                onclick={() => targetNode && setNextNode(targetNode)}
+              >
+                <a-text
+                  value={answer}
+                  color="white"
+                  align="center"
+                  position="0 0 0.05"
+                />
+              </a-box>
+            );
+          })}
+        </a-plane>
+      </a-entity>
+    );
+  }
+
+  // Default: AR or screen mode
+  return (
     <Box
       sx={{
         width: "100%",
         height: "91vh",
-        overflowY: "auto !important",
+        overflowY: "auto",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         background:
-          backgroundURL == ""
-            ? backgroundColor
-            : `${backgroundColor} url(${backgroundURL}) no-repeat center center  fixed`,
+          backgroundURL === ""
+            ? bgColor
+            : `${bgColor} url(${backgroundURL}) no-repeat center center fixed`,
         backgroundSize: "cover",
       }}
     >
-      {question == "" ? null : (
+      {question && (
         <>
-          <img
-            src={characterImg}
-            alt={character.name}
-            style={{
-              width: "100px",
-              height: "100px",
-              borderRadius: "50%",
-              border: "2px solid black",
-            }}
-          />
+          {characterImg && (
+            <img
+              src={characterImg}
+              alt={character.name}
+              style={{
+                width: "100px",
+                height: "100px",
+                borderRadius: "50%",
+                border: "2px solid black",
+              }}
+            />
+          )}
           <Box
             sx={{
               display: "flex",
@@ -148,13 +159,13 @@ export default function QuizNodeDisplay(props) {
               backgroundColor: "white",
               border: "2px solid black",
               borderRadius: "5px",
+              px: 3,
+              py: 1,
             }}
           >
             <Typography
               variant="h6"
               sx={{
-                px: 3,
-                py: 1,
                 fontSize: 20,
                 color: "black",
                 fontWeight: 200,
@@ -166,37 +177,24 @@ export default function QuizNodeDisplay(props) {
           </Box>
         </>
       )}
-      <Box
-        sx={{
-          pb: 9,
-        }}
-      >
+      <Box sx={{ pb: 9 }}>
         {answers.map((answer, index) => (
           <ButtonBase
             key={index}
-            sx={{
-              mb: 2,
-              width: "90%",
-              color: textColor,
-            }}
+            sx={{ mb: 2, width: "90%", color: textColor }}
             onClick={() => {
-              console.log(possibleNextNodes);
-              setNextNode(
-                possibleNextNodes.find(
-                  (node) =>
-                    node.id ==
-                    outGoingEdges.find(
-                      (edge) => edge.sourceHandle == index.toString()
-                    ).target
-                )
+              const edge = outGoingEdges.find(
+                (edge) => edge.sourceHandle === index.toString()
               );
+              const nextNode = possibleNextNodes.find((n) => n.id === edge?.target);
+              if (nextNode) setNextNode(nextNode);
             }}
           >
             <PlayerTextFinalDisplay
               text={answer}
-              messageType={"Opção " + (index + 1)}
+              messageType={`Opção ${index + 1}`}
               style={{ width: "90%" }}
-            ></PlayerTextFinalDisplay>
+            />
           </ButtonBase>
         ))}
       </Box>

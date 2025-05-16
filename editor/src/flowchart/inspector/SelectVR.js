@@ -217,7 +217,7 @@ import {
                 onChange={(event) => {
                   handleFieldChange(props.data.name, {
                     ...value,
-                    character: event.target.value,
+                    actor_id: event.target.value,
                   });
                 }}
               >

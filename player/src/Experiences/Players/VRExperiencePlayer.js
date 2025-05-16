@@ -217,6 +217,18 @@ export default function VRExperiencePlayer({
             outGoingEdges={projectData.edges.filter(e => e.source === currentNode.id)}
           />
         );
+      case NodeType.quizNode:
+        return (
+          <QuizNodeDisplay
+            mode="vr"
+            node={currentNode}
+            possibleNextNodes={nextNodes}
+            setNextNode={updateCurrentNode}
+            experienceName={projectData.projectTitle}
+            outGoingEdges={projectData.edges.filter(e => e.source === currentNode.id)}
+            hasTriggered={hasTriggered}
+          />
+        );
       case NodeType.endNode:
         return (
           <EndNodeDisplay
