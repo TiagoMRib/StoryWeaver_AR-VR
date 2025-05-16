@@ -161,6 +161,39 @@ export default function VRExperiencePlayer({
         return renderGoToLocationPrompt(place);
       }
     }
+    if (vr && trigger_mode === "Ao interagir com ator" && !hasTriggered) {
+      const camera = sceneEl?.querySelector("[camera]");
+      const cameraObj = camera?.object3D;
+
+      if (!cameraObj) return null;
+
+      const playerPos = new THREE.Vector3();
+      const forwardDir = new THREE.Vector3();
+      cameraObj.getWorldPosition(playerPos);
+      cameraObj.getWorldDirection(forwardDir);
+
+      forwardDir.normalize();
+      const labelPos = playerPos.clone().add(forwardDir.multiplyScalar(-3));
+      const posStr = `${labelPos.x} ${labelPos.y} ${labelPos.z}`;
+
+      const lookAtQuat = new THREE.Quaternion().setFromRotationMatrix(
+        new THREE.Matrix4().lookAt(labelPos, playerPos, new THREE.Vector3(0, 1, 0))
+      );
+      const euler = new THREE.Euler().setFromQuaternion(lookAtQuat);
+
+      return (
+        <a-entity position={posStr} rotation={`${euler.x} ${euler.y} ${euler.z}`}>
+          <a-text
+            value="Interage com um objeto para continuar"
+            color="white"
+            align="center"
+            wrap-count="40"
+            position="0 0 0.01"
+          ></a-text>
+        </a-entity>
+      );
+    }
+
 
     switch (currentNode.type) {
       case NodeType.beginNode:
@@ -220,6 +253,8 @@ export default function VRExperiencePlayer({
         actors={actors}
         onSceneLoaded={handleSceneLoaded}
         onSceneReady={() => setCameraReady(true)}
+        hasTriggered={hasTriggered}
+        setHasTriggered={setHasTriggered}
       >
         {renderNode()}
       </VRSceneWrapper>

@@ -17,6 +17,7 @@
     "@webarkit/ar-nft": "^0.14.6",
     "@webarkit/arnft-threejs": "^0.5.0",
     "@zip.js/zip.js": "^2.7.44",
+    "aframe-physics-system": "^4.0.2",
     "axios": "^1.6.8",
     "lodash": "^4.17.21",
     "mui-audio-player-plus": "^1.0.6",

@@ -67,6 +67,9 @@ export default function VRWorldWindow({ setCharacters, setMaps, setVRLocations }
               public List<string> actors;
           }
 
+          [Header("Export Settings")]
+          public string fileName = "sceneData.json"; // Editable in the Inspector
+
           [ContextMenu("Export Scene Data to JSON")]
           void ExportSceneData()
           {
@@ -104,11 +107,13 @@ export default function VRWorldWindow({ setCharacters, setMaps, setVRLocations }
               };
 
               string json = JsonUtility.ToJson(export, true);
-              string path = Path.Combine(Application.dataPath, "sceneData.json");
+              string safeFileName = string.IsNullOrWhiteSpace(fileName) ? "sceneData.json" : fileName;
+              string path = Path.Combine(Application.dataPath, safeFileName);
               File.WriteAllText(path, json);
               Debug.Log("Scene exported to: " + path);
           }
-      }`;
+      }
+      `;
   
     const blob = new Blob([scriptContent], { type: "text/plain" });
     const link = document.createElement("a");

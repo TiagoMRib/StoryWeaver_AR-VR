@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "aframe": "^1.7.1",
+    "aframe-extras": "^7.5.4",
     "aframe-physics-system": "^4.0.2"
   }
 }

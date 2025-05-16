@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import "aframe";
+import "aframe-extras";
 import * as THREE from "three";
 
 // Gets player start position from GLTF by name
@@ -30,6 +31,8 @@ export default function VRSceneWrapper({
   setCurrentNode,
   onSceneLoaded,
   onSceneReady,
+  hasTriggered,         
+  setHasTriggered,      
   children,
 }) {
   const sceneRef = useRef(null);
@@ -76,6 +79,10 @@ export default function VRSceneWrapper({
           node.frustumCulled = false;
           if (node.material) node.material.side = THREE.DoubleSide;
           if (node.el) node.el.setAttribute("static-body", "");
+
+          if (projectData.characters.some(c => c.name === node.name)) {
+    if (node.el) node.el.classList.add("clickable");
+  }
         }
       });
 
@@ -93,6 +100,8 @@ export default function VRSceneWrapper({
       onSceneReady?.();
     };
 
+
+
     modelEntity.addEventListener("model-loaded", handleModelLoaded);
     modelEntity.addEventListener("model-error", () => {
       setStatusMessage("Erro: Falha ao carregar o modelo 3D.");
@@ -102,6 +111,57 @@ export default function VRSceneWrapper({
       modelEntity.removeEventListener("model-loaded", handleModelLoaded);
     };
   }, [glbUrl, cameraPositioned, projectData, onSceneReady]);
+
+  // Interação com atores
+
+  useEffect(() => {
+  if (!sceneRef.current) return;
+
+  const sceneEl = sceneRef.current;
+
+  const handleClick = (evt) => {
+    const intersection = evt.detail?.intersection;
+    if (!intersection) return;
+
+    const clickedMesh = intersection.object;
+    const clickedName = clickedMesh?.name;
+    console.log("[VRPlayer] Raycast clicked mesh:", clickedName);
+
+    // Check if current node expects an actor interaction
+    if (
+      currentNode?.data?.vr &&
+      currentNode.data.vr_type?.trigger_mode === "Ao interagir com ator"
+    ) {
+      const expectedActorId = currentNode.data.vr_type.character;
+      const expectedCharacter = projectData.characters.find(c => c.id === expectedActorId);
+      if (!expectedCharacter) return;
+
+      if (clickedName === expectedCharacter.name) {
+        console.log(`[VRPlayer] Correct actor "${clickedName}" clicked`);
+        setHasTriggered(true);
+
+        const nextIds = projectData.edges
+          .filter((e) => e.source === currentNode.id)
+          .map((e) => e.target);
+
+        const nextNode = projectData.nodes.find((n) => nextIds.includes(n.id));
+        if (nextNode) {
+          setCurrentNode(nextNode);
+        }
+      } else {
+        console.log(`[VRPlayer] Clicked "${clickedName}" but expected "${expectedCharacter.name}" — ignoring`);
+      }
+    }
+  };
+
+  sceneEl.addEventListener("click", handleClick);
+
+  return () => {
+    sceneEl.removeEventListener("click", handleClick);
+  };
+}, [sceneRef, currentNode, setHasTriggered, setCurrentNode, projectData]);
+
+
 
   // Check "ao entrar"
   useEffect(() => {
@@ -160,12 +220,22 @@ export default function VRSceneWrapper({
         renderer="antialias: true"
         cursor="rayOrigin: mouse"
         raycaster="objects: .clickable"
-        physics="debug: false"
+        physics="debug: true"
       >
         <a-entity ref={modelRef} gltf-model={glbUrl}></a-entity>
 
-        <a-entity id="cameraRig" dynamic-body="mass: 1" movement-controls="speed: 0.1">
-          <a-entity camera position="0 1.6 0" look-controls wasd-controls />
+        <a-entity
+          id="cameraRig"
+          dynamic-body="mass: 1; shape: capsule; height: 1.6; radius: 0.35"
+          aframe-extras-physics-controls
+          wasd-controls="acceleration: 30"
+          look-controls
+          position="0 1.6 0"
+        >
+          <a-entity
+            camera
+            position="0 1.6 0"
+          ></a-entity>
         </a-entity>
 
         <a-sky color="#0000FF" />
