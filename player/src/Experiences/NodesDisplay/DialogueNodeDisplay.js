@@ -116,6 +116,8 @@ const findNextDialogueNode = (dialogNode, choice) => {
             audioSrc={currentDialogNode.data.audio}
             setNextDialogueNode={(choice) => {
               const next = findNextDialogueNode(currentDialogNode, choice);
+              console.log("[DialogueNodeDisplay] Selected choice:", choice);
+              console.log("[DialogueNodeDisplay] Going to next dialog node:", next);
               setCurrentDialogNode(next);
             }}
           />

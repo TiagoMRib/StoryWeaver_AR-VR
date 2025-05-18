@@ -153,7 +153,7 @@ export default function ChoiceDialogueDisplay({
             color="#4caf50"
             class="clickable"
             onClick={() => {
-              console.log(`[VR] Choice selected: ${answer}`);
+              console.log(`[Choice] Choice selected: ${answer}`);
               if (audioSrc) audioSrc.pause();
               setNextDialogueNode(index);
             }}

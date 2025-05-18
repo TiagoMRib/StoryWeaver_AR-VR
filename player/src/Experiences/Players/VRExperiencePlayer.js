@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { NodeType } from "../../models/NodeTypes";
 import BeginNodeDisplay from "../NodesDisplay/BeginNodeDisplay";
 import EndNodeDisplay from "../NodesDisplay/EndNodeDisplay";
+import QuizNodeDisplay from "../NodesDisplay/QuizNodeDisplay";
 import DialogueNodeDisplay from "../NodesDisplay/DialogueNodeDisplay";
 import VRSceneWrapper from "./VRSceneWrapper";
 import * as THREE from "three";
@@ -153,6 +154,8 @@ export default function VRExperiencePlayer({
   const renderNode = () => {
     if (!currentNode) return null;
 
+    console.log("[VRPlayer] Rendering node:", currentNode?.id, "| Triggered:", hasTriggered);
+
     const { vr, vr_type } = currentNode.data || {};
     const { trigger_mode, place } = vr_type || {};
 
@@ -162,6 +165,13 @@ export default function VRExperiencePlayer({
       }
     }
     if (vr && trigger_mode === "Ao interagir com ator" && !hasTriggered) {
+      const expectedActorId = vr_type.actor_id;
+      console.log("[VRPlayer] currentNode.data.vr_type.character:", expectedActorId);
+      const expectedCharacter = projectData.characters.find(c => c.id === expectedActorId);
+      const objectName = expectedCharacter?.name || "objeto desconhecido";
+
+      console.log(`[VRPlayer] Waiting for interaction with: ${objectName}`);
+
       const camera = sceneEl?.querySelector("[camera]");
       const cameraObj = camera?.object3D;
 
@@ -184,7 +194,7 @@ export default function VRExperiencePlayer({
       return (
         <a-entity position={posStr} rotation={`${euler.x} ${euler.y} ${euler.z}`}>
           <a-text
-            value="Interage com um objeto para continuar"
+            value={`Interage com o objeto: ${objectName}`}
             color="white"
             align="center"
             wrap-count="40"
@@ -193,10 +203,11 @@ export default function VRExperiencePlayer({
         </a-entity>
       );
     }
-
+    console.log("[Render] Passed trigger check, rendering type:", currentNode.type);
 
     switch (currentNode.type) {
       case NodeType.beginNode:
+        console.log("[Render] Rendering begin node");
         return (
           <BeginNodeDisplay
             mode="vr"
@@ -208,6 +219,7 @@ export default function VRExperiencePlayer({
           />
         );
       case NodeType.characterNode:
+        console.log("[Render] Rendering dialog node");
         return (
           <DialogueNodeDisplay
             mode="vr"
@@ -218,6 +230,7 @@ export default function VRExperiencePlayer({
           />
         );
       case NodeType.quizNode:
+        console.log("[Render] Rendering quiz node");
         return (
           <QuizNodeDisplay
             mode="vr"
@@ -230,6 +243,7 @@ export default function VRExperiencePlayer({
           />
         );
       case NodeType.endNode:
+        console.log("[Render] Rendering end node");
         return (
           <EndNodeDisplay
             mode="vr"
@@ -249,6 +263,7 @@ export default function VRExperiencePlayer({
           />
         );
       default:
+        console.log("[Render] Not supported node type:", currentNode.type);
         return <Typography>Esta cena não é suportada no modo VR.</Typography>;
     }
   };

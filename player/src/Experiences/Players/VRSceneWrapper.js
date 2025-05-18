@@ -127,27 +127,20 @@ export default function VRSceneWrapper({
     const clickedName = clickedMesh?.name;
     console.log("[VRPlayer] Raycast clicked mesh:", clickedName);
 
-    // Check if current node expects an actor interaction
+    // If current node expects interaction
     if (
       currentNode?.data?.vr &&
-      currentNode.data.vr_type?.trigger_mode === "Ao interagir com ator"
+      currentNode.data.vr_type?.trigger_mode === "Ao interagir com ator" &&
+      !hasTriggered
     ) {
-      const expectedActorId = currentNode.data.vr_type.character;
+      const expectedActorId = currentNode.data.vr_type.actor_id;
       const expectedCharacter = projectData.characters.find(c => c.id === expectedActorId);
+      console.log("[Wrapper] expectedCharacter:", expectedCharacter.name);
       if (!expectedCharacter) return;
 
       if (clickedName === expectedCharacter.name) {
         console.log(`[VRPlayer] Correct actor "${clickedName}" clicked`);
         setHasTriggered(true);
-
-        const nextIds = projectData.edges
-          .filter((e) => e.source === currentNode.id)
-          .map((e) => e.target);
-
-        const nextNode = projectData.nodes.find((n) => nextIds.includes(n.id));
-        if (nextNode) {
-          setCurrentNode(nextNode);
-        }
       } else {
         console.log(`[VRPlayer] Clicked "${clickedName}" but expected "${expectedCharacter.name}" — ignoring`);
       }
