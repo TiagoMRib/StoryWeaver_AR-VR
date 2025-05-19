@@ -105,6 +105,8 @@ export default function ChoiceDialogueDisplay({
         console.warn("[ChoiceDialogueDisplay] Character not found, defaulting to camera");
       }
 
+      targetPos.y = Math.max(targetPos.y, 1.2);
+
       panelObj.position.copy(targetPos);
       panelObj.lookAt(lookAtPos);
     }, 0);

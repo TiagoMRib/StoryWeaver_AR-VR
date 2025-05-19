@@ -88,6 +88,7 @@ export default function QuizNodeDisplay({
         console.warn("[QuizNodeDisplay] Character not found, defaulting to camera");
       }
 
+      targetPos.y = Math.max(targetPos.y, 1.2);
       panelObj.position.copy(targetPos);
       panelObj.lookAt(lookAtPos);
     }, 0);

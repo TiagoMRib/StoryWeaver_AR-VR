@@ -128,6 +128,7 @@ export default function VRExperiencePlayer({
 
     forwardDir.normalize();
     const labelPos = playerPos.clone().add(forwardDir.multiplyScalar(-3));
+    labelPos.y = Math.max(labelPos.y, 1.2);
     const posStr = `${labelPos.x} ${labelPos.y} ${labelPos.z}`;
 
     const lookAtQuat = new THREE.Quaternion().setFromRotationMatrix(
@@ -184,6 +185,7 @@ export default function VRExperiencePlayer({
 
       forwardDir.normalize();
       const labelPos = playerPos.clone().add(forwardDir.multiplyScalar(-3));
+      labelPos.y = Math.max(labelPos.y, 1.2);
       const posStr = `${labelPos.x} ${labelPos.y} ${labelPos.z}`;
 
       const lookAtQuat = new THREE.Quaternion().setFromRotationMatrix(

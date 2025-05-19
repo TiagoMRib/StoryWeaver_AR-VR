@@ -34,6 +34,7 @@ export default function EndNodeDisplay(props) {
       const distance = 4;
       const panelPos = camPos.clone().add(forward.multiplyScalar(-distance)); // -distance because for some reason forward is back
 
+      panelPos.y = Math.max(panelPos.y, 1.2);
       panelObj.position.copy(panelPos);
       panelObj.lookAt(camPos);
 

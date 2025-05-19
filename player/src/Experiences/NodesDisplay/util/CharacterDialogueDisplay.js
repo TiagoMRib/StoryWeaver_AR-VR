@@ -140,6 +140,7 @@ export default function CharacterDialogueDisplay({
 
       console.warn(`[CharacterDialogueDisplay] Character "${charName}" not found — defaulting to camera position`);
     }
+    targetPos.y = Math.max(targetPos.y, 1.2); // Ensure the panel is above the ground
 
     panelObj.position.copy(targetPos);
     panelObj.lookAt(lookAtPos);
