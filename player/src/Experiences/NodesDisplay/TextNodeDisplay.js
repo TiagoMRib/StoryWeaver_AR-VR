@@ -1,104 +1,177 @@
 import {
   Box,
-  ButtonBase,
-  IconButton,
-  TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect } from "react";
-import { backgroundColor, secondaryColor, textColor } from "../../themes";
-import ReactPlayer from "react-player";
+import React, { useEffect, useState } from "react";
+import { backgroundColor as defaultBg } from "../../themes";
 import { ApiDataRepository } from "../../api/ApiDataRepository";
 import LocationBasedARDisplay from "./LocationBasedARDisplay";
-import { ComponentState } from "../../models/ComponentState";
-import { AREntityTypes } from "../../models/AREntityTypes";
-import { ARTriggerMode } from "../../models/ARTriggerModes";
 import ImageTrackingBasedARDisplay from "./ImageTrackingBasedARDisplay";
 import PlayerTextFinalDisplay from "./util/PlayerTextFinalDisplay";
 import GoToNextSlideButton from "./util/GoToNextSlideButton";
 import Typewriter from "./util/TypeWriter";
+import { AREntityTypes } from "../../models/AREntityTypes";
+import { ARTriggerMode } from "../../models/ARTriggerModes";
+import * as THREE from "three";
 
-export default function TextNodeDisplay(props) {
+export default function TextNodeDisplay({
+  node,
+  possibleNextNodes,
+  setNextNode,
+  mode,
+}) {
   const repo = ApiDataRepository.getInstance();
-  const textNode = props.node;
-  const text = textNode.data.name;
-  const textColor = textNode.data.color;
+  const text = node.data.name;
+  const textColor = node.data.color;
+  const character = node.data.character;
+  const backgroundFileInfo = node.data.background;
 
-  const character = textNode.data.character;
-  const possibleNextNodes = props.possibleNextNodes;
+  const ARTypeInfo = node.data.ar_type;
+  const isAR = node.data.ar;
+  const position = node.data.position;
+  const scale = node.data.scale;
 
-  const setNextNode = props.setNextNode;
-
-  const ARTypeInfo = textNode.data.ar_type;
-  const isAR = textNode.data.ar;
-  const position = textNode.data.position;
-  const scale = textNode.data.scale;
-
-  const backgroundFileInfo = textNode.data.background;
-
-  const [backgroundURL, setBackgroundURL] = React.useState("");
-
-  const [characterImg, setCharacterImg] = React.useState("");
-
-  const [markerSrc, setMarkerSrc] = React.useState("");
+  const [characterImg, setCharacterImg] = useState("");
+  const [backgroundURL, setBackgroundURL] = useState("");
+  const [bgColor, setBgColor] = useState(defaultBg);
+  const [markerSrc, setMarkerSrc] = useState("");
 
   useEffect(() => {
-    if (!isAR) return;
-    if (ARTypeInfo.trigger_mode == ARTriggerMode.QRCode) {
-      repo.getFilePath(ARTypeInfo.qr_code).then((url) => {
-        setMarkerSrc(url);
-      });
-    } else {
-      if (ARTypeInfo.image.inputType == "url") {
-        setMarkerSrc(ARTypeInfo.image.filename);
-      } else {
-        repo
-          .getFilePath(ARTypeInfo.image.filename.split(".")[0])
-          .then((url) => {
-            setMarkerSrc(url);
-          });
-      }
-    }
-  }, [ARTypeInfo]);
-  useEffect(() => {
-    if (character.image.filename == "") {
-      return;
-    }
-    if (character.image.inputType == "url") {
+    if (!character?.image?.filename) return;
+    if (character.image.inputType === "url") {
       setCharacterImg(character.image.filename);
     } else {
-      repo.getFilePath(character.image.filename).then((url) => {
-        setCharacterImg(url);
-      });
+      repo.getFilePath(character.image.filename).then(setCharacterImg).catch(() => {});
     }
   }, [character]);
 
-  const [backgroundColor, setBackgroundColor] = React.useState("#A9B388");
-
   useEffect(() => {
-    if (backgroundFileInfo.inputType == "color") {
-      setBackgroundColor(backgroundFileInfo.color);
+    if (!backgroundFileInfo) return;
+    if (backgroundFileInfo.inputType === "color") {
+      setBgColor(backgroundFileInfo.color);
       setBackgroundURL("");
-      return;
-    }
-    if (backgroundFileInfo.filename == "") {
-      setBackgroundURL("");
-      return;
-    }
-    if (backgroundFileInfo.inputType == "url") {
+    } else if (backgroundFileInfo.inputType === "url") {
       setBackgroundURL(backgroundFileInfo.filename);
-    } else {
-      repo
-        .getFilePath(backgroundFileInfo.filename)
-        .then((url) => {
-          setBackgroundURL(url);
-        })
-        .catch(() => {
-          setBackgroundURL("");
-        });
+    } else if (backgroundFileInfo.filename) {
+      repo.getFilePath(backgroundFileInfo.filename).then(setBackgroundURL).catch(() => setBackgroundURL(""));
     }
   }, [backgroundFileInfo]);
 
+  useEffect(() => {
+    if (!isAR || !ARTypeInfo) return;
+    if (ARTypeInfo.trigger_mode === ARTriggerMode.QRCode) {
+      repo.getFilePath(ARTypeInfo.qr_code).then(setMarkerSrc);
+    } else if (ARTypeInfo.image.inputType === "url") {
+      setMarkerSrc(ARTypeInfo.image.filename);
+    } else {
+      repo.getFilePath(ARTypeInfo.image.filename).then(setMarkerSrc).catch(() => {});
+    }
+  }, [ARTypeInfo]);
+
+  // === VR Positioning ===
+useEffect(() => {
+  if (mode !== "vr") return;
+
+  setTimeout(() => {
+    const scene = document.querySelector("a-scene");
+    const camEl = scene?.querySelector("[camera]");
+    const panelEl = scene?.querySelector("#text-panel");
+
+    if (!camEl || !panelEl) {
+      console.warn("[TextNodeDisplay] Camera or panel not found");
+      return;
+    }
+
+    const camObj = camEl.object3D;
+    const panelObj = panelEl.object3D;
+
+    const distance = 2.5;
+    const minY = 1.5;
+
+    let targetPos = new THREE.Vector3();
+    let lookAtPos = new THREE.Vector3();
+
+    const charName = character?.name;
+    const characterEl = scene?.querySelector(`[id="${charName}"]`);
+
+    if (characterEl && characterEl.object3D) {
+      const charObj = characterEl.object3D;
+      charObj.getWorldPosition(targetPos);
+      targetPos.y += 1.5; // Raise above character
+      const forward = new THREE.Vector3();
+      charObj.getWorldDirection(forward);
+      targetPos.add(forward.multiplyScalar(1.5));
+      lookAtPos.copy(charObj.position);
+
+      console.log("[TextNodeDisplay] Positioned near character:", charName);
+    } else {
+      camObj.getWorldPosition(lookAtPos);
+      const forward = new THREE.Vector3();
+      camObj.getWorldDirection(forward);
+      targetPos.copy(lookAtPos.clone().add(forward.multiplyScalar(-distance)));
+      console.warn("[TextNodeDisplay] Character not found, defaulting to camera");
+    }
+
+    targetPos.y = Math.max(targetPos.y, minY);
+    panelObj.position.copy(targetPos);
+    panelObj.lookAt(lookAtPos);
+  }, 0);
+}, [mode, character]);
+
+  // === VR Mode ===
+  if (mode === "vr") {
+    return (
+      <a-entity id="text-panel">
+        {characterImg && (
+          <a-image
+            src={characterImg}
+            position="-1 0.6 0"
+            width="0.8"
+            height="0.8"
+            material="shader: flat"
+          ></a-image>
+        )}
+
+        <a-plane
+          width="3"
+          height="1.2"
+          color="white"
+          material="side: double"
+          position="0 0.3 0"
+        >
+          <a-text
+            value={text}
+            wrap-count="40"
+            color="black"
+            align="center"
+            position="0 0 0.01"
+          ></a-text>
+        </a-plane>
+
+        <a-box
+          position="0 -0.7 0.01"
+          width="2"
+          height="0.4"
+          depth="0.05"
+          color="#4caf50"
+          class="clickable"
+          onClick={() => {
+            if (possibleNextNodes[0]) setNextNode(possibleNextNodes[0]);
+          }}
+        >
+          <a-text
+            value="Continuar"
+            align="center"
+            color="white"
+            position="0 0 0.05"
+            wrap-count="20"
+          ></a-text>
+        </a-box>
+      </a-entity>
+    );
+  }
+
+  // === AR / Screen Mode ===
   return (
     <Box
       sx={{
@@ -110,9 +183,9 @@ export default function TextNodeDisplay(props) {
         alignItems: "center",
         overflow: "hidden",
         background:
-          backgroundURL == ""
-            ? backgroundColor
-            : `${backgroundColor} url(${backgroundURL}) no-repeat center center  fixed`,
+          backgroundURL === ""
+            ? bgColor
+            : `${bgColor} url(${backgroundURL}) no-repeat center center fixed`,
         backgroundSize: "cover",
       }}
     >
@@ -140,16 +213,18 @@ export default function TextNodeDisplay(props) {
         )
       ) : (
         <>
-          <img
-            src={characterImg}
-            alt={character.name}
-            style={{
-              width: "100px",
-              height: "100px",
-              borderRadius: "50%",
-              border: "2px solid black",
-            }}
-          />
+          {characterImg && (
+            <img
+              src={characterImg}
+              alt={character.name}
+              style={{
+                width: "100px",
+                height: "100px",
+                borderRadius: "50%",
+                border: "2px solid black",
+              }}
+            />
+          )}
           <Box
             sx={{
               display: "flex",
@@ -176,6 +251,7 @@ export default function TextNodeDisplay(props) {
           </Box>
         </>
       )}
+
       <GoToNextSlideButton
         possibleNextNodes={possibleNextNodes}
         setNextNode={setNextNode}

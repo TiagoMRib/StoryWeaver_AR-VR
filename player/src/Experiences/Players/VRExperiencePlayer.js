@@ -5,6 +5,7 @@ import BeginNodeDisplay from "../NodesDisplay/BeginNodeDisplay";
 import EndNodeDisplay from "../NodesDisplay/EndNodeDisplay";
 import QuizNodeDisplay from "../NodesDisplay/QuizNodeDisplay";
 import DialogueNodeDisplay from "../NodesDisplay/DialogueNodeDisplay";
+import TextNodeDisplay from "../NodesDisplay/TextNodeDisplay";
 import VRSceneWrapper from "./VRSceneWrapper";
 import * as THREE from "three";
 
@@ -242,6 +243,16 @@ export default function VRExperiencePlayer({
             experienceName={projectData.projectTitle}
             outGoingEdges={projectData.edges.filter(e => e.source === currentNode.id)}
             hasTriggered={hasTriggered}
+          />
+        );
+      case NodeType.textNode:
+        console.log("[Render] Rendering text node");
+        return (
+          <TextNodeDisplay
+            mode="vr"
+            node={currentNode}
+            possibleNextNodes={nextNodes}
+            setNextNode={updateCurrentNode}
           />
         );
       case NodeType.endNode:

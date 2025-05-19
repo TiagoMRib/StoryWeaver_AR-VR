@@ -78,11 +78,18 @@ export default function VRSceneWrapper({
         if (node.isMesh) {
           node.frustumCulled = false;
           if (node.material) node.material.side = THREE.DoubleSide;
-          if (node.el) node.el.setAttribute("static-body", "");
 
+          // Attach collision to parent A-Frame element
+          if (node.el && !node.el.hasAttribute("static-body")) {
+            node.el.setAttribute("static-body", {
+              shape: "box" 
+            });
+          }
+
+          // Optional: Make interactive meshes "clickable"
           if (projectData.characters.some(c => c.name === node.name)) {
-    if (node.el) node.el.classList.add("clickable");
-  }
+            node.el?.classList.add("clickable");
+          }
         }
       });
 
