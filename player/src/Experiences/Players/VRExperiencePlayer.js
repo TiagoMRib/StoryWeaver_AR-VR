@@ -39,7 +39,9 @@ export default function VRExperiencePlayer({
    * Reset trigger state whenever the current node changes.
    */
   useEffect(() => {
+    console.log("[VRPlayer] Current node changed:", currentNode?.id);
     setHasTriggered(false);
+    console.log("[VRPlayer] Trigger state reset to", hasTriggered);
   }, [currentNode]);
 
   /**
@@ -150,6 +152,32 @@ export default function VRExperiencePlayer({
     );
   };
 
+ /**
+  * 
+  * displays a cone over the object
+  * 
+  */
+  const renderTriggerIndicator = (targetName) => {
+    const object = sceneEl?.object3D?.getObjectByName(targetName);
+    if (!object) return null;
+
+    const pos = new THREE.Vector3();
+    object.getWorldPosition(pos);
+    pos.y += 1.5; // raise it above the object
+
+    return (
+      <a-entity position={`${pos.x} ${pos.y} ${pos.z}`}>
+        <a-cone
+          height="0.5"
+          radius-bottom="0"
+          radius-top="0.1"
+          color="#90EE90"
+          animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"
+        />
+      </a-entity>
+    );
+  };
+
   /**
    * Renders the current node using appropriate display component.
    */
@@ -160,17 +188,25 @@ export default function VRExperiencePlayer({
 
     const { vr, vr_type } = currentNode.data || {};
     const { trigger_mode, place } = vr_type || {};
+    
 
     if (vr && trigger_mode === "Ao entrar" && place && !hasTriggered) {
-      if (!isPlayerNearObject(place)) {
-        return renderGoToLocationPrompt(place);
-      }
+      const prompt = renderGoToLocationPrompt(place);
+      const indicator = renderTriggerIndicator(place);
+      return (
+        <>
+          {prompt}
+          {indicator}
+        </>
+      );
     }
     if (vr && trigger_mode === "Ao interagir com ator" && !hasTriggered) {
       const expectedActorId = vr_type.actor_id;
       console.log("[VRPlayer] currentNode.data.vr_type.character:", expectedActorId);
       const expectedCharacter = projectData.characters.find(c => c.id === expectedActorId);
       const objectName = expectedCharacter?.name || "objeto desconhecido";
+
+      const indicator = renderTriggerIndicator(objectName);
 
       console.log(`[VRPlayer] Waiting for interaction with: ${objectName}`);
 
@@ -203,6 +239,7 @@ export default function VRExperiencePlayer({
             wrap-count="40"
             position="0 0 0.01"
           ></a-text>
+          {indicator}
         </a-entity>
       );
     }
