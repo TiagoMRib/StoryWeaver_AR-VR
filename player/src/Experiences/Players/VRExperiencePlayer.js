@@ -158,8 +158,21 @@ export default function VRExperiencePlayer({
   * 
   */
   const renderTriggerIndicator = (targetName) => {
-    const object = sceneEl?.object3D?.getObjectByName(targetName);
-    if (!object) return null;
+    console.log("[Indicator] Rendering trigger indicator for:", targetName);
+    
+
+    const model = sceneEl?.querySelector('[gltf-model]')?.getObject3D('mesh');
+    let object = null;
+
+    model?.traverse((child) => {
+      if (child.name === targetName) {
+        object = child;
+      }
+    });
+
+    if (!object) {
+      console.warn("[TriggerIndicator] Could not find object for:", targetName);
+    }
 
     const pos = new THREE.Vector3();
     object.getWorldPosition(pos);
@@ -167,12 +180,10 @@ export default function VRExperiencePlayer({
 
     return (
       <a-entity position={`${pos.x} ${pos.y} ${pos.z}`}>
-        <a-cone
-          height="0.5"
-          radius-bottom="0"
-          radius-top="0.1"
+        <a-octahedron
+          radius="0.2"
           color="#90EE90"
-          animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"
+          animation="property: rotation; to: 0 360 0; loop: true; dur: 3000"
         />
       </a-entity>
     );
@@ -231,6 +242,7 @@ export default function VRExperiencePlayer({
       const euler = new THREE.Euler().setFromQuaternion(lookAtQuat);
 
       return (
+        <>
         <a-entity position={posStr} rotation={`${euler.x} ${euler.y} ${euler.z}`}>
           <a-text
             value={`Interage com o objeto: ${objectName}`}
@@ -239,8 +251,9 @@ export default function VRExperiencePlayer({
             wrap-count="40"
             position="0 0 0.01"
           ></a-text>
-          {indicator}
         </a-entity>
+        {indicator}
+        </>
       );
     }
     console.log("[Render] Passed trigger check, rendering type:", currentNode.type);
