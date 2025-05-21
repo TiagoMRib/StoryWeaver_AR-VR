@@ -172,6 +172,7 @@ export default function VRExperiencePlayer({
 
     if (!object) {
       console.warn("[TriggerIndicator] Could not find object for:", targetName);
+      return;
     }
 
     const pos = new THREE.Vector3();
@@ -268,7 +269,7 @@ export default function VRExperiencePlayer({
             node={currentNode}
             possibleNextNodes={nextNodes}
             setNextNode={updateCurrentNode}
-            experienceName={projectData.projectTitle}
+            experienceName={projectData.experienceName}
           />
         );
       case NodeType.characterNode:

@@ -39,7 +39,7 @@ export default function ExportProjectPopup(props) {
   const setAlertMessage = props.setDisplayMessage;
   const setSeverity = props.setSeverity;
 
-  const name = props.name;
+  const experienceName = props.name;
   const setName = props.setName;
 
   const description = props.description;
@@ -189,7 +189,7 @@ export default function ExportProjectPopup(props) {
                 }}
                 id="standard-basic"
                 variant="standard"
-                value={name}
+                value={experienceName}
                 onChange={(e) => setName(e.target.value)}
               />
             </Box>
@@ -344,14 +344,14 @@ export default function ExportProjectPopup(props) {
                     edges,
                     characters,
                     maps,
-                    name,
+                    experienceName,
                     description,
                     tags,
                     vrLocations,
                     vrPlayerStart
                   )
                   .then((res) => {
-                    localStorage.setItem("experienceName", name);
+                    localStorage.setItem("experienceName", experienceName);
                     localStorage.setItem("experienceDescription", description);
                     localStorage.setItem(
                       "experienceTags",
@@ -400,7 +400,7 @@ export default function ExportProjectPopup(props) {
                   edges,
                   characters,
                   maps,
-                  name,
+                  experienceName,
                   description,
                   tags,
                   vrLocations,
@@ -412,7 +412,7 @@ export default function ExportProjectPopup(props) {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = `${name || "exported_project"}.json`;
+                a.download = `${experienceName || "exported_project"}.json`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);

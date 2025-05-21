@@ -12,7 +12,7 @@ function getPlayerStartPosition(startName, gltfScene) {
     const pos = startNode.position;
     return { position: `${pos.x} ${pos.y} ${pos.z}`, found: true };
   }
-  return { position: "0 1.6 0", found: false };
+  return { position: "0 0.5 0", found: false };
 }
 
 // Distance check

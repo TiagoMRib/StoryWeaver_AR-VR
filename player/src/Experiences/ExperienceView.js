@@ -13,6 +13,8 @@ export default function ExperienceView({
   setExperience,
   repo,
 }) {
+
+  console.log("[ExperienceView] Project Info:", projectInfo);
   if (playMode === "VR") {
     return (
       <VRExperiencePlayer
