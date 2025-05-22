@@ -44,7 +44,9 @@ export default function MainWindow(props) {
   const repo = ApiDataRepository.getInstance();
   const [windows, setWindows] = React.useState(["História", "Mapa AR", "Mundo VR"]);
   const [mapsState, setMaps] = React.useState(maps);
-  const [vrLocations, setVRLocations] = React.useState([]);
+  const [locations, setLocations] = React.useState(
+    JSON.parse(localStorage.getItem("locations") || "[]")
+  );
   const [selectedMap, setSelectedMap] = React.useState(
     maps.length > 0 ? maps[0] : null
   );
@@ -405,6 +407,8 @@ export default function MainWindow(props) {
         edges={edges}
         characters={characters}
         setCharacters={setCharacters}
+        locations={locations}
+        setLocations={setLocations}
         projectTitle={projectTitle}
         setProjectTitle={setProjectTitle}
         currentWindow={displayedWindow}
@@ -545,7 +549,7 @@ export default function MainWindow(props) {
           <VRWorldWindow
             setCharacters={setCharacters}
             setMaps={setMaps}
-            setVRLocations={setVRLocations}
+            setLocations={setLocations}
           />
         ) : null}
 

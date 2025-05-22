@@ -48,6 +48,12 @@ export default function ExportProjectPopup(props) {
 
   const setTags = props.setTags;
 
+  const projectTitle = props.projectTitle;
+  const nodes = props.nodes;
+  const edges = props.edges;
+  const characters = props.characters;
+  const locations = props.locations;
+
   return (
     <Dialog
       id="export-project-popup"
@@ -327,15 +333,6 @@ export default function ExportProjectPopup(props) {
             <ButtonBase
               onClick={() => {
                 onClose();
-                const projectTitle = localStorage.getItem("projectTitle");
-                const nodes = JSON.parse(localStorage.getItem("nodes"));
-                const edges = JSON.parse(localStorage.getItem("edges"));
-                const maps = JSON.parse(localStorage.getItem("maps"));
-                const characters = JSON.parse(
-                  localStorage.getItem("characters")
-                );
-                const vrLocations = JSON.parse(localStorage.getItem("vrLocations")) || [];
-                const vrPlayerStart = localStorage.getItem("vrPlayerStart") || "";
 
                 repo
                   .exportProject(
@@ -343,12 +340,10 @@ export default function ExportProjectPopup(props) {
                     nodes,
                     edges,
                     characters,
-                    maps,
+                    locations,
                     experienceName,
                     description,
                     tags,
-                    vrLocations,
-                    vrPlayerStart
                   )
                   .then((res) => {
                     localStorage.setItem("experienceName", experienceName);
@@ -386,25 +381,16 @@ export default function ExportProjectPopup(props) {
             </ButtonBase>
             <ButtonBase
               onClick={() => {
-                const projectTitle = localStorage.getItem("projectTitle");
-                const nodes = JSON.parse(localStorage.getItem("nodes"));
-                const edges = JSON.parse(localStorage.getItem("edges"));
-                const maps = JSON.parse(localStorage.getItem("maps"));
-                const characters = JSON.parse(localStorage.getItem("characters"));
-                const vrLocations = JSON.parse(localStorage.getItem("vrLocations")) || [];
-                const vrPlayerStart = localStorage.getItem("vrPlayerStart") || "";
 
                 const exportData = {
                   projectTitle,
                   nodes,
                   edges,
                   characters,
-                  maps,
+                  locations,
                   experienceName,
                   description,
-                  tags,
-                  vrLocations,
-                  vrPlayerStart,
+                  tags, 
                 };
 
                 const jsonData = JSON.stringify(exportData, null, 2);

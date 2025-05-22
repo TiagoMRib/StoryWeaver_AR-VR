@@ -3,7 +3,7 @@ import { Box, Button, Typography, Accordion, AccordionSummary, AccordionDetails 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { textColor, primaryColor, secondaryColor, tertiaryColor } from "../themes";
 
-export default function VRWorldWindow({ setCharacters, setMaps, setVRLocations }) {
+export default function VRWorldWindow({ setCharacters, setLocations }) {
   const [jsonPreview, setJsonPreview] = useState(null);
 
   const handleFileUpload = (e) => {
@@ -12,8 +12,8 @@ export default function VRWorldWindow({ setCharacters, setMaps, setVRLocations }
       try {
         const data = JSON.parse(event.target.result);
         setJsonPreview(data);
-  
-        // Update characters
+
+        // === Add new characters ===
         setCharacters((prev) => {
           const newActors = data.actors || [];
           const uniqueNew = newActors.filter(
@@ -29,20 +29,50 @@ export default function VRWorldWindow({ setCharacters, setMaps, setVRLocations }
               blob: null,
             },
           }));
-  
+
           const updated = [...prev, ...newCharObjs];
           localStorage.setItem("characters", JSON.stringify(updated));
 
+          // Store player start location if needed
           const vrPlayerStart = data.playerStart || "";
           localStorage.setItem("vrPlayerStart", vrPlayerStart);
+
           return updated;
         });
-  
-        // Store VR locations
-        const vrLocations = data.locations || [];
-        setVRLocations(vrLocations); 
-        localStorage.setItem("vrLocations", JSON.stringify(vrLocations));
-  
+
+        // === Add new locations ===
+        setLocations((prev) => {
+          const newLocations = data.locations || [];
+
+          // Build location objects
+          const uniqueNew = newLocations.filter(
+            (name) => !prev.some((loc) => loc.name === name)
+          );
+          const newLocObjs = uniqueNew.map((name, index) => ({
+            id: Date.now() + index,
+            name,
+            description: "Local importado do Unity",
+            color: "#A9B388"
+          }));
+
+          // Add playerStart as a location too
+          const playerStart = data.playerStart;
+          const alreadyExists = prev.some((loc) => loc.name === playerStart) || !playerStart;
+          const startLocObj = !alreadyExists
+            ? [{
+                id: Date.now() + 999, // big offset to avoid conflict
+                name: playerStart,
+                description: "Ponto de Início",
+                color: "#90caf9" // light blue highlight
+              }]
+            : [];
+
+          const updated = [...prev, ...newLocObjs, ...startLocObj];
+          localStorage.setItem("locations", JSON.stringify(updated));
+          return updated;
+        });
+
+
         console.log("Loaded VR scene data:", data);
       } catch (err) {
         alert("Erro ao ler JSON: " + err.message);

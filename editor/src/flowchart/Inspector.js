@@ -18,6 +18,7 @@ import OpenWindowField from "./inspector/OpenWindow";
 import SelectARField from "./inspector/SelectAR";
 import SelectVRField from "./inspector/SelectVR";
 import SelectLocationField from "./inspector/SelectLocation";
+import SelectTriggerTargetField from "./inspector/SelectTriggerTarget";
 import TextFieldInspector from "./inspector/TextField";
 import TextFieldExpandable from "./inspector/TextFieldExpandable";
 import TextFieldMultiline from "./inspector/TextFieldMultiline";
@@ -33,7 +34,7 @@ function Inspector(props) {
   const setInspectorData = props.setData;
   const nodeId = props.nodeId;
   const characters = props.characters;
-  const vrLocations = JSON.parse(localStorage.getItem("vrLocations") || "[]");
+  const locations = JSON.parse(localStorage.getItem("locations") || "[]");
   const setValues = props.setValue;
   const handleNodeDataChange = props.handleNodeDataChange;
   const handleDelete = props.handleDelete;
@@ -153,6 +154,18 @@ function Inspector(props) {
                       style={{ mt: 2 }}
                     ></SelectLocationField>
                   );
+              case InputFieldType.select_trigger_target:
+                return (
+                  <SelectTriggerTargetField
+                    conditional={values[field.conditional]}
+                    key={index}
+                    id={index}
+                    onChange={handleFieldChange}
+                    value={values[field.name]}
+                    data={field}
+                    style={{ mt: 2 }}
+                  />
+                );
               case InputFieldType.select_ar_type:
                 return (
                   <SelectARField
@@ -174,7 +187,7 @@ function Inspector(props) {
                     onChange={handleFieldChange}
                     value={values[field.name]}
                     characters={characters}
-                    vrLocations={vrLocations}
+                    locations={locations}
                     data={field}
                     style={{ mt: 2 }}
                   />
@@ -272,7 +285,8 @@ function Inspector(props) {
                   ></ColorPicker>
                 );
               case InputFieldType.ar_preview:
-                return (
+                return null; //ar preview disabled for a while
+              /*return (
                   <ARPreviewField
                     key={index}
                     id={index}
@@ -299,7 +313,7 @@ function Inspector(props) {
                     data={field}
                     style={{ mt: 2 }}
                   ></ARPreviewField>
-                );
+                );*/
             }
           });
         })}

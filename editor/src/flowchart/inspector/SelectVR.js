@@ -16,7 +16,7 @@ import {
     const value = props.value;
     const options = props.data.options;
     const characters = props.characters;
-    const vrLocations = props.vrLocations;
+    const locations = props.locations;
     const handleFieldChange = props.onChange;
 
   
@@ -90,7 +90,7 @@ import {
         </Box>
   
         {value.trigger_mode === "Ao entrar" ? (
-          vrLocations.length > 0 ? (
+          locations.length > 0 ? (
             <Box
               sx={{
                 display: "flex",
@@ -142,7 +142,7 @@ import {
                     });
                   }}
                 >
-                  {vrLocations.map((location, index) => (
+                  {locations.map((location, index) => (
                     <MenuItem sx={{ color: "black" }} key={index} value={location}>
                       {location}
                     </MenuItem>

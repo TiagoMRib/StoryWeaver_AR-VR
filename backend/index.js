@@ -91,7 +91,7 @@ app.post("/save", async (req, res) => {
   const experienceName = req.body.experienceName;
   const description = req.body.description;
   const tags = req.body.tags;
-  const vrLocations = req.body.vrLocations || [];
+  const locations = req.body.locations || [];
   const vrPlayerStart = req.body.vrPlayerStart || "";
 
   //save to database
@@ -112,7 +112,7 @@ app.post("/save", async (req, res) => {
           experienceName: experienceName,
           description: description,
           tags: tags,
-          vrLocations: vrLocations,
+          locations: locations,
           vrPlayerStart: vrPlayerStart,
           lastModified: new Date().toISOString(),
         },
@@ -188,7 +188,7 @@ app.post("/export", async (req, res) => {
   let storyId = originalStoryId;
   const storyEndings = req.body.endings;
 
-  const vrLocations = req.body.vrLocations || [];
+  const locations = req.body.locations || [];
   const vrPlayerStart = req.body.vrPlayerStart || "";
 
   //save to story_structures database
@@ -209,7 +209,7 @@ app.post("/export", async (req, res) => {
           description: description,
           tags: tags,
           storyEndings: storyEndings,
-          vrLocations: vrLocations,
+          locations: locations,
           vrPlayerStart: vrPlayerStart,
           lastModified: new Date().toISOString(),
         },
@@ -234,7 +234,7 @@ app.post("/export", async (req, res) => {
           description: description,
           tags: tags,
           storyEndings: storyEndings,
-          vrLocations: vrLocations,
+          locations: locations,
           vrPlayerStart: vrPlayerStart,
           lastModified: new Date().toISOString(),
         },

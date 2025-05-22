@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -24,6 +24,7 @@ import {
 import AddLocationsPopup from "../flowchart/menu/AddLocationsPopup";
 import Logo from "../assets/64x64-logo.png";
 import CharactersPopup from "../flowchart/menu/CharactersPopup";
+import LocationsPopup from "../flowchart/menu/LocationsPopup";
 import { possibleNodes } from "../models/possibleNodes";
 import { possibleDialogueNodes } from "../models/possibleDialogueNodes";
 import LoadProjectPopup from "../flowchart/menu/LoadProjectPopup";
@@ -57,6 +58,9 @@ export default function TopAppBar(props) {
     props.setProjectTitle(projectTitle);
     localStorage.setItem("projectTitle", projectTitle);
   };
+
+  const locations = props.locations;
+  const setLocations = props.setLocations;
   const addNode = props.addNode;
   const addDialogueNode = props.addDialogueNode;
 
@@ -65,6 +69,7 @@ export default function TopAppBar(props) {
   const [openAddNode, setOpenAddNode] = React.useState(false);
   const [openLoadProjectPopup, setOpenLoadProjectPopup] = React.useState(false);
   const [openCharacterMenu, setOpenCharacterMenu] = React.useState(false);
+  const [openLocationsMenu, setOpenLocationsMenu] = React.useState(false);
   const [openExportProjectPopup, setOpenExportProjectPopup] =
     React.useState(false);
 
@@ -274,7 +279,12 @@ export default function TopAppBar(props) {
             onClose={() => {
               setOpenExportProjectPopup(false);
             }}
-          ></ExportProjectPopup>
+            projectTitle={projectTitle}
+            nodes={nodes}
+            edges={edges}
+            characters={characters}
+            locations={locations}
+          />
           <CharactersPopup
             characters={characters}
             setCharacters={setCharacters}
@@ -283,6 +293,12 @@ export default function TopAppBar(props) {
               setOpenCharacterMenu(false);
             }}
           ></CharactersPopup>
+          <LocationsPopup
+            open={openLocationsMenu}
+            locations={locations}
+            setLocations={setLocations}
+            onClose={() => setOpenLocationsMenu(false)}
+          />
           <LoadProjectPopup
             open={openLoadProjectPopup}
             setProjects={setProjects}
@@ -461,6 +477,22 @@ export default function TopAppBar(props) {
                 color: secondaryColor,
               }}
             ></AccountCircle>
+          </IconButton>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="localizações"
+            sx={{ mr: 2, fontSize: "30px !important" }}
+            onClick={() => {
+              setOpenLocationsMenu(true);
+            }}
+          >
+            <img
+              src="./assets/mdi_location.svg" 
+              alt="Localizações"
+              style={{ width: "50px", height: "50px" }}
+            />
           </IconButton>
           <TextField
             aria-autocomplete="off"
