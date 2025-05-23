@@ -25,6 +25,7 @@ import AddLocationsPopup from "../flowchart/menu/AddLocationsPopup";
 import Logo from "../assets/64x64-logo.png";
 import CharactersPopup from "../flowchart/menu/CharactersPopup";
 import LocationsPopup from "../flowchart/menu/LocationsPopup";
+import InteractionsPopup from "../flowchart/menu/InteractionsPopup";
 import { possibleNodes } from "../models/possibleNodes";
 import { possibleDialogueNodes } from "../models/possibleDialogueNodes";
 import LoadProjectPopup from "../flowchart/menu/LoadProjectPopup";
@@ -64,12 +65,17 @@ export default function TopAppBar(props) {
   const addNode = props.addNode;
   const addDialogueNode = props.addDialogueNode;
 
+  
+  const interactions = props.interactions;
+  const setInteractions = props.setInteractions;
+
   const addLocation = props.addLocation;
 
   const [openAddNode, setOpenAddNode] = React.useState(false);
   const [openLoadProjectPopup, setOpenLoadProjectPopup] = React.useState(false);
   const [openCharacterMenu, setOpenCharacterMenu] = React.useState(false);
   const [openLocationsMenu, setOpenLocationsMenu] = React.useState(false);
+  const [openInteractionsPopup, setOpenInteractionsPopup] = useState(false);
   const [openExportProjectPopup, setOpenExportProjectPopup] =
     React.useState(false);
 
@@ -299,6 +305,12 @@ export default function TopAppBar(props) {
             setLocations={setLocations}
             onClose={() => setOpenLocationsMenu(false)}
           />
+          <InteractionsPopup
+            open={openInteractionsPopup}
+            onClose={() => setOpenInteractionsPopup(false)}
+            interactions={interactions}
+            setInteractions={setInteractions}
+          />
           <LoadProjectPopup
             open={openLoadProjectPopup}
             setProjects={setProjects}
@@ -491,6 +503,22 @@ export default function TopAppBar(props) {
             <img
               src="./assets/mdi_location.svg" 
               alt="Localizações"
+              style={{ width: "50px", height: "50px" }}
+            />
+          </IconButton>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="interações"
+            sx={{ mr: 2, fontSize: "30px !important" }}
+            onClick={() => {
+              setOpenInteractionsPopup(true);
+            }}
+          >
+            <img
+              src="./assets/info.svg"
+              alt="Interações"
               style={{ width: "50px", height: "50px" }}
             />
           </IconButton>

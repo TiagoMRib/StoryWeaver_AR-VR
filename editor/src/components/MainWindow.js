@@ -44,20 +44,33 @@ export default function MainWindow(props) {
   const repo = ApiDataRepository.getInstance();
   const [windows, setWindows] = React.useState(["História", "Mapa AR", "Mundo VR"]);
   const [mapsState, setMaps] = React.useState(maps);
-  const [locations, setLocations] = React.useState(
-    JSON.parse(localStorage.getItem("locations") || "[]")
-  );
+  
   const [selectedMap, setSelectedMap] = React.useState(
     maps.length > 0 ? maps[0] : null
   );
   const [mountMap, setMountMap] = React.useState(true);
+
+
   const [displayedWindow, changeDisplayedWindow] = React.useState("História");
   const [nodes, setNodes] = React.useState(initialNodes);
   const [edges, setEdges] = React.useState(initialEdges);
+
+
+  const [locations, setLocations] = React.useState(
+    JSON.parse(localStorage.getItem("locations") || "[]")
+  );
+
   const [characters, setCharacters] = React.useState(
     localStorage.getItem("characters")
       ? JSON.parse(localStorage.getItem("characters"))
       : [narrator]
+  );
+
+  const [interactions, setInteractions] = React.useState(
+    JSON.parse(localStorage.getItem("interactions")) || [
+      { type: "talk_to", label: "Falar com" },
+      { type: "go_near", label: "Aproximar-se" },
+    ]
   );
 
   const [dialogNodes, setDialogNodes] = React.useState([]);
@@ -410,6 +423,8 @@ export default function MainWindow(props) {
         locations={locations}
         setLocations={setLocations}
         projectTitle={projectTitle}
+        interactions={interactions}
+        setInteractions={setInteractions}
         setProjectTitle={setProjectTitle}
         currentWindow={displayedWindow}
         addNode={addNode}
