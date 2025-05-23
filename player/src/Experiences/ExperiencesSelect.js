@@ -192,9 +192,7 @@ export default function ExperiencesSelect(props) {
                 localStorage.setItem("nodes", JSON.stringify(json.nodes || []));
                 localStorage.setItem("edges", JSON.stringify(json.edges || []));
                 localStorage.setItem("characters", JSON.stringify(json.characters || []));
-                localStorage.setItem("maps", JSON.stringify(json.maps || []));
                 localStorage.setItem("locations", JSON.stringify(json.locations || []));
-                localStorage.setItem("vrPlayerStart", json.vrPlayerStart || "");
                 localStorage.setItem("projectTitle", json.projectTitle || "Local JSON");
 
                 // Optional: for UI consistency

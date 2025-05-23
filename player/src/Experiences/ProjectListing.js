@@ -15,31 +15,30 @@ export default function ProjectListing(props) {
   const project = props.project;
   const setExperience = props.setExperience;
   const [open, setOpen] = React.useState(false);
+
+  console.log("[Listing] Project:", project);
+
+  // Add validation logs
+  React.useEffect(() => {
+    console.log("[Listing] Description:",project.description);
+    console.log("[Listing] Tags:", project.tags);
+    if (!Array.isArray(project.tags)) {
+      console.error("[Listing] ERROR: project.tags is not an array!", project.tags);
+    } else {
+      project.tags.forEach((tag, index) => {
+        console.log(`[Listing] Tag[${index}]`, tag, "name:", tag.name, "color:", tag.color);
+        if (typeof tag !== "object" || !tag.name || !tag.color) {
+          console.error("[Listing] ERROR: Invalid tag object!", tag);
+        }
+      });
+    }
+  }, [project]);
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "start",
-        alignItems: "start",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          cursor: "pointer",
-          width: "100%",
-        }}
-      >
+    <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "start", alignItems: "start" }}>
+      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", cursor: "pointer", width: "100%" }}>
         <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}
           onClick={() => {
             setExperience(project.id);
             localStorage.setItem("storyId", project.id);
@@ -53,14 +52,7 @@ export default function ProjectListing(props) {
               filter: "brightness(0) saturate(100%)",
             }}
           />
-          <Typography
-            variant="h5"
-            sx={{
-              color: "black",
-              px: 3,
-              textAlign: "start",
-            }}
-          >
+          <Typography variant="h5" sx={{ color: "black", px: 3, textAlign: "start" }}>
             {project.experienceName}
           </Typography>
         </Box>
@@ -70,25 +62,14 @@ export default function ProjectListing(props) {
             setOpen(!open);
           }}
         >
-          <Icon
-            sx={{
-              color: "black",
-              fontSize: "30px !important",
-            }}
-          >
+          <Icon sx={{ color: "black", fontSize: "30px !important" }}>
             {open ? "expand_less" : "expand_more"}
           </Icon>
         </IconButton>
       </Box>
+
       <Collapse in={open}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            mb: 2,
-          }}
-        >
+        <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", mb: 2 }}>
           <Typography
             variant="h6"
             sx={{
@@ -103,6 +84,8 @@ export default function ProjectListing(props) {
           >
             Descrição
           </Typography>
+
+          {/* Defensive check for description */}
           <Typography
             variant="h7"
             sx={{
@@ -116,16 +99,11 @@ export default function ProjectListing(props) {
               whiteSpace: "pre-wrap",
             }}
           >
-            {project.description}
+            {typeof project.description === "string" ? project.description : "Descrição inválida"}
           </Typography>
         </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
+
+        <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
           <Typography
             variant="h6"
             sx={{
@@ -139,22 +117,25 @@ export default function ProjectListing(props) {
           >
             Etiquetas:
           </Typography>
+
           <Grid>
-            {project.tags.map((tag) => {
-              return (
-                <Chip
-                  key={tag.name}
-                  label={tag.name}
-                  sx={{
-                    fontSize: 16,
-                    fontWeight: 500,
-                    backgroundColor: tag.color,
-                    color: "black",
-                    m: 0.5,
-                  }}
-                />
-              );
-            })}
+            {Array.isArray(project.tags)
+              ? project.tags.map((tag, i) => {
+                  return (
+                    <Chip
+                      key={`${tag.name}-${i}`}
+                      label={tag.name}
+                      sx={{
+                        fontSize: 16,
+                        fontWeight: 500,
+                        backgroundColor: tag.color,
+                        color: "black",
+                        m: 0.5,
+                      }}
+                    />
+                  );
+                })
+              : "Etiquetas inválidas"}
           </Grid>
         </Box>
       </Collapse>
