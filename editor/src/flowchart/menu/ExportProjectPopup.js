@@ -382,16 +382,75 @@ export default function ExportProjectPopup(props) {
             <ButtonBase
               onClick={() => {
 
-                const exportData = {
-                  projectTitle,
-                  nodes,
-                  edges,
+              function cleanDialogData(data) {
+                const { isSelectedForCopy, width, height, selected, dragging, ...cleanedData } = data;
+                return cleanedData;
+              }
+
+              function cleanDialogNodes(dialog) {
+                return {
+                  nodes: dialog.nodes.map(({ id, type, data }) => ({
+                    id,
+                    type,
+                    data: cleanDialogData(data),
+                  })),
+                  edges: dialog.edges.map(({ source, target, sourceHandle, targetHandle }) => ({
+                    source,
+                    target,
+                    sourceHandle,
+                    targetHandle,
+                  })),
+                };
+              }
+
+              function sanitizeExport({ nodes, edges, characters, locations, ...rest }) {
+                const cleanedNodes = nodes.map(({ id, type, data }) => {
+                  const cleanedData = { ...data };
+
+                  // Recursively clean dialog content for character nodes
+                  if (type === "characterNode" && data.dialog) {
+                    cleanedData.dialog = cleanDialogNodes(data.dialog);
+                  }
+
+                  // Remove editor-related props
+                  delete cleanedData.position;
+                  delete cleanedData.scale;
+                  delete cleanedData.rotation;
+                  delete cleanedData.isSelectedForCopy;
+                  delete cleanedData.selected;
+                  delete cleanedData.width;
+                  delete cleanedData.height;
+                  delete cleanedData.dragging;
+
+                  return { id, type, data: cleanedData };
+                });
+
+                return {
+                  ...rest,
+                  nodes: cleanedNodes,
+                  edges: edges.map(({ source, target, sourceHandle, targetHandle }) => ({
+                    source,
+                    target,
+                    sourceHandle,
+                    targetHandle,
+                  })),
                   characters,
                   locations,
-                  experienceName,
-                  description,
-                  tags, 
                 };
+              }
+
+              const exportData = sanitizeExport({
+                projectTitle,
+                nodes,
+                edges,
+                characters,
+                locations,
+                experienceName,
+                description,
+                tags,
+              });
+
+
 
                 const jsonData = JSON.stringify(exportData, null, 2);
                 const blob = new Blob([jsonData], { type: "application/json" });
