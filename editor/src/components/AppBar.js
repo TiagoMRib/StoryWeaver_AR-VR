@@ -290,6 +290,7 @@ export default function TopAppBar(props) {
             edges={edges}
             characters={characters}
             locations={locations}
+            interactions={interactions}
           />
           <CharactersPopup
             characters={characters}

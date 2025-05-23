@@ -51,8 +51,10 @@ export default function ExportProjectPopup(props) {
   const projectTitle = props.projectTitle;
   const nodes = props.nodes;
   const edges = props.edges;
+
   const characters = props.characters;
   const locations = props.locations;
+  const interactions = props.interactions;
 
   return (
     <Dialog
@@ -473,6 +475,37 @@ export default function ExportProjectPopup(props) {
               }}
             >
               Download JSON
+            </ButtonBase>
+            <ButtonBase
+              onClick={() => {
+                const manifest = {
+                  title: experienceName || projectTitle,
+                  characters: characters.map(({ id, name, description }) => ({ id, name, description })),
+                  locations: locations.map(({ id, name, description }) => ({ id, name, description })),
+                  interactions: interactions.map(({ type, label }) => ({ type, label })),
+                };
+
+                const jsonData = JSON.stringify(manifest, null, 2);
+                const blob = new Blob([jsonData], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${experienceName || projectTitle}_default_manifest.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}
+              sx={{
+                backgroundColor: tertiaryColor,
+                color: textColor,
+                fontSize: "20px",
+                p: 2,
+                borderRadius: 3,
+                m: 1,
+              }}
+            >
+              Exportar Manifesto
             </ButtonBase>
 
           </Box>
