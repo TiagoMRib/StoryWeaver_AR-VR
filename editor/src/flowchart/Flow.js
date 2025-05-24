@@ -20,6 +20,7 @@ import ThreeDModelNode from "./nodes/3DModelNode";
 import { secondaryColor, textColor } from "../themes";
 import Inspector from "./Inspector";
 import {
+  BeginProps,
   AudioProps,
   CharacterProps,
   EndDialogProps,
@@ -566,6 +567,9 @@ function Flow(props) {
 
           let inspecProps = undefined;
           switch (node.type) {
+            case NodeType.beginNode:
+              inspecProps = BeginProps;
+              break;
             case NodeType.quizNode:
               inspecProps = QuizProps;
               break;

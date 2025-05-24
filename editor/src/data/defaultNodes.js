@@ -1,13 +1,14 @@
 import { EndDialogProps } from "../flowchart/nodes/nodeProps";
 import { NodeType } from "../models/NodeTypes";
 import { generateInspectorProps } from "./utils";
+import { BeginProps } from "../flowchart/nodes/nodeProps";
 
 export const defaultNodes = [
   {
     id: "0",
     position: { x: 0, y: 0 },
-    data: undefined,
     type: NodeType.beginNode,
+    data: generateInspectorProps(BeginProps)
   },
   {
     id: "5",

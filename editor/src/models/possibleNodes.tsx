@@ -1,7 +1,13 @@
-import { AudioProps, CharacterProps, EndDialogProps, ImageProps, PathProps, QuizProps, TextProps, ThreeDModelProps, VideoProps } from "../flowchart/nodes/nodeProps";
+import { BeginProps, AudioProps, CharacterProps, EndDialogProps, ImageProps, PathProps, QuizProps, TextProps, ThreeDModelProps, VideoProps } from "../flowchart/nodes/nodeProps";
 import { NodeType } from "./NodeTypes";
 
 export const possibleNodes =[
+    {
+        name: 'Início',
+        type: NodeType.beginNode,
+        props: BeginProps,
+        image: 'start_node.png',
+    },
     {
         name: 'Quiz',
         type: NodeType.quizNode,

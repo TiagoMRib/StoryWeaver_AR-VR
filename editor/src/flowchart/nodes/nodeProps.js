@@ -5,6 +5,19 @@ import { InputFieldType } from "../../models/InputFieldTypes";
 import { NodeType } from "../../models/NodeTypes";
 import { ThreeDModelTypes } from "../../models/ThreeDModelTypes";
 
+const BeginProps = {
+  nodeType: "Início",
+  type: NodeType.beginNode,
+  fields: [
+    {
+      type: [InputFieldType.select_location],
+      label: "Ponto Inicial:",
+      initialValue: null,
+      name: "location",
+    },
+  ]
+};
+
 const ThreeDModelProps = {
   nodeType: "Cena 3D",
 
@@ -720,6 +733,7 @@ const CharacterProps = {
 };
 
 export {
+  BeginProps,
   ThreeDModelProps,
   QuizProps,
   VideoProps,

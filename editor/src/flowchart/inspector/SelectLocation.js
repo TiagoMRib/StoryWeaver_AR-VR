@@ -5,9 +5,8 @@ import { primaryColor, textColor } from "../../themes";
 
 function SelectLocationField(props) {
   const label = props.data.label;
-  const conditional = props.conditional === undefined ? true : props.conditional;
   const style = props.style;
-  const value = props.value || {};
+  const value = props.value || "Entrada";
   const handleFieldChange = props.onChange;
 
   const [locations, setLocations] = useState([]);
@@ -20,7 +19,7 @@ function SelectLocationField(props) {
   return (
     <Box
       sx={{
-        display: conditional ? "flex" : "none",
+        display: "flex",
         width: "100%",
         flexDirection: "column",
         alignItems: "center",
@@ -55,7 +54,7 @@ function SelectLocationField(props) {
               py: 1,
             }}
           >
-            O conteúdo será acionado quando o utilizador estiver em: {value.place || "nenhum local selecionado"}
+            O conteúdo será acionado quando o utilizador estiver em: {value || "nenhum local selecionado"}
           </Typography>
 
           <Box
@@ -78,11 +77,9 @@ function SelectLocationField(props) {
                 height: 40,
                 mr: "10px",
               }}
-              value={value.place || ""}
+              value={value || ""}
               onChange={(event) => {
-                handleFieldChange(props.data.name, {
-                  place: event.target.value,
-                });
+                handleFieldChange(props.data.name, event.target.value);
               }}
             >
               {locations.map((loc, index) => (

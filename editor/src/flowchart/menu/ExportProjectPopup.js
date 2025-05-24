@@ -18,6 +18,8 @@ import {
 import ProjectTag from "./ProjectTag";
 import { ApiDataRepository } from "../../api/ApiDataRepository";
 
+import { buildChoreography } from "./utils/BuildChoreography";
+
 const colors = [
   "#FF0000",
   "#FFA500",
@@ -506,6 +508,39 @@ export default function ExportProjectPopup(props) {
               }}
             >
               Exportar Manifesto
+            </ButtonBase>
+            <ButtonBase
+              onClick={() => {
+                const json = buildChoreography({
+                  nodes,
+                  edges,
+                  characters,
+                  locations,
+                  title: experienceName,
+                  description,
+                });
+
+                const blob = new Blob([JSON.stringify(json, null, 2)], {
+                  type: "application/json",
+                });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = `${experienceName}_choreography.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+              }}
+              sx={{
+                backgroundColor: tertiaryColor,
+                color: textColor,
+                fontSize: "20px",
+                p: 2,
+                borderRadius: 3,
+                m: 1,
+              }}
+            >
+              Exportar Choreografia
             </ButtonBase>
 
           </Box>
