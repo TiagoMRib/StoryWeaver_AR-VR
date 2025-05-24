@@ -74,8 +74,8 @@ function SelectTriggerTargetField(props) {
           onChange={(e) => handleTypeChange(e.target.value)}
           sx={{ width: "50%", backgroundColor: "white", color: "black", mr: 2 }}
         >
-          <MenuItem value="enter">Local</MenuItem>
-          <MenuItem value="interact">Personagem</MenuItem>
+          <MenuItem value="enter" sx={{ color: "black" }}>Local</MenuItem>
+          <MenuItem value="interact" sx={{ color: "black" }}>Personagem</MenuItem>
         </Select>
       </Box>
 
@@ -102,7 +102,7 @@ function SelectTriggerTargetField(props) {
             sx={{ width: "50%", backgroundColor: "white", color: "black", mr: 2 }}
           >
             {options.map((opt) => (
-              <MenuItem key={opt.id} value={opt.id}>
+              <MenuItem key={opt.id} value={opt.id} sx={{ color: "black" }}>
                 {opt.name}
               </MenuItem>
             ))}
