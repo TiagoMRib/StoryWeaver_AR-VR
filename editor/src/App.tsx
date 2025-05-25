@@ -42,7 +42,7 @@ class App extends Component {
     if (!localStorage.getItem('experienceTags')) localStorage.setItem("experienceTags", JSON.stringify([]));
 
     if (!localStorage.getItem('locations')) localStorage.setItem('locations', JSON.stringify([]));
-    if (!localStorage.getItem('vrPlayerStart')) localStorage.setItem('vrPlayerStart', 'Player');
+    if (!localStorage.getItem('interactions')) localStorage.setItem('interactions', JSON.stringify([]));
 
 
    

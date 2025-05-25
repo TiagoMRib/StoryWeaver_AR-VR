@@ -44,7 +44,7 @@ export default function TopAppBar(props) {
   const repo = ApiDataRepository.getInstance();
   const currentWindow = props.currentWindow;
   const projectTitle = props.projectTitle;
-  const characters = props.characters;
+  
   const nodes = props.nodes;
   const nonBeginAndEndNodes = nodes.filter(
     (node) => node.type !== NodeType.beginNode && node.type !== NodeType.endNode
@@ -54,20 +54,27 @@ export default function TopAppBar(props) {
   const [displayAlert, setDisplayAlert] = React.useState(false);
   const [alertMessage, setAlertMessage] = React.useState("");
   const [severity, setSeverity] = React.useState("error");
-  const setCharacters = props.setCharacters;
+  
   const setProjectTitle = (projectTitle) => {
     props.setProjectTitle(projectTitle);
     localStorage.setItem("projectTitle", projectTitle);
   };
 
+  const characters = props.characters;
+  const setCharacters = props.setCharacters;
   const locations = props.locations;
   const setLocations = props.setLocations;
+  const interactions = props.interactions;
+  const setInteractions = props.setInteractions;
+
+  const actorMapping = props.actorMapping;
+  const locationMapping = props.locationMapping;
+
   const addNode = props.addNode;
   const addDialogueNode = props.addDialogueNode;
 
   
-  const interactions = props.interactions;
-  const setInteractions = props.setInteractions;
+  
 
   const addLocation = props.addLocation;
 
@@ -291,6 +298,8 @@ export default function TopAppBar(props) {
             characters={characters}
             locations={locations}
             interactions={interactions}
+            actorMapping={actorMapping}
+            locationMapping={locationMapping}
           />
           <CharactersPopup
             characters={characters}

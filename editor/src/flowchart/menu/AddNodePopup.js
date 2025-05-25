@@ -73,7 +73,9 @@ export default function AddNodePopup(props) {
 
         <Box>
           <Grid container spacing={2} sx={{ py: 10 }}>
-            {possibleNodes.map((node) => {
+            {possibleNodes
+              .filter((node) => node.type !== "beginNode")
+              .map((node) => {
               return (
                 <Grid
                   key={node.name}

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Flow from "../flowchart/Flow";
 import L from "leaflet";
@@ -72,6 +72,10 @@ export default function MainWindow(props) {
       { type: "go_near", label: "Aproximar-se" },
     ]
   );
+
+  // VR mapping
+  const [actorMapping, setActorMapping] = useState({});
+  const [locationMapping, setLocationMapping] = useState({});
 
   const [dialogNodes, setDialogNodes] = React.useState([]);
   const [dialogEdges, setDialogEdges] = React.useState([]);
@@ -422,6 +426,8 @@ export default function MainWindow(props) {
         setCharacters={setCharacters}
         locations={locations}
         setLocations={setLocations}
+        actorMapping={actorMapping}
+        locationMapping={locationMapping}
         projectTitle={projectTitle}
         interactions={interactions}
         setInteractions={setInteractions}
@@ -562,9 +568,14 @@ export default function MainWindow(props) {
           />
         ) : displayedWindow === "Mundo VR" ? (
           <VRWorldWindow
+            characters={characters}
+            locations={locations}
             setCharacters={setCharacters}
-            setMaps={setMaps}
             setLocations={setLocations}
+            actorMapping={actorMapping}
+            setActorMapping={setActorMapping}
+            locationMapping={locationMapping}
+            setLocationMapping={setLocationMapping}
           />
         ) : null}
 

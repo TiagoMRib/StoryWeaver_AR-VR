@@ -441,26 +441,6 @@ const TextProps = {
       name: "name",
     },
     {
-      type: [InputFieldType.color_picker],
-      label: "Cor do texto:",
-      initialValue: { color: "#000000", inputType: "color" },
-      name: "color",
-    },
-    {
-      type: [InputFieldType.file_select, InputFieldType.color_picker],
-      label: "Fundo:",
-      conditional: "ar",
-      icon: "landscape",
-      initialValue: {
-        inputType: "url",
-        filename: "",
-        blob: null,
-        color: "#A9B388",
-      },
-      name: "background",
-      acceptedType: FileTypesInput.Image,
-    },
-    {
       type: [InputFieldType.checkbox], //////////////////////// ACIONADO POR SITIO
       label: "Acionado por gatilho", 
       initialValue: false, // Default is unchecked
@@ -477,33 +457,6 @@ const TextProps = {
       label: "Permitir AR? ",
       initialValue: false,
       name: "ar",
-    },
-    {
-      type: [InputFieldType.ar_preview],
-      label: "Pré-visualização AR",
-      name: "ar_preview",
-      conditional: "ar",
-    },
-    {
-      type: [InputFieldType.threeDCoord],
-      label: "Posição:",
-      conditional: "ar",
-      initialValue: { x: 0, y: 0, z: 0 },
-      name: "position",
-    },
-    {
-      type: [InputFieldType.threeDCoord],
-      label: "Escala:",
-      conditional: "ar",
-      initialValue: { x: 1, y: 1, z: 1 },
-      name: "scale",
-    },
-    {
-      type: [InputFieldType.threeDCoord],
-      label: "Rotação:",
-      initialValue: { x: 0, y: 0, z: 0 },
-      name: "rotation",
-      conditional: "ar",
     }
   ],
 };

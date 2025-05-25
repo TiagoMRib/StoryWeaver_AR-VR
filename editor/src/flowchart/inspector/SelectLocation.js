@@ -6,7 +6,7 @@ import { primaryColor, textColor } from "../../themes";
 function SelectLocationField(props) {
   const label = props.data.label;
   const style = props.style;
-  const value = props.value || "Entrada";
+  const value = props.value;
   const handleFieldChange = props.onChange;
 
   const [locations, setLocations] = useState([]);

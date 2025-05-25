@@ -58,6 +58,10 @@ export default function ExportProjectPopup(props) {
   const locations = props.locations;
   const interactions = props.interactions;
 
+  // VR MAPPING
+  const actorMapping = props.actorMapping;
+  const locationMapping = props.locationMapping;
+
   return (
     <Dialog
       id="export-project-popup"
@@ -541,6 +545,47 @@ export default function ExportProjectPopup(props) {
               }}
             >
               Exportar Choreografia
+            </ButtonBase>
+            <ButtonBase
+              onClick={() => {
+                const manifest = {
+                  title: experienceName || projectTitle,
+                  characters: characters.map((char) => ({
+                    id: char.id,
+                    name: char.name,
+                    description: char.description,
+                    threeDObject: actorMapping?.[char.name] || null,
+                  })),
+                  locations: locations.map((loc) => ({
+                    id: loc.id,
+                    name: loc.name,
+                    description: loc.description,
+                    threeDObject: locationMapping?.[loc.name] || null,
+                  })),
+                  interactions: interactions.map(({ type, label }) => ({ type, label })),
+                };
+
+                const jsonData = JSON.stringify(manifest, null, 2);
+                const blob = new Blob([jsonData], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${experienceName || projectTitle}_vr_manifest.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}
+              sx={{
+                backgroundColor: tertiaryColor,
+                color: textColor,
+                fontSize: "20px",
+                p: 2,
+                borderRadius: 3,
+                m: 1,
+              }}
+            >
+              Exportar Manifesto VR
             </ButtonBase>
 
           </Box>

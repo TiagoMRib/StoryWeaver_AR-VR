@@ -20,7 +20,7 @@ export default function TextNode(props) {
   const text = props.data?.name ?? "";
   const isAR = props.data?.ar ?? false;
   const character = props.data?.character ?? narrator;
-  const color = props.data?.color.color ?? "#000000";
+  const color = props.data?.color ?? "#000000";
   const backgroundFileInfo = props.data?.background ?? "";
   const [backgroundURL, setBackgroundURL] = React.useState("");
   const isSelectedForCopy = props.data?.isSelectedForCopy ?? false;
