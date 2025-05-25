@@ -47,7 +47,6 @@ export default function LocationsPopup(props) {
       }
 
       setLocations(updatedLocations);
-      localStorage.setItem("locations", JSON.stringify(updatedLocations));
     }
   };
 

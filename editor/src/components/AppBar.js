@@ -62,13 +62,22 @@ export default function TopAppBar(props) {
 
   const characters = props.characters;
   const setCharacters = props.setCharacters;
+  const vrActorMapping = props.vrActorMapping;
+  const arActorMapping = props.arActorMapping;
+
   const locations = props.locations;
   const setLocations = props.setLocations;
+  const vrLocationMapping = props.vrLocationMapping;
+  const arLocationMapping = props.arLocationMapping;
+
   const interactions = props.interactions;
   const setInteractions = props.setInteractions;
 
-  const actorMapping = props.actorMapping;
-  const locationMapping = props.locationMapping;
+  const arInteractionMapping = props.arInteractionMapping;
+  const setArInteractionMapping = props.setArInteractionMapping;
+  const vrInteractionMapping = props.vrInteractionMapping;
+  const setVrInteractionMapping = props.setVrInteractionMapping;
+
 
   const addNode = props.addNode;
   const addDialogueNode = props.addDialogueNode;
@@ -298,8 +307,8 @@ export default function TopAppBar(props) {
             characters={characters}
             locations={locations}
             interactions={interactions}
-            actorMapping={actorMapping}
-            locationMapping={locationMapping}
+            vrActorMapping={vrActorMapping}
+            vrLocationMapping={vrLocationMapping}
           />
           <CharactersPopup
             characters={characters}
@@ -320,6 +329,10 @@ export default function TopAppBar(props) {
             onClose={() => setOpenInteractionsPopup(false)}
             interactions={interactions}
             setInteractions={setInteractions}
+            arInteractionMapping={arInteractionMapping}
+            setArInteractionMapping={setArInteractionMapping}
+            vrInteractionMapping={vrInteractionMapping}
+            setVrInteractionMapping={setVrInteractionMapping}
           />
           <LoadProjectPopup
             open={openLoadProjectPopup}

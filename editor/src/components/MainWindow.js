@@ -56,9 +56,7 @@ export default function MainWindow(props) {
   const [edges, setEdges] = React.useState(initialEdges);
 
 
-  const [locations, setLocations] = React.useState(
-    JSON.parse(localStorage.getItem("locations") || "[]")
-  );
+  const [locations, setLocations] = React.useState([]);
 
   const [characters, setCharacters] = React.useState(
     localStorage.getItem("characters")
@@ -74,8 +72,17 @@ export default function MainWindow(props) {
   );
 
   // VR mapping
-  const [actorMapping, setActorMapping] = useState({});
-  const [locationMapping, setLocationMapping] = useState({});
+  const [vrActorMapping, setvrActorMapping] = useState({});
+  const [vrLocationMapping, setvrLocationMapping] = useState({});
+
+  // AR mapping
+  const [arActorMapping, setArActorMapping] = useState({});
+  const [arLocationMapping, setArLocationMapping] = useState({});
+
+  //Interaction Mapping
+  const [arInteractionMapping, setArInteractionMapping] = useState({});
+  const [vrInteractionMapping, setVrInteractionMapping] = useState({});
+
 
   const [dialogNodes, setDialogNodes] = React.useState([]);
   const [dialogEdges, setDialogEdges] = React.useState([]);
@@ -241,13 +248,14 @@ export default function MainWindow(props) {
   };
 
   const handleSaveServer = async () => {
-    //write NODES and EDGES to file
     try {
       const response = await repo.saveProject(
         projectTitle,
         nodes,
         edges,
         characters,
+        locations,
+        interactions,
         mapsState
       );
       return true;
@@ -419,19 +427,39 @@ export default function MainWindow(props) {
         setDescription={setDescription}
         tags={tags}
         setTags={setTags}
+
         nodes={nodes}
         selectedMap={selectedMap}
         edges={edges}
+
         characters={characters}
         setCharacters={setCharacters}
+
+        vrActorMapping={vrActorMapping}
+        setVrActorMapping={setvrActorMapping}
+        arActorMapping={arActorMapping}
+        setArActorMapping={setArActorMapping}
+
         locations={locations}
         setLocations={setLocations}
-        actorMapping={actorMapping}
-        locationMapping={locationMapping}
-        projectTitle={projectTitle}
+        
+        vrLocationMapping={vrLocationMapping}
+        setVrLocationMapping={setvrLocationMapping}
+        arLocationMapping={arLocationMapping}
+        setArLocationMapping={setArLocationMapping}
+
         interactions={interactions}
         setInteractions={setInteractions}
+
+        vrInteractionMapping={vrInteractionMapping}
+        setVrInteractionMapping={setVrInteractionMapping}
+        arInteractionMapping={arInteractionMapping}
+        setArInteractionMapping={setArInteractionMapping}
+        
+        
+        projectTitle={projectTitle}
         setProjectTitle={setProjectTitle}
+
         currentWindow={displayedWindow}
         addNode={addNode}
         addDialogueNode={addDialogueNode}
@@ -572,10 +600,10 @@ export default function MainWindow(props) {
             locations={locations}
             setCharacters={setCharacters}
             setLocations={setLocations}
-            actorMapping={actorMapping}
-            setActorMapping={setActorMapping}
-            locationMapping={locationMapping}
-            setLocationMapping={setLocationMapping}
+            vrActorMapping={vrActorMapping}
+            setvrActorMapping={setvrActorMapping}
+            vrLocationMapping={vrLocationMapping}
+            setvrLocationMapping={setvrLocationMapping}
           />
         ) : null}
 

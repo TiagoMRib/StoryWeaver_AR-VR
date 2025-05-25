@@ -16,7 +16,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { textColor, primaryColor, secondaryColor } from "../themes";
 
-export default function VRWorldWindow({ characters, locations, setCharacters, setLocations, actorMapping, setActorMapping, locationMapping, setLocationMapping }) {
+export default function VRWorldWindow({ characters, locations, setCharacters, setLocations, vrActorMapping, setvrActorMapping, vrLocationMapping, setvrLocationMapping }) {
   const [jsonPreview, setJsonPreview] = useState(null);
 
   const handleFileUpload = (e) => {
@@ -84,12 +84,12 @@ export default function VRWorldWindow({ characters, locations, setCharacters, se
                 <FormControl fullWidth>
                   <InputLabel>Objeto Unity</InputLabel>
                   <Select
-                    value={actorMapping[char.name] || ""}
+                    value={vrActorMapping[char.name] || ""}
                     label="Objeto Unity"
-                    onChange={(e) => setActorMapping(prev => ({ ...prev, [char.name]: e.target.value }))}
+                    onChange={(e) => setvrActorMapping(prev => ({ ...prev, [char.name]: e.target.value }))}
                     sx={{ backgroundColor: "white", color: "black" }}
                   >
-                    <MenuItem value="">Nenhum (sem forma física)</MenuItem>
+                    <MenuItem value="" sx={{ color: "black" }}>Nenhum (sem forma física)</MenuItem>
                     {jsonPreview.actors?.map((a) => (
                       <MenuItem key={a} value={a} sx={{ color: "black" }}>
                         {a}
@@ -98,12 +98,12 @@ export default function VRWorldWindow({ characters, locations, setCharacters, se
                     <MenuItem value="custom" sx={{ color: "black" }}>Custom</MenuItem>
                   </Select>
                 </FormControl>
-                {actorMapping[char.name] === "custom" && (
+                {vrActorMapping[char.name] === "custom" && (
                   <TextField
                     placeholder="Nome manual"
                     fullWidth
                     onChange={(e) =>
-                      setActorMapping(prev => ({ ...prev, [char.name]: e.target.value }))
+                      setvrActorMapping(prev => ({ ...prev, [char.name]: e.target.value }))
                     }
                   />
                 )}
@@ -120,9 +120,9 @@ export default function VRWorldWindow({ characters, locations, setCharacters, se
                 <FormControl fullWidth>
                   <InputLabel>Objeto Unity</InputLabel>
                   <Select
-                    value={locationMapping[loc.name] || ""}
+                    value={vrLocationMapping[loc.name] || ""}
                     label="Objeto Unity"
-                    onChange={(e) => setLocationMapping(prev => ({ ...prev, [loc.name]: e.target.value }))}
+                    onChange={(e) => setvrLocationMapping(prev => ({ ...prev, [loc.name]: e.target.value }))}
                     sx={{ backgroundColor: "white", color: "black" }}
                   >
                     <MenuItem value="">Nenhum (sem forma física)</MenuItem>
@@ -134,12 +134,12 @@ export default function VRWorldWindow({ characters, locations, setCharacters, se
                     <MenuItem value="custom" sx={{ color: "black" }}>Custom</MenuItem>
                   </Select>
                 </FormControl>
-                {locationMapping[loc.name] === "custom" && (
+                {vrLocationMapping[loc.name] === "custom" && (
                   <TextField
                     placeholder="Nome manual"
                     fullWidth
                     onChange={(e) =>
-                      setLocationMapping(prev => ({ ...prev, [loc.name]: e.target.value }))
+                      setvrLocationMapping(prev => ({ ...prev, [loc.name]: e.target.value }))
                     }
                   />
                 )}

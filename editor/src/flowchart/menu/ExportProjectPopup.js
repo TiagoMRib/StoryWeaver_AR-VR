@@ -20,6 +20,12 @@ import { ApiDataRepository } from "../../api/ApiDataRepository";
 
 import { buildChoreography } from "./utils/BuildChoreography";
 
+import {
+  buildBaseManifest,
+  buildVRManifest,
+  buildARManifest
+} from "./utils/BuildManifest";
+
 const colors = [
   "#FF0000",
   "#FFA500",
@@ -54,13 +60,22 @@ export default function ExportProjectPopup(props) {
   const nodes = props.nodes;
   const edges = props.edges;
 
+  // Actors
   const characters = props.characters;
-  const locations = props.locations;
-  const interactions = props.interactions;
 
-  // VR MAPPING
-  const actorMapping = props.actorMapping;
-  const locationMapping = props.locationMapping;
+  const vrActorMapping = props.vrActorMapping;
+  const arActorMapping = props.arActorMapping;
+
+  // Locations
+  const locations = props.locations;
+  const vrLocationMapping = props.vrLocationMapping;
+  const arLocationMapping = props.arLocationMapping;
+  
+  // Interactions
+  const interactions = props.interactions;
+  const vrInteractionMapping = props.vrInteractionMapping;
+  const arInteractionMapping = props.arInteractionMapping;
+
 
   return (
     <Dialog
@@ -387,109 +402,16 @@ export default function ExportProjectPopup(props) {
             >
               Confirmar
             </ButtonBase>
+
+
             <ButtonBase
               onClick={() => {
-
-              function cleanDialogData(data) {
-                const { isSelectedForCopy, width, height, selected, dragging, ...cleanedData } = data;
-                return cleanedData;
-              }
-
-              function cleanDialogNodes(dialog) {
-                return {
-                  nodes: dialog.nodes.map(({ id, type, data }) => ({
-                    id,
-                    type,
-                    data: cleanDialogData(data),
-                  })),
-                  edges: dialog.edges.map(({ source, target, sourceHandle, targetHandle }) => ({
-                    source,
-                    target,
-                    sourceHandle,
-                    targetHandle,
-                  })),
-                };
-              }
-
-              function sanitizeExport({ nodes, edges, characters, locations, ...rest }) {
-                const cleanedNodes = nodes.map(({ id, type, data }) => {
-                  const cleanedData = { ...data };
-
-                  // Recursively clean dialog content for character nodes
-                  if (type === "characterNode" && data.dialog) {
-                    cleanedData.dialog = cleanDialogNodes(data.dialog);
-                  }
-
-                  // Remove editor-related props
-                  delete cleanedData.position;
-                  delete cleanedData.scale;
-                  delete cleanedData.rotation;
-                  delete cleanedData.isSelectedForCopy;
-                  delete cleanedData.selected;
-                  delete cleanedData.width;
-                  delete cleanedData.height;
-                  delete cleanedData.dragging;
-
-                  return { id, type, data: cleanedData };
-                });
-
-                return {
-                  ...rest,
-                  nodes: cleanedNodes,
-                  edges: edges.map(({ source, target, sourceHandle, targetHandle }) => ({
-                    source,
-                    target,
-                    sourceHandle,
-                    targetHandle,
-                  })),
+                const manifest = buildBaseManifest({
+                  title: experienceName || projectTitle,
                   characters,
                   locations,
-                };
-              }
-
-              const exportData = sanitizeExport({
-                projectTitle,
-                nodes,
-                edges,
-                characters,
-                locations,
-                experienceName,
-                description,
-                tags,
-              });
-
-
-
-                const jsonData = JSON.stringify(exportData, null, 2);
-                const blob = new Blob([jsonData], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `${experienceName || "exported_project"}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }}
-              sx={{
-                backgroundColor: tertiaryColor,
-                color: textColor,
-                fontSize: "20px",
-                p: 2,
-                borderRadius: 3,
-                m: 1,
-              }}
-            >
-              Download JSON
-            </ButtonBase>
-            <ButtonBase
-              onClick={() => {
-                const manifest = {
-                  title: experienceName || projectTitle,
-                  characters: characters.map(({ id, name, description }) => ({ id, name, description })),
-                  locations: locations.map(({ id, name, description }) => ({ id, name, description })),
-                  interactions: interactions.map(({ type, label }) => ({ type, label })),
-                };
+                  interactions,
+                });
 
                 const jsonData = JSON.stringify(manifest, null, 2);
                 const blob = new Blob([jsonData], { type: "application/json" });
@@ -513,6 +435,77 @@ export default function ExportProjectPopup(props) {
             >
               Exportar Manifesto
             </ButtonBase>
+
+            <ButtonBase
+              onClick={() => {
+                const manifest = buildVRManifest({
+                  title: experienceName || projectTitle,
+                  characters,
+                  locations,
+                  interactions,
+                  vrActorMapping,
+                  vrLocationMapping,
+                  vrInteractionMapping: props.vrInteractionMapping,
+                });
+
+                const jsonData = JSON.stringify(manifest, null, 2);
+                const blob = new Blob([jsonData], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${experienceName || projectTitle}_vr_manifest.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}
+              sx={{
+                backgroundColor: tertiaryColor,
+                color: textColor,
+                fontSize: "20px",
+                p: 2,
+                borderRadius: 3,
+                m: 1,
+              }}
+            >
+              Exportar Manifesto VR
+            </ButtonBase>
+
+            <ButtonBase
+              onClick={() => {
+                const manifest = buildARManifest({
+                  title: experienceName || projectTitle,
+                  characters,
+                  locations,
+                  interactions,
+                  arActorMapping: props.arActorMapping,
+                  arLocationMapping: props.arLocationMapping,
+                  arInteractionMapping: props.arInteractionMapping,
+                });
+
+                const jsonData = JSON.stringify(manifest, null, 2);
+                const blob = new Blob([jsonData], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${experienceName || projectTitle}_ar_manifest.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}
+              sx={{
+                backgroundColor: tertiaryColor,
+                color: textColor,
+                fontSize: "20px",
+                p: 2,
+                borderRadius: 3,
+                m: 1,
+              }}
+            >
+              Exportar Manifesto AR
+            </ButtonBase>
+
             <ButtonBase
               onClick={() => {
                 const json = buildChoreography({
@@ -545,47 +538,6 @@ export default function ExportProjectPopup(props) {
               }}
             >
               Exportar Choreografia
-            </ButtonBase>
-            <ButtonBase
-              onClick={() => {
-                const manifest = {
-                  title: experienceName || projectTitle,
-                  characters: characters.map((char) => ({
-                    id: char.id,
-                    name: char.name,
-                    description: char.description,
-                    threeDObject: actorMapping?.[char.name] || null,
-                  })),
-                  locations: locations.map((loc) => ({
-                    id: loc.id,
-                    name: loc.name,
-                    description: loc.description,
-                    threeDObject: locationMapping?.[loc.name] || null,
-                  })),
-                  interactions: interactions.map(({ type, label }) => ({ type, label })),
-                };
-
-                const jsonData = JSON.stringify(manifest, null, 2);
-                const blob = new Blob([jsonData], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `${experienceName || projectTitle}_vr_manifest.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }}
-              sx={{
-                backgroundColor: tertiaryColor,
-                color: textColor,
-                fontSize: "20px",
-                p: 2,
-                borderRadius: 3,
-                m: 1,
-              }}
-            >
-              Exportar Manifesto VR
             </ButtonBase>
 
           </Box>
