@@ -3,6 +3,7 @@ import { Dialog, Grid, Icon, IconButton, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import * as React from "react";
 import { primaryColor, secondaryColor, textColor } from "../../themes";
+import { possibleMarkers } from "../../models/MarkerTypes";
 import CreateLocationPopup from "./CreateLocationPopup"; // we will define this
 import { ApiDataRepository } from "../../api/ApiDataRepository";
 
@@ -158,14 +159,17 @@ export default function LocationsPopup(props) {
                     alignItems: "center",
                   }}
                 >
-                  <Icon
-                    sx={{
-                      fontSize: 50,
-                      color: primaryColor,
-                    }}
-                  >
-                    location_on
-                  </Icon>
+                  {(() => {
+                    const marker = possibleMarkers.find(m => m.type === location.markerType);
+                    const iconSrc = marker ? `/assets/${marker.image}` : `/assets/ancora.svg`;
+                    return (
+                      <img
+                        src={iconSrc}
+                        alt={location.name}
+                        style={{ width: 50, height: 50, marginBottom: 8 }}
+                      />
+                    );
+                  })()}
                   <Typography
                     variant="h7"
                     sx={{

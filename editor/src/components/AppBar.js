@@ -510,7 +510,7 @@ export default function TopAppBar(props) {
             }}
           >
             <img
-              src="./assets/mdi_location.svg" 
+              src="./assets/ancora.svg" 
               alt="Localizações"
               style={{ width: "50px", height: "50px" }}
             />
