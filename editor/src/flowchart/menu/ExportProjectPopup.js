@@ -54,6 +54,9 @@ export default function ExportProjectPopup(props) {
   const setDescription = props.setDescription;
   const tags = props.tags;
 
+
+  console.log("tags", tags);
+
   const setTags = props.setTags;
 
   const projectTitle = props.projectTitle;
@@ -365,10 +368,11 @@ export default function ExportProjectPopup(props) {
                     nodes,
                     edges,
                     characters,
-                    locations,
                     experienceName,
                     description,
                     tags,
+                    locations,
+                    interactions
                   )
                   .then((res) => {
                     localStorage.setItem("experienceName", experienceName);

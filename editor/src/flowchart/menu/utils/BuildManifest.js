@@ -16,6 +16,8 @@ export function buildVRManifest({
   vrLocationMapping,
   vrInteractionMapping,
 }) {
+
+  console.log("[Interactions] interactions", interactions);
   return {
     title,
     characters: characters.map((char) => ({
@@ -30,10 +32,10 @@ export function buildVRManifest({
       description: loc.description,
       threeDObject: vrLocationMapping?.[loc.name] || null,
     })),
-    interactions: interactions.map(({ type, label }) => ({
+    interactions: interactions.map(({ type, label, methodVr }) => ({
       type,
       label,
-      vrMethod: vrInteractionMapping?.[type] || null,
+      methodVr,
     })),
   };
 }
@@ -73,18 +75,18 @@ export function buildARManifest({
       id: char.id,
       name: char.name,
       description: char.description,
-      gpsOrQr: arActorMapping?.[char.name] || null,
+      trigger_type: arActorMapping?.[char.name] || null,
     })),
     locations: locations.map((loc) => ({
       id: loc.id,
       name: loc.name,
       description: loc.description,
-      gpsOrQr: arLocationMapping?.[loc.id] || null,
+      trigger_type: arLocationMapping?.[loc.id] || null,
     })),
-    interactions: interactions.map(({ type, label }) => ({
+    interactions: interactions.map(({ type, label, methodAr }) => ({
       type,
       label,
-      arMethod: arInteractionMapping?.[type] || null,
+      methodAr: methodAr
     })),
   };
 }

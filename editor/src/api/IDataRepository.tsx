@@ -7,11 +7,11 @@ export interface IDataRepository {
     uploadFile: (file: File) => Promise<any>;
     unzipFile: (fileName: string) => Promise<any>;
     deleteFile: (fileName: string) => Promise<any>;
-    saveProject(projectTitle: any, nodes: any, edges: any, characters: any, maps: any, locations: string[], vrPlayerStart: string): Promise<any>;
+    saveProject(projectTitle: any, nodes: any, edges: any, characters: any, maps: any, locations: any, interactions: any): Promise<any>;
     exportProject(projectTitle: any,
         nodes: any, edges: any, characters: any, maps: any, experienceName: string, 
-        experienceDescription: string, experienceTags: any, locations: string[],
-        vrPlayerStart: string): Promise<any>;
+        experienceDescription: string, experienceTags: any, locations: any,
+        interactions: any): Promise<any>;
     deleteProject(projectId: string) : Promise<any>;
     getProject(projectId: string): Promise<Project>;
     getProjects(): Promise<ProjectsBaseInfo>;

@@ -57,7 +57,9 @@ export default function MainWindow(props) {
   const [edges, setEdges] = React.useState(initialEdges);
 
 
-  const [locations, setLocations] = React.useState([]);
+  const [locations, setLocations] = React.useState(
+    JSON.parse(localStorage.getItem("locations")) || []
+  );
 
   const [characters, setCharacters] = React.useState(
     localStorage.getItem("characters")
@@ -188,6 +190,8 @@ export default function MainWindow(props) {
       );
       setProjectTitle(data.title);
       setCharacters(data.characters);
+      setLocations(data.locations || []);
+      setInteractions(data.interactions || []);
       setName(data.experienceName);
       setDescription(data.description);
       setTags(data.tags);
@@ -197,6 +201,8 @@ export default function MainWindow(props) {
       localStorage.setItem("maps", JSON.stringify(data.maps));
       localStorage.setItem("storyId", projectId);
       localStorage.setItem("characters", JSON.stringify(data.characters));
+      localStorage.setItem("locations", JSON.stringify(data.locations || []));
+      localStorage.setItem("interactions", JSON.stringify(data.interactions || []));
       localStorage.setItem("experienceName", data.experienceName);
       localStorage.setItem("experienceDescription", data.description);
       localStorage.setItem("experienceTags", JSON.stringify(data.tags));
@@ -238,6 +244,8 @@ export default function MainWindow(props) {
         defaultNodes,
         [],
         [narrator],
+        [],
+        [],
         []
       );
 
@@ -255,9 +263,10 @@ export default function MainWindow(props) {
         nodes,
         edges,
         characters,
+        mapsState,
         locations,
-        interactions,
-        mapsState
+        interactions
+        
       );
       return true;
     } catch (e) {

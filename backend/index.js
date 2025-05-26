@@ -92,7 +92,7 @@ app.post("/save", async (req, res) => {
   const description = req.body.description;
   const tags = req.body.tags;
   const locations = req.body.locations || [];
-  const vrPlayerStart = req.body.vrPlayerStart || "";
+  const interactions = req.body.interactions || [];
 
   //save to database
   await client
@@ -113,7 +113,7 @@ app.post("/save", async (req, res) => {
           description: description,
           tags: tags,
           locations: locations,
-          vrPlayerStart: vrPlayerStart,
+          interactions: interactions,
           lastModified: new Date().toISOString(),
         },
       },
@@ -189,7 +189,7 @@ app.post("/export", async (req, res) => {
   const storyEndings = req.body.endings;
 
   const locations = req.body.locations || [];
-  const vrPlayerStart = req.body.vrPlayerStart || "";
+  const interactions = req.body.interactions || [];
 
   //save to story_structures database
   await client
@@ -210,7 +210,7 @@ app.post("/export", async (req, res) => {
           tags: tags,
           storyEndings: storyEndings,
           locations: locations,
-          vrPlayerStart: vrPlayerStart,
+          interactions: interactions,
           lastModified: new Date().toISOString(),
         },
       },
@@ -235,7 +235,7 @@ app.post("/export", async (req, res) => {
           tags: tags,
           storyEndings: storyEndings,
           locations: locations,
-          vrPlayerStart: vrPlayerStart,
+          interactions: interactions,
           lastModified: new Date().toISOString(),
         },
       },

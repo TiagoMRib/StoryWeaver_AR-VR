@@ -25,7 +25,7 @@ class App extends Component {
     const repo = ApiDataRepository.getInstance();
     if(localStorage.getItem('storyId') === null){
       console.log('Story ID is not set');
-      repo.saveProject('Adicione um título ao projeto', defaultNodes, [], [narrator], [], [], 'Player');
+      repo.saveProject('Adicione um título ao projeto', defaultNodes, [], [narrator], [], [], []);
     }
     if(!localStorage.getItem('characters')){
       console.log('Characters are not set');
