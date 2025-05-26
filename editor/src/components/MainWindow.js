@@ -327,6 +327,7 @@ export default function MainWindow(props) {
       imgCoords: imgCoords,
       name: selected.name,
       description: selected.description || "",
+      locationId: selected.id
     };
 
     selectedMap.anchors.push(newAnchor);
@@ -450,6 +451,8 @@ export default function MainWindow(props) {
 
         locations={locations}
         setLocations={setLocations}
+
+        maps={mapsState}
         
         vrLocationMapping={vrLocationMapping}
         setVrLocationMapping={setvrLocationMapping}

@@ -70,6 +70,8 @@ export default function ExportProjectPopup(props) {
   const locations = props.locations;
   const vrLocationMapping = props.vrLocationMapping;
   const arLocationMapping = props.arLocationMapping;
+
+  const maps = props.maps;
   
   // Interactions
   const interactions = props.interactions;
@@ -478,6 +480,7 @@ export default function ExportProjectPopup(props) {
                   characters,
                   locations,
                   interactions,
+                  maps,
                   arActorMapping: props.arActorMapping,
                   arLocationMapping: props.arLocationMapping,
                   arInteractionMapping: props.arInteractionMapping,

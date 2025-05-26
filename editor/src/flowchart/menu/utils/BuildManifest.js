@@ -38,15 +38,35 @@ export function buildVRManifest({
   };
 }
 
+export function buildArLocationMappingFromMaps(maps) {
+  const mapping = {};
+
+  for (const map of maps) {
+    for (const anchor of map.anchors) {
+      if (anchor.locationId && anchor.coords) {
+        mapping[anchor.locationId] = {
+          type: "gps",
+          lat: anchor.coords.lat,
+          lng: anchor.coords.lng,
+        };
+      }
+    }
+  }
+
+  return mapping;
+}
+
 export function buildARManifest({
   title,
   characters,
   locations,
   interactions,
+  maps,
   arActorMapping,
-  arLocationMapping,
   arInteractionMapping,
 }) {
+  const arLocationMapping = buildArLocationMappingFromMaps(maps);
+
   return {
     title,
     characters: characters.map((char) => ({
@@ -59,7 +79,7 @@ export function buildARManifest({
       id: loc.id,
       name: loc.name,
       description: loc.description,
-      gpsOrQr: arLocationMapping?.[loc.name] || null,
+      gpsOrQr: arLocationMapping?.[loc.id] || null,
     })),
     interactions: interactions.map(({ type, label }) => ({
       type,

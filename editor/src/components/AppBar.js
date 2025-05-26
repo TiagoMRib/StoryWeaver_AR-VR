@@ -71,6 +71,8 @@ export default function TopAppBar(props) {
   const vrLocationMapping = props.vrLocationMapping;
   const arLocationMapping = props.arLocationMapping;
 
+  const maps = props.maps;
+
   const interactions = props.interactions;
   const setInteractions = props.setInteractions;
 
@@ -307,6 +309,7 @@ export default function TopAppBar(props) {
             edges={edges}
             characters={characters}
             locations={locations}
+            maps={maps}
             interactions={interactions}
             vrActorMapping={vrActorMapping}
             vrLocationMapping={vrLocationMapping}
