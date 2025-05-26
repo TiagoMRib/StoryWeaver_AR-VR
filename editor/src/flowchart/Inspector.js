@@ -34,7 +34,8 @@ function Inspector(props) {
   const setInspectorData = props.setData;
   const nodeId = props.nodeId;
   const characters = props.characters;
-  const locations = JSON.parse(localStorage.getItem("locations") || "[]");
+  const locations = props.locations;
+  const interactions = props.interactions;
   const setValues = props.setValue;
   const handleNodeDataChange = props.handleNodeDataChange;
   const handleDelete = props.handleDelete;
@@ -147,6 +148,7 @@ function Inspector(props) {
                     <SelectLocationField
                       key={index}
                       id={index}
+                      locations={locations}
                       onChange={handleFieldChange}
                       value={values[field.name]}
                       data={field}
@@ -159,6 +161,9 @@ function Inspector(props) {
                     conditional={values[field.conditional]}
                     key={index}
                     id={index}
+                    characters={characters}
+                    locations={locations}
+                    interactions={interactions}
                     onChange={handleFieldChange}
                     value={values[field.name]}
                     data={field}

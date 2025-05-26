@@ -74,6 +74,8 @@ function Flow(props) {
     setDialogEdges,
     setDialogueNodeId,
     characters,
+    locations,
+    interactions,
   } = props;
 
   const nodesRef = useRef(nodes);
@@ -648,6 +650,8 @@ function Flow(props) {
       </ReactFlow>
       <Inspector
         characters={characters}
+        locations={locations}
+        interactions={interactions}
         value={inspectorData}
         nodeId={selectedNode ? selectedNode.id : undefined}
         handleNodeDataChange={handleNodeDataChange}

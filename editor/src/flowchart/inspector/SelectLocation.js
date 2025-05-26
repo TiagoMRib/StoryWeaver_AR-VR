@@ -9,12 +9,9 @@ function SelectLocationField(props) {
   const value = props.value;
   const handleFieldChange = props.onChange;
 
-  const [locations, setLocations] = useState([]);
+  const locations = props.locations || [];
 
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("locations") || "[]");
-    setLocations(stored);
-  }, []);
+
 
   return (
     <Box

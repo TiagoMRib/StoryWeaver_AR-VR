@@ -572,6 +572,8 @@ export default function MainWindow(props) {
         {displayedWindow === "História" ? (
           <Flow
             characters={characters}
+            locations={locations}
+            interactions={interactions}
             setWindows={setWindows}
             changeDisplayedWindow={changeDisplayedWindow}
             windows={windows}

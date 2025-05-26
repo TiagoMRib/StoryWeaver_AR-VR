@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Box } from "@mui/system";
 import { Select, MenuItem, Typography } from "@mui/material";
 import { primaryColor, textColor } from "../../themes";
-
-
 
 function SelectTriggerTargetField(props) {
   const label = props.data.label;
@@ -12,17 +10,23 @@ function SelectTriggerTargetField(props) {
   const value = props.value || {};
   const handleFieldChange = props.onChange;
 
-  const [locations, setLocations] = useState([]);
-  const [characters, setCharacters] = useState([]);
+  const locations = props.locations || [];
+  const characters = props.characters || [];
+  const interactions = props.interactions || [];
 
-  useEffect(() => {
-    setLocations(JSON.parse(localStorage.getItem("locations") || "[]"));
-    setCharacters(JSON.parse(localStorage.getItem("characters") || "[]"));
-  }, []);
-
-  const handleTypeChange = (type) => {
+  const handleInteractionChange = (type) => {
     handleFieldChange(props.data.name, {
       type,
+      targetType: "",
+      id: "",
+      name: "",
+    });
+  };
+
+  const handleTargetTypeChange = (targetType) => {
+    handleFieldChange(props.data.name, {
+      ...value,
+      targetType,
       id: "",
       name: "",
     });
@@ -36,8 +40,7 @@ function SelectTriggerTargetField(props) {
     });
   };
 
-  const options =
-    value.type === "enter" ? locations : value.type === "interact" ? characters : [];
+  const options = value.targetType === "location" ? locations : characters;
 
   return (
     <Box
@@ -56,42 +59,46 @@ function SelectTriggerTargetField(props) {
         </Typography>
       </Box>
 
-      {/* Trigger type: enter or interact */}
-      <Box
-        sx={{
-          display: "flex",
-          width: "100%",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mt: 2,
-        }}
-      >
+      {/* 1. Interaction Selection */}
+      <Box sx={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", mt: 2 }}>
         <Typography variant="h7" sx={{ py: 1, px: 2, color: textColor }}>
-          Tipo de gatilho:
+          Interação:
         </Typography>
         <Select
           value={value.type || ""}
-          onChange={(e) => handleTypeChange(e.target.value)}
+          onChange={(e) => handleInteractionChange(e.target.value)}
           sx={{ width: "50%", backgroundColor: "white", color: "black", mr: 2 }}
         >
-          <MenuItem value="enter" sx={{ color: "black" }}>Local</MenuItem>
-          <MenuItem value="interact" sx={{ color: "black" }}>Personagem</MenuItem>
+          {interactions.map((int) => (
+            <MenuItem key={int.type} value={int.type} sx={{ color: "black" }}>
+              {int.label}
+            </MenuItem>
+          ))}
         </Select>
       </Box>
 
-      {/* Trigger target */}
+      {/* 2. Target Type */}
       {value.type && (
-        <Box
-          sx={{
-            display: "flex",
-            width: "100%",
-            alignItems: "center",
-            justifyContent: "space-between",
-            mt: 2,
-          }}
-        >
+        <Box sx={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", mt: 2 }}>
           <Typography variant="h7" sx={{ py: 1, px: 2, color: textColor }}>
-            {value.type === "enter" ? "Local:" : "Personagem:"}
+            Tipo de alvo:
+          </Typography>
+          <Select
+            value={value.targetType || ""}
+            onChange={(e) => handleTargetTypeChange(e.target.value)}
+            sx={{ width: "50%", backgroundColor: "white", color: "black", mr: 2 }}
+          >
+            <MenuItem value="character" sx={{ color: "black" }}>Personagem</MenuItem>
+            <MenuItem value="location" sx={{ color: "black" }}>Local</MenuItem>
+          </Select>
+        </Box>
+      )}
+
+      {/* 3. Target Selection */}
+      {value.targetType && (
+        <Box sx={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", mt: 2 }}>
+          <Typography variant="h7" sx={{ py: 1, px: 2, color: textColor }}>
+            {value.targetType === "location" ? "Local:" : "Personagem:"}
           </Typography>
           <Select
             value={value.id || ""}
