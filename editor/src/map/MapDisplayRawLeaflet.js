@@ -30,8 +30,10 @@ export default function MapDisplayRawLeaflet(props) {
   const mapContainer = useRef();
 
   const anchors = mapInfo.anchors;
+  const locations = props.locations;
 
   const addMarker = (latlng, map, anchorId, anchorType) => {
+    console.log("Adding Marker")
     const anchor = L.marker(latlng, {
       icon: MarkerTypeToIcon[anchorType] || iconAnchor,
       draggable: true,

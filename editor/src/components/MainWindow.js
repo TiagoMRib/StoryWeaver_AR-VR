@@ -13,7 +13,8 @@ import { NodeType } from "../models/NodeTypes";
 
 import TopAppBar from "./AppBar";
 import MapWindow from "../map/MapWindow";
-import VRWorldWindow from "../vr_world/VRWorldWindow";
+import VRWorldWindow from "../world/VRWorldWindow";
+import ARWorldWindow from "../world/ARWorldWindow";
 import maps from "../data/maps";
 import DialogueTree from "../dialogue_tree/DialogueTree";
 import { CloseOutlined } from "@mui/icons-material";
@@ -42,7 +43,7 @@ const initialEdges = JSON.parse(localStorage.getItem("edges") || "[]");
 
 export default function MainWindow(props) {
   const repo = ApiDataRepository.getInstance();
-  const [windows, setWindows] = React.useState(["História", "Mapa AR", "Mundo VR"]);
+  const [windows, setWindows] = React.useState(["História", "Mundo AR", "Mundo VR"]);
   const [mapsState, setMaps] = React.useState(maps);
   
   const [selectedMap, setSelectedMap] = React.useState(
@@ -211,7 +212,7 @@ export default function MainWindow(props) {
     setEdges([]);
     setMaps([]);
     setCharacters([narrator]);
-    setWindows(["História", "Mapa AR", "Mundo VR"]);
+    setWindows(["História", "Mundo AR", "Mundo VR"]);
     changeDisplayedWindow("História");
     setProjectTitle("Adicione um título ao projeto");
     setName("");
@@ -300,31 +301,38 @@ export default function MainWindow(props) {
     localStorage.setItem("nodes", JSON.stringify([...nodes, newNode]));
   };
 
-  const addLocation = (markerType) => {
+  const addLocation = (selected) => {
+    if (!selected || !selectedMap || selectedMap.anchors.length === 0) return;
+
     const imgCoords = new L.latLng(
       selectedMap.mapSize.height / 2,
       selectedMap.mapSize.width / 2
     );
+
     const anchors = selectedMap.anchors.filter(
       (anchor) => anchor.anchorType === "anchor"
     );
-    //TODO: compute realCoords from imgCoords and anchor position and mapSize
+
     const realCoords = {
       lat: imgCoords.lat * selectedMap.scale + anchors[0].coords.lat,
       lng: imgCoords.lng * selectedMap.scale + anchors[0].coords.lng,
     };
+
     setMountMap(false);
+
     const newAnchor = {
       anchorId: selectedMap.anchors.length + 1,
-      anchorType: markerType,
+      anchorType: selected.markerType || "anchor", // fallback if not defined
       coords: realCoords,
       imgCoords: imgCoords,
-      name: "Novo Local",
-      description: "Descrição do Local",
+      name: selected.name,
+      description: selected.description || "",
     };
+
     selectedMap.anchors.push(newAnchor);
-    setSelectedMap(selectedMap);
-    const newMaps = mapsState.filter((map) => map.id != selectedMap.id);
+    setSelectedMap({ ...selectedMap });
+
+    const newMaps = mapsState.filter((map) => map.id !== selectedMap.id);
     newMaps.push(selectedMap);
     setMaps(newMaps);
     localStorage.setItem("maps", JSON.stringify(newMaps));
@@ -574,15 +582,35 @@ export default function MainWindow(props) {
             setDialogEdges={setDialogEdges}
             setDialogueNodeId={setDialogueNodeId}
           />
-        ) : displayedWindow === "Mapa AR" ? (
+        ) : displayedWindow === "Mundo AR" ? (
+          <ARWorldWindow
+            onSelect={(mode) => {
+              if (mode === "map") {
+                changeDisplayedWindow("Mapa GPS");
+              } else if (mode === "tracking") {
+                changeDisplayedWindow("Tracking AR");
+              }
+            }}
+          />        
+        ) : displayedWindow === "Mapa GPS" ? (
           mountMap ? (
             <MapWindow
               mapState={mapsState}
               setMaps={setMaps}
               selectedMap={selectedMap}
               setSelectedMap={setSelectedMap}
+              locations={locations}
             />
           ) : null
+        ) : displayedWindow === "Tracking AR" ? (
+          <Box sx={{ p: 4 }}>
+            <Typography variant="h6">
+              🚧 TrackingWindow ainda não implementado.
+            </Typography>
+            <Typography>
+              Aqui será possível configurar QR codes e image tracking para AR.
+            </Typography>
+          </Box>
         ) : displayedWindow.startsWith("Diálogo") ? (
           <DialogueTree
             characters={characters}

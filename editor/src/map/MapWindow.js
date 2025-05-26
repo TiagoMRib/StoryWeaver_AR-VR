@@ -33,8 +33,17 @@ export default function MapWindow(props) {
   const selectedMap = props.selectedMap;
   const setSelectedMap = props.setSelectedMap;
 
-  const continuarAction = () => {    ///////////////////////7 SOMETHING HERE
+  const locations = props.locations;
+
+  console.log("[MapWindow] selectedMap:", selectedMap);
+  console.log("[MapWindow] mapsState:", mapsState);
+  console.log("[MapWindow] locations:", locations);
+
+  const continuarAction = () => {
+    console.log("[MapWindow] continuarAction called");
+    console.log("[MapWindow] selectedMap.anchors:", selectedMap?.anchors);    
     if (selectedMap.anchors.length < 2) {
+       console.warn("[MapWindow] Menos de 2 âncoras definidas");
       setDisplayAlert(true);
       setAlertText("Selecione pelo menos dois pontos.");
     } else if (selectedMap.progressionState != "name-given") {
@@ -200,6 +209,7 @@ export default function MapWindow(props) {
                   }}
                   value={selectedMap}
                   onChange={(e) => {
+                    console.log("[MapWindow] Mapa selecionado:", e.target.value);
                     setSelectedMap(e.target.value);
                   }}
                 >
@@ -353,6 +363,7 @@ export default function MapWindow(props) {
               setAlertText={setAlertText}
               setAlertDisplay={setDisplayAlert}
               setMapsState={setMaps}
+              locations={locations}
             />
           </div>
         </Box>

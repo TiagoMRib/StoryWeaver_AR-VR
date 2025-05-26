@@ -43,6 +43,7 @@ import {
 export default function TopAppBar(props) {
   const repo = ApiDataRepository.getInstance();
   const currentWindow = props.currentWindow;
+  console.log("[TopAppBar] currentWindow:", currentWindow);
   const projectTitle = props.projectTitle;
   
   const nodes = props.nodes;
@@ -391,22 +392,6 @@ export default function TopAppBar(props) {
             >
               Novo
             </MenuItem>
-            {/* <MenuItem
-              onClick={() => {
-                handleSaveLocal();
-                handleClose();
-              }}
-            >
-              Guardar Localmente
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleLoadLocal();
-                handleClose();
-              }}
-            >
-              Carregar Localmente
-            </MenuItem> */}
 
             <MenuItem
               onClick={() => {
@@ -443,7 +428,7 @@ export default function TopAppBar(props) {
             }}
             onClick={() => {
               if (
-                currentWindow === "Mapa AR" &&
+                currentWindow === "Mapa GPS" &&
                 selectedMap.progressionState != "name-given"
               )
                 return;
@@ -476,12 +461,13 @@ export default function TopAppBar(props) {
                 if (nodeType) addNode(nodeType, nodeProps);
               }}
             ></AddNodePopup>
-          ) : currentWindow === "Mapa AR" ? (
+          ) : currentWindow === "Mapa GPS" ? (
             <AddLocationsPopup
               open={openAddNode}
-              onClose={(markerType) => {
+              locations={locations}
+              onClose={(selected) => {
                 setOpenAddNode(false);
-                if (markerType) addLocation(markerType);
+                if (selected) addLocation(selected);
               }}
             ></AddLocationsPopup>
           ) : currentWindow.startsWith("Diálogo") ? (
