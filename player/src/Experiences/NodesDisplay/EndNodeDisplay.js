@@ -4,9 +4,13 @@ import { backgroundColor, textColor } from "../../themes";
 import Typewriter from "./util/TypeWriter";
 import * as THREE from "three";
 
-export default function EndNodeDisplay(props) {
-  const { node: endNode, setNextNode, experienceName, mode } = props;
-  const endName = endNode?.data?.id;
+export default function EndNodeDisplay({
+  node,
+  onNext,
+  mode,
+}) {
+  console.log("[EndNodeDisplay] Rendering End Node:", node);
+  const endName = node?.data?.ending;
 
   // Position the panel in front of the player in VR
   useEffect(() => {
@@ -51,12 +55,12 @@ export default function EndNodeDisplay(props) {
 
     const handleClick = () => {
       console.log("[EndNodeDisplay] Terminar clicked");
-      setNextNode(undefined);
+      onNext?.();
     };
 
     buttonEl.addEventListener("click", handleClick);
     return () => buttonEl.removeEventListener("click", handleClick);
-  }, [mode, setNextNode]);
+  }, [mode, onNext]);
 
   console.log("[EndNodeDisplay] Rendering in mode:", mode);
 
@@ -143,7 +147,7 @@ export default function EndNodeDisplay(props) {
         }}
         onClick={() => {
           console.log("[EndNodeDisplay] Terminar clicked (screen mode)");
-          setNextNode(undefined);
+          onNext?.();
         }}
       >
         <Typography variant="h4">Terminar</Typography>

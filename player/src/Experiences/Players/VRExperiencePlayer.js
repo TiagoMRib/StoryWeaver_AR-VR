@@ -51,6 +51,12 @@ export default function VRExperiencePlayer({
   };
 
   const handleAdvance = (choiceIndex = null) => {
+    if (currentNode?.action === "end") {
+      console.log("[VR Advance] Reached end node, exiting experience");
+      setExperience?.(undefined);
+      return;
+    }
+
     const next = resolveNextNode(currentNode, choiceIndex);
     console.log("[VR Advance] Advancing from node:", currentNode.id, "to:", next ? next.id : "none");
     if (next) setCurrentNode(next);
@@ -100,9 +106,7 @@ export default function VRExperiencePlayer({
           <EndNodeDisplay
             mode="vr"
             node={currentNode}
-            experienceName={experienceName}
-            setNextNode={() => {setExperience(undefined).catch(console.error);
-            }}
+            onNext={handleAdvance}
           />
         );
       default:
