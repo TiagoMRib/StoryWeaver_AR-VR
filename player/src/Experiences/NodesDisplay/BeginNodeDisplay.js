@@ -7,8 +7,8 @@ import * as THREE from "three";
 export default function BeginNodeDisplay(props) {
   const {
     node: beginNode,
-    possibleNextNodes,
-    setNextNode,
+    story,
+    onNext,
     experienceName,
     mode,
     spawnPoint,
@@ -72,14 +72,12 @@ export default function BeginNodeDisplay(props) {
 
     const handleClick = () => {
       console.log("[BeginNodeDisplay] Start button clicked");
-      if (possibleNextNodes?.[0]) {
-        setNextNode(possibleNextNodes[0]);
-      }
+      onNext?.();
     };
 
     buttonEl.addEventListener("click", handleClick);
     return () => buttonEl.removeEventListener("click", handleClick);
-  }, [mode, possibleNextNodes, setNextNode]);
+  }, [mode, onNext]);
 
   console.log("[BeginNodeDisplay] Rendering in mode:", mode);
 
@@ -165,9 +163,7 @@ export default function BeginNodeDisplay(props) {
         }}
         onClick={() => {
           console.log("[BeginNodeDisplay] Button clicked in AR mode");
-          if (possibleNextNodes?.[0]) {
-            setNextNode(possibleNextNodes[0]);
-          }
+          onNext?.();
         }}
       >
         <Typography variant="h4">Começar</Typography>

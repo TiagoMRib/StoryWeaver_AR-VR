@@ -9,7 +9,7 @@ import * as THREE from "three";
 function getPlayerStartPosition(startName, gltfScene) {
   const startNode = gltfScene.getObjectByName(startName);
   if (startNode) {
-    const pos = startNode.position;
+    const pos = startNode.location;
     return { position: `${pos.x} ${pos.y} ${pos.z}`, found: true };
   }
   return { position: "0 0.5 0", found: false };
@@ -107,7 +107,7 @@ export default function VRSceneWrapper({
     const { trigger } = currentNode;
     if (!trigger) return;
 
-    const interactionDef = projectInfo.interactions.find(i => i.type === trigger.interaction);
+    const interactionDef = projectInfo.interactions?.find(i => i.type === trigger.interaction);
     if (!interactionDef) return;
 
     const method = interactionDef.methodVr;

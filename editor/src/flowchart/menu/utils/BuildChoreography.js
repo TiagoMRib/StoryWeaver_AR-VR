@@ -1,9 +1,9 @@
 export function buildChoreography({ nodes, edges, characters, locations, title, description }) {
   const idToNode = Object.fromEntries(nodes.map(n => [n.id, n]));
 
-  const getNextStep = (nodeId) => {
+  const getGoToStep = (nodeId) => {
     const edge = edges.find(e => e.source === nodeId);
-    return edge?.target;
+    return edge?.target || null;
   };
 
   const buildTrigger = (entryTrigger) => {
@@ -27,16 +27,18 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
         id,
         action: "begin",
         location: data.location || null,
+        goToStep: getGoToStep(id),
       });
     }
 
     if (type === "textNode") {
       story.push({
         id,
-        action: "text",        
-        actor: {id: data.character?.id, name: data.character?.name},
+        action: "text",
+        actor: { id: data.character?.id, name: data.character?.name },
         trigger: buildTrigger(data.entry_trigger),
         data: { text: data.name },
+        goToStep: getGoToStep(id),
       });
     }
 
@@ -54,7 +56,7 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
       story.push({
         id,
         action: "choice",
-        actor: {id: data.character?.id, name: data.character?.name},
+        actor: { id: data.character?.id, name: data.character?.name },
         trigger: buildTrigger(data.entry_trigger),
         data: {
           text: data.question || data.name || "",
@@ -68,12 +70,12 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
         id,
         action: "end",
         data: {
-          ending: data.id|| "The End",
+          ending: data.id || "The End",
         },
       });
     }
 
-    // Add more node types later
+    // Add other node types later
   }
 
   return {

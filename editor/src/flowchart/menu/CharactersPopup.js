@@ -165,9 +165,9 @@ export default function CharactersPopup(props) {
                   >
                     <img
                       src={
-                        character.image.inputType == "file"
-                          ? character.image.blob
-                          : character.image.filename
+                        character.image?.inputType == "file"
+                          ? character.image?.blob
+                          : character.image?.filename
                       }
                       onError={(e) => {
                         // if blob is not valid, fetch the image from the server
