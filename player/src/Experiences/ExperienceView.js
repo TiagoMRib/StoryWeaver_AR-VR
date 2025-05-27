@@ -13,16 +13,16 @@ export default function ExperienceView({
   setExperience,
   repo,
 }) {
-
   console.log("[ExperienceView] Project Info:", projectInfo);
+
   if (playMode === "VR") {
     return (
       <VRExperiencePlayer
         glbUrl={glbUrl}
-        projectData={projectInfo}
+        projectInfo={projectInfo}
         locations={projectInfo?.locations}
-        actors={projectInfo?.actors}
-        storyNodes={projectInfo?.nodes}
+        characters={projectInfo?.characters}
+        story={projectInfo?.story}
         setNextNode={setNextNodes}
         repo={repo}
         setExperience={setExperience}
@@ -32,7 +32,7 @@ export default function ExperienceView({
 
   return (
     <ARExperiencePlayer
-      projectInfo={projectInfo}
+      projectData={projectInfo}
       currentNode={currentNode}
       nextNodes={nextNodes}
       setCurrentNode={setCurrentNode}

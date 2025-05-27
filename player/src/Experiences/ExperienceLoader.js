@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Box } from "@mui/material";
-import { ApiDataRepository } from "../api/ApiDataRepository";
-import { NodeType } from "../models/NodeTypes";
 import { ComponentState } from "../models/ComponentState";
 import ExperienceView from "./ExperienceView";
 
-export default function ExperienceLoader({ projectId, passedProjectData, setExperience, playMode, glbUrl }) {
-  const repo = ApiDataRepository.getInstance();
-
+export default function ExperienceLoader({
+  projectId,
+  passedProjectData,
+  setExperience,
+  playMode,
+  glbUrl
+}) {
   const [projectInfo, setProjectInfo] = useState(undefined);
   const [currentNode, setCurrentNode] = useState(undefined);
   const [nextNodes, setNextNodes] = useState([]);
   const [componentState, setComponentState] = useState(ComponentState.LOADING);
 
-  // Fetches project data on play mode selection
+  // Load project from props or backend (fallback)
   useEffect(() => {
     if (!playMode) return;
 
@@ -21,41 +23,48 @@ export default function ExperienceLoader({ projectId, passedProjectData, setExpe
       console.log("[Loader] Using passed JSON project data");
       initialize(passedProjectData);
     } else {
-      console.log("[Loader] Fetching project from backend");
-      repo.getProject(projectId)
-        .then(initialize)
-        .catch((err) => {
-          console.error("[Loader] Failed to load project:", err);
-          setComponentState(ComponentState.ERROR);
-        });
+      console.error("[Loader] No local project data found. This path is deprecated.");
+      setComponentState(ComponentState.ERROR);
     }
   }, [playMode]);
 
-  // Initializes the first node in the story
+  // Initialize story
   const initialize = (project) => {
-  const beginNode = project.nodes.find((n) => n.type === NodeType.beginNode);
-  if (!beginNode) {
-    console.error("[Loader] No beginNode found.");
-    setComponentState(ComponentState.ERROR);
-    return;
-  }
+    const beginNode = project.story?.find((n) => n.action === "begin");
 
-  setProjectInfo(project);
-  setCurrentNode(beginNode);
-  updateNextNodes(beginNode, project);
-  setComponentState(ComponentState.LOADED);
-};
+    if (!beginNode) {
+      console.error("[Loader] No 'begin' action found.");
+      setComponentState(ComponentState.ERROR);
+      return;
+    }
 
-  // Computes possible next nodes
+    setProjectInfo(project);
+    setCurrentNode(beginNode);
+    updateNextNodes(beginNode, project);
+    setComponentState(ComponentState.LOADED);
+  };
+
+  // Determine next nodes 
   const updateNextNodes = (node, project) => {
     if (!node || !project) return;
-    const edges = project.edges.filter((e) => e.source === node.id);
-    const targets = project.nodes.filter((n) => edges.some((e) => e.target === n.id));
+
+    let targets = [];
+
+    if (node.action === "choice") {
+      targets = node.data.options.map((opt) =>
+        project.story.find((n) => n.id === opt.goToStep)
+      ).filter(Boolean);
+    } else {
+      const nextEdges = project.edges?.filter((e) => e.source === node.id) || [];
+      targets = project.story.filter((n) =>
+        nextEdges.some((e) => e.target === n.id)
+      );
+    }
+
     console.log("[Loader] Next nodes for", node.id, ":", targets.map((n) => n.id));
     setNextNodes(targets);
   };
 
-  // Moves to the selected node
   const setNextNode = (node) => {
     console.log("[Loader] Moving to node:", node?.id);
     if (!projectInfo || !node) return;
@@ -63,14 +72,8 @@ export default function ExperienceLoader({ projectId, passedProjectData, setExpe
     updateNextNodes(node, projectInfo);
   };
 
-  // Displays loading or error
-  if (componentState === ComponentState.LOADING) {
-    return <LoadingScreen />;
-  }
-
-  if (componentState === ComponentState.ERROR) {
-    return <ErrorScreen />;
-  }
+  if (componentState === ComponentState.LOADING) return <LoadingScreen />;
+  if (componentState === ComponentState.ERROR) return <ErrorScreen />;
 
   return (
     <ExperienceView
@@ -82,12 +85,12 @@ export default function ExperienceLoader({ projectId, passedProjectData, setExpe
       setCurrentNode={setCurrentNode}
       setNextNodes={setNextNode}
       setExperience={setExperience}
-      repo={repo}
+      repo={null} // Not needed in local mode
     />
   );
 }
 
-// Extracted components for readability
+// UI helpers
 const LoadingScreen = () => (
   <Box sx={centerStyle}>
     <Typography variant="h4">Carregando...</Typography>

@@ -233,7 +233,7 @@ export default function InteractionsPopup({ open, onClose, interactions, setInte
                 <MenuItem value="" sx={{ color: "black" }}><em>Nenhum</em></MenuItem>
                 <MenuItem value="proximity" sx={{ color: "black" }}>Proximidade</MenuItem>
                 <MenuItem value="primary" sx={{ color: "black" }}>Botão Primário</MenuItem>
-                <MenuItem value="trigger" sx={{ color: "black" }}>Botão Trigger</MenuItem>
+                <MenuItem value="secondary" sx={{ color: "black" }}>Botão Secundário</MenuItem>
               </Select>
             </FormControl>
             <IconButton onClick={addInteraction}>

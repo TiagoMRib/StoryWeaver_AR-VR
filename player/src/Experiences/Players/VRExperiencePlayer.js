@@ -11,10 +11,10 @@ import * as THREE from "three";
 
 export default function VRExperiencePlayer({
   glbUrl,
-  projectData,
+  projectInfo,
   locations,
-  actors,
-  storyNodes,
+  characters,
+  story,
   setNextNode,
   setExperience,
   repo,
@@ -25,15 +25,17 @@ export default function VRExperiencePlayer({
   const [sceneEl, setSceneEl] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
 
+  console.log("[VRPlayer] Initializing VRExperiencePlayer with projectInfo:", projectInfo);
+
   /**
    * Initializes the experience with the Begin Node.
    */
   useEffect(() => {
-    const beginNode = projectData.nodes.find((node) => node.type === NodeType.beginNode);
+    const beginNode = projectInfo.story.find((node) => node.action === "begin");
     if (beginNode) {
       updateCurrentNode(beginNode);
     }
-  }, [projectData]);
+  }, [projectInfo]);
 
   /**
    * Reset trigger state whenever the current node changes.
@@ -69,8 +71,8 @@ export default function VRExperiencePlayer({
    * Get connected nodes for the current one.
    */
   const getNextNodes = (node) => {
-    const nextIds = projectData.edges.filter((e) => e.source === node.id).map((e) => e.target);
-    return projectData.nodes.filter((n) => nextIds.includes(n.id));
+  const nextIds = projectInfo.edges.filter((e) => e.source === node.id).map((e) => e.target);
+    return projectInfo.story.filter((n) => nextIds.includes(n.id));
   };
 
   /**
@@ -215,7 +217,7 @@ export default function VRExperiencePlayer({
     if (vr && trigger_mode === "Ao interagir com ator" && !hasTriggered) {
       const expectedActorId = vr_type.actor_id;
       console.log("[VRPlayer] currentNode.data.vr_type.character:", expectedActorId);
-      const expectedCharacter = projectData.characters.find(c => c.id === expectedActorId);
+      const expectedCharacter = projectInfo.characters.find(c => c.id === expectedActorId);
       const objectName = expectedCharacter?.name || "objeto desconhecido";
 
       const indicator = renderTriggerIndicator(objectName);
@@ -259,45 +261,20 @@ export default function VRExperiencePlayer({
     }
     console.log("[Render] Passed trigger check, rendering type:", currentNode.type);
 
-    switch (currentNode.type) {
-      case NodeType.beginNode:
-        console.log("[Render] Rendering begin node");
+    switch (currentNode.action) {
+      case "begin":
         return (
           <BeginNodeDisplay
             mode="vr"
-            spawnPoint={projectData.vrPlayerStart}
+            spawnPoint={projectInfo.vrPlayerStart}
             node={currentNode}
             possibleNextNodes={nextNodes}
             setNextNode={updateCurrentNode}
-            experienceName={projectData.experienceName}
+            experienceName={projectInfo.experienceName}
           />
         );
-      case NodeType.characterNode:
-        console.log("[Render] Rendering dialog node");
-        return (
-          <DialogueNodeDisplay
-            mode="vr"
-            node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={updateCurrentNode}
-            outGoingEdges={projectData.edges.filter(e => e.source === currentNode.id)}
-          />
-        );
-      case NodeType.quizNode:
-        console.log("[Render] Rendering quiz node");
-        return (
-          <QuizNodeDisplay
-            mode="vr"
-            node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={updateCurrentNode}
-            experienceName={projectData.projectTitle}
-            outGoingEdges={projectData.edges.filter(e => e.source === currentNode.id)}
-            hasTriggered={hasTriggered}
-          />
-        );
-      case NodeType.textNode:
-        console.log("[Render] Rendering text node");
+
+      case "text":
         return (
           <TextNodeDisplay
             mode="vr"
@@ -306,42 +283,71 @@ export default function VRExperiencePlayer({
             setNextNode={updateCurrentNode}
           />
         );
-      case NodeType.endNode:
-        console.log("[Render] Rendering end node");
+
+      case "dialogue":
+        return (
+          <DialogueNodeDisplay
+            mode="vr"
+            node={currentNode}
+            possibleNextNodes={nextNodes}
+            setNextNode={updateCurrentNode}
+            outGoingEdges={projectInfo.edges.filter(e => e.source === currentNode.id)}
+          />
+        );
+
+      case "quiz":
+        return (
+          <QuizNodeDisplay
+            mode="vr"
+            node={currentNode}
+            possibleNextNodes={nextNodes}
+            setNextNode={updateCurrentNode}
+            experienceName={projectInfo.projectTitle}
+            outGoingEdges={projectInfo.edges.filter(e => e.source === currentNode.id)}
+            hasTriggered={hasTriggered}
+          />
+        );
+
+      case "end":
         return (
           <EndNodeDisplay
             mode="vr"
             node={currentNode}
-            experienceName={projectData.projectTitle}
+            experienceName={projectInfo.projectTitle}
             setNextNode={() =>
               repo
                 ?.markEndingObtained?.(
-                  projectData.id,
+                  projectInfo.id,
                   currentNode.data.id,
-                  projectData.projectTitle,
-                  projectData.storyEndings
+                  projectInfo.projectTitle,
+                  projectInfo.storyEndings
                 )
                 .then(() => setExperience(undefined))
                 .catch(console.error)
             }
           />
         );
+
       default:
-        console.log("[Render] Not supported node type:", currentNode.type);
-        return <Typography>Esta cena não é suportada no modo VR.</Typography>;
-    }
+        return (
+          <Typography>
+            Esta cena não é suportada no modo VR. ({currentNode.action})
+          </Typography>
+        );
+
+      }
   };
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
       <VRSceneWrapper
         glbUrl={glbUrl}
+        story={story}
         currentNode={currentNode}
-        storyNodes={storyNodes}
         setCurrentNode={updateCurrentNode}
-        projectData={projectData}
+        projectInfo={projectInfo}
         locations={locations}
-        actors={actors}
+        characters={characters}
         onSceneLoaded={handleSceneLoaded}
         onSceneReady={() => setCameraReady(true)}
         hasTriggered={hasTriggered}
@@ -352,3 +358,5 @@ export default function VRExperiencePlayer({
     </Box>
   );
 }
+
+

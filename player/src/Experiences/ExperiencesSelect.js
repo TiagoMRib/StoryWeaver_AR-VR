@@ -1,233 +1,119 @@
-import { Box, Icon, IconButton, TextField, Typography } from "@mui/material";
-import React, { useEffect } from "react";
-import { backgroundColor, primaryColor, textColor } from "../themes";
-import { ApiDataRepository } from "../api/ApiDataRepository";
-import { ComponentState } from "../models/ComponentState";
-import ProjectListing from "./ProjectListing";
+import { Box, Typography, ButtonBase } from "@mui/material";
+import React, { useState } from "react";
+import { primaryColor, textColor } from "../themes";
 
 export default function ExperiencesSelect(props) {
-  const repo = ApiDataRepository.getInstance();
-  const [searchString, setSearchString] = React.useState("");
   const setExperience = props.setExperience;
-  const [projects, setProjects] = React.useState([]);
-  const [componentState, setComponentState] = React.useState(
-    ComponentState.LOADING
-  );
 
-  useEffect(() => {
-    repo
-      .getExportedProjects()
-      .then((projects) => {
-        console.log(projects);
-        setProjects(projects);
-        setComponentState(ComponentState.LOADED);
-      })
-      .catch((error) => {
-        setComponentState(ComponentState.ERROR);
-      });
-  }, []);
+  const [platformType, setPlatformType] = useState(undefined);
+  const [worldFile, setWorldFile] = useState(null);
+  const [platformFile, setPlatformFile] = useState(null);
+  const [storyFile, setStoryFile] = useState(null);
 
-  const searchProjects = async () => {
-    setComponentState(ComponentState.LOADING);
-    if (searchString === "") {
-      repo.getExportedProjects().then((projects) => {
-        setProjects(projects);
-        setComponentState(ComponentState.LOADED);
-      });
+  const handleFilesLoad = async () => {
+    if (!worldFile || !platformFile || !storyFile || !platformType) {
+      alert("Por favor selecione todos os ficheiros e o tipo de plataforma.");
       return;
     }
 
-    repo
-      .searchProjects(searchString)
-      .then((projects) => {
-        setProjects(projects);
-        setComponentState(ComponentState.LOADED);
-      })
-      .catch((error) => {
-        setComponentState(ComponentState.ERROR);
-      });
+    try {
+      const [worldText, platformText, storyText] = await Promise.all([
+        worldFile.text(),
+        platformFile.text(),
+        storyFile.text(),
+      ]);
+
+      const worldJson = JSON.parse(worldText);
+      const platformJson = JSON.parse(platformText);
+      const storyJson = JSON.parse(storyText);
+
+      const combined = {
+        platformType,
+        ...worldJson,
+        ...platformJson,
+        ...storyJson,
+      };
+
+      // Save to localStorage (related to the old way, not remving it for now)
+      localStorage.setItem("platformType", platformType);
+      localStorage.setItem("nodes", JSON.stringify(storyJson.nodes || []));
+      localStorage.setItem("edges", JSON.stringify(storyJson.edges || []));
+      localStorage.setItem("characters", JSON.stringify(worldJson.characters || []));
+      localStorage.setItem("locations", JSON.stringify(worldJson.locations || []));
+      localStorage.setItem("projectTitle", worldJson.projectTitle || "Experiência Local");
+
+      setExperience(combined);
+    } catch (err) {
+      alert("Erro ao carregar os ficheiros JSON.");
+      console.error(err);
+    }
   };
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        pb: 10,
-      }}
-    >
-      <Typography
-        variant="h4"
-        sx={{
-          pt: 2,
-          textAlign: "center",
-        }}
-      >
-        Experiências
+    <Box sx={{ width: "100%", pb: 10, px: 3 }}>
+      <Typography variant="h4" sx={{ pt: 2, textAlign: "center" }}>
+        Experiência Local
       </Typography>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "row",
-          mt: 2,
-          px: 2,
-        }}
-      >
-        <TextField
-          id="outlined-basic"
-          variant="outlined"
-          value={searchString}
-          inputProps={{
-            style: {
-              borderRadius: 0,
-              color: "black",
-              height: 40,
-              padding: 0,
-              margin: 0,
-              borderColor: "transparent",
-              borderWidth: 0,
-              backgroundColor: textColor,
-              borderRadius: 10,
-              textAlign: "start",
-              paddingLeft: 15,
-            },
-          }}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              searchProjects();
-            }
-          }}
-          onChange={(event) => {
-            setSearchString(event.target.value);
-          }}
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h6">Escolha a plataforma:</Typography>
+        <Box sx={{ display: "flex", gap: 2, my: 2 }}>
+          <ButtonBase
+            onClick={() => setPlatformType("AR")}
+            sx={platformButtonStyle(platformType === "AR")}
+          >
+            AR
+          </ButtonBase>
+          <ButtonBase
+            onClick={() => setPlatformType("VR")}
+            sx={platformButtonStyle(platformType === "VR")}
+          >
+            VR
+          </ButtonBase>
+        </Box>
+      </Box>
+
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h6">Carregue os ficheiros JSON</Typography>
+
+        <input type="file" accept=".json" onChange={(e) => setWorldFile(e.target.files[0])} />
+        <Typography sx={{ mb: 2 }}>Manifesto do Mundo</Typography>
+
+        <input type="file" accept=".json" onChange={(e) => setPlatformFile(e.target.files[0])} />
+        <Typography sx={{ mb: 2 }}>
+          Manifesto da Plataforma ({platformType || "Escolha a plataforma primeiro"})
+        </Typography>
+
+        <input type="file" accept=".json" onChange={(e) => setStoryFile(e.target.files[0])} />
+        <Typography sx={{ mb: 2 }}>Coreografia</Typography>
+      </Box>
+
+      <Box sx={{ mt: 3 }}>
+        <Box
+          onClick={handleFilesLoad}
           sx={{
-            flexGrow: 1,
-            py: 0,
-            color: textColor,
-            mx: "10px",
-            borderRadius: 0,
-            ".MuiInputBase-root": {
-              borderRadius: 2,
-              backgroundColor: textColor,
-            },
-          }}
-        />
-        <IconButton
-          onClick={() => {
-            searchProjects();
+            backgroundColor: primaryColor,
+            color: "white",
+            px: 3,
+            py: 1,
+            borderRadius: 2,
+            cursor: "pointer",
+            display: "inline-block",
           }}
         >
-          <img src="../assets/search_icon.svg" />
-        </IconButton>
+          <Typography variant="body1">Iniciar Experiência</Typography>
+        </Box>
       </Box>
-
-      <Box
-        sx={{
-          flexGrow: 1,
-          overflowY: "auto",
-          px: 3,
-          mt: 2,
-        }}
-      >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "start",
-          justifyContent: "center",
-          mt: 2,
-          px: 3,
-        }}
-      >
-        {componentState === ComponentState.LOADING ? (
-          <Typography
-            variant="h4"
-            sx={{
-              color: textColor,
-              textAlign: "center",
-            }}
-          >
-            Carregando...
-          </Typography>
-        ) : componentState === ComponentState.ERROR ? (
-          <Typography
-            variant="h5"
-            sx={{
-              color: textColor,
-              textAlign: "center",
-            }}
-          >
-            Error loading projects
-          </Typography>
-        ) : (
-          projects.map((project) => {
-            return (
-              <ProjectListing
-                key={project.id}
-                project={project}
-                setExperience={setExperience}
-              ></ProjectListing>
-            );
-          })
-        )}
-      </Box>
-      <Box sx={{ mt: 4 }}>
-        <input
-          type="file"
-          accept=".json"
-          style={{ display: "none" }}
-          id="json-upload"
-          onChange={(e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              try {
-                const json = JSON.parse(event.target.result);
-                console.log("[DEBUG] Loaded JSON:", json);
-
-                // Store the JSON data in localStorage
-                localStorage.setItem("nodes", JSON.stringify(json.nodes || []));
-                localStorage.setItem("edges", JSON.stringify(json.edges || []));
-                localStorage.setItem("characters", JSON.stringify(json.characters || []));
-                localStorage.setItem("locations", JSON.stringify(json.locations || []));
-                localStorage.setItem("projectTitle", json.projectTitle || "Local JSON");
-
-                // Optional: for UI consistency
-                localStorage.setItem("experienceName", json.name || "");
-                localStorage.setItem("experienceDescription", json.description || "");
-                localStorage.setItem("experienceTags", JSON.stringify(json.tags || []));
-
-                // Now pass the whole experience
-                props.setExperience(json); 
-              } catch (err) {
-                alert("Erro ao carregar o ficheiro JSON.");
-                console.error(err);
-              }
-            };
-            reader.readAsText(file);
-          }}
-        />
-        <label htmlFor="json-upload">
-          <Box
-            sx={{
-              mt: 2,
-              backgroundColor: primaryColor,
-              color: "white",
-              px: 3,
-              py: 1,
-              borderRadius: 2,
-              cursor: "pointer",
-              display: "inline-block",
-            }}
-          >
-            <Typography variant="body1">Carregar história local (ficheiro JSON)</Typography>
-          </Box>
-        </label>
-      </Box>
-    </Box>
     </Box>
   );
 }
+
+// Button styling for selected/unselected
+const platformButtonStyle = (selected) => ({
+  backgroundColor: selected ? "#2196f3" : "#eeeeee",
+  color: selected ? "white" : "#333",
+  px: 3,
+  py: 1,
+  borderRadius: 2,
+  fontSize: "16px",
+});

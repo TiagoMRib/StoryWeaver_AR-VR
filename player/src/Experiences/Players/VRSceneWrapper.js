@@ -25,25 +25,27 @@ function isNear(pos1, pos2, threshold = 1.5) {
 
 export default function VRSceneWrapper({
   glbUrl,
-  projectData,
+  story,
   currentNode,
-  storyNodes,
   setCurrentNode,
+  projectInfo,
+  locations,
+  characters,
   onSceneLoaded,
   onSceneReady,
-  hasTriggered,         
-  setHasTriggered,      
+  hasTriggered,
+  setHasTriggered,
   children,
 }) {
   const sceneRef = useRef(null);
   const modelRef = useRef(null);
-  const triggeredPlaces = useRef(new Set());
+  const triggered = useRef(new Set());
 
   const [statusMessage, setStatusMessage] = useState("Carregando modelo...");
   const [sceneLoaded, setSceneLoaded] = useState(false);
   const [cameraPositioned, setCameraPositioned] = useState(false);
 
-  // Scene is ready 
+  // Scene loaded
   useEffect(() => {
     const sceneEl = sceneRef.current;
     if (!sceneEl) return;
@@ -53,53 +55,40 @@ export default function VRSceneWrapper({
       onSceneLoaded?.(sceneEl);
     };
 
-    if (sceneEl.hasLoaded) {
-      handleSceneLoaded();
-    } else {
-      sceneEl.addEventListener("loaded", handleSceneLoaded);
-    }
+    if (sceneEl.hasLoaded) handleSceneLoaded();
+    else sceneEl.addEventListener("loaded", handleSceneLoaded);
 
-    return () => {
-      sceneEl.removeEventListener("loaded", handleSceneLoaded);
-    };
+    return () => sceneEl.removeEventListener("loaded", handleSceneLoaded);
   }, [onSceneLoaded]);
 
-  // GLB model loaded -> Position camera -> Notify ready
+  // Model loaded -> position camera
   useEffect(() => {
     if (!glbUrl || cameraPositioned || !modelRef.current) return;
 
-    const modelEntity = modelRef.current;
-
-    const handleModelLoaded = (e) => {
+    const entity = modelRef.current;
+    const onLoad = (e) => {
       const gltfScene = e.detail.model;
-
-      // Double-side all meshes + static-body setup
-      gltfScene.traverse((node) => {
+      gltfScene.traverse(node => {
         if (node.isMesh) {
           node.frustumCulled = false;
           if (node.material) node.material.side = THREE.DoubleSide;
-
-          // Attach collision to parent A-Frame element
           if (node.el && !node.el.hasAttribute("static-body")) {
-            node.el.setAttribute("static-body", {
-              shape: "box" 
-            });
+            node.el.setAttribute("static-body", { shape: "box" });
           }
-
-          // Optional: Make interactive meshes "clickable"
-          if (projectData.characters.some(c => c.name === node.name)) {
+          // mark clickable
+          if (projectInfo.characters?.some(c => c.threeDObject === node.name)) {
             node.el?.classList.add("clickable");
           }
         }
       });
 
-      const rig = document.querySelector("#cameraRig");
+      const rig = sceneRef.current?.querySelector("#cameraRig");
       if (!rig) {
         setStatusMessage("Erro: Rig da câmara não encontrado.");
         return;
       }
 
-      const { position, found } = getPlayerStartPosition(projectData?.vrPlayerStart, gltfScene);
+      const { position, found } = getPlayerStartPosition(projectInfo.vrPlayerStart, gltfScene);
       rig.setAttribute("position", position);
       setStatusMessage(found ? "" : "Atenção: posição inicial padrão usada.");
 
@@ -107,103 +96,61 @@ export default function VRSceneWrapper({
       onSceneReady?.();
     };
 
+    entity.addEventListener("model-loaded", onLoad);
+    return () => entity.removeEventListener("model-loaded", onLoad);
+  }, [glbUrl, cameraPositioned, projectInfo, onSceneReady]);
 
-
-    modelEntity.addEventListener("model-loaded", handleModelLoaded);
-    modelEntity.addEventListener("model-error", () => {
-      setStatusMessage("Erro: Falha ao carregar o modelo 3D.");
-    });
-
-    return () => {
-      modelEntity.removeEventListener("model-loaded", handleModelLoaded);
-    };
-  }, [glbUrl, cameraPositioned, projectData, onSceneReady]);
-
-  // Interação com atores
-
+  // Generic trigger handling
   useEffect(() => {
-  if (!sceneRef.current) return;
+    if (!sceneLoaded || !cameraPositioned || !currentNode) return;
 
-  const sceneEl = sceneRef.current;
+    const { trigger } = currentNode;
+    if (!trigger) return;
 
-  const handleClick = (evt) => {
-    const intersection = evt.detail?.intersection;
-    if (!intersection) return;
+    const interactionDef = projectInfo.interactions.find(i => i.type === trigger.interaction);
+    if (!interactionDef) return;
 
-    const clickedMesh = intersection.object;
-    const clickedName = clickedMesh?.name;
-    console.log("[VRPlayer] Raycast clicked mesh:", clickedName);
+    const method = interactionDef.methodVr;
+    const targetLabel = trigger.target;
+    // resolve 3D name
+    const targetName = (
+      projectInfo.locations.find(l => l.name === targetLabel)?.threeDObject ||
+      projectInfo.characters.find(c => c.name === targetLabel)?.threeDObject ||
+      targetLabel
+    );
 
-    // If current node expects interaction
-    if (
-      currentNode?.data?.vr &&
-      currentNode.data.vr_type?.trigger_mode === "Ao interagir com ator" &&
-      !hasTriggered
-    ) {
-      const expectedActorId = currentNode.data.vr_type.actor_id;
-      const expectedCharacter = projectData.characters.find(c => c.id === expectedActorId);
-      console.log("[Wrapper] expectedCharacter:", expectedCharacter.name);
-      if (!expectedCharacter) return;
-
-      if (clickedName === expectedCharacter.name) {
-        console.log(`[VRPlayer] Correct actor "${clickedName}" clicked`);
-        setHasTriggered(true);
-      } else {
-        console.log(`[VRPlayer] Clicked "${clickedName}" but expected "${expectedCharacter.name}" — ignoring`);
-      }
-    }
-  };
-
-  sceneEl.addEventListener("click", handleClick);
-
-  return () => {
-    sceneEl.removeEventListener("click", handleClick);
-  };
-}, [sceneRef, currentNode, setHasTriggered, setCurrentNode, projectData]);
-
-
-
-  // Check "ao entrar"
-  useEffect(() => {
-    if (!sceneLoaded || !cameraPositioned || !currentNode?.data?.vr) return;
-
-    const rig = document.querySelector("#cameraRig");
-    const gltfScene = modelRef.current?.getObject3D("mesh");
-
-    const interval = setInterval(() => {
-      const trigger = currentNode.data.vr_type?.trigger_mode;
-      const placeName = currentNode.data.place;
-
-      if (trigger !== "ao entrar" || !placeName || !rig || !gltfScene) return;
-
-      const playerPos = rig.object3D.position;
-      const target = gltfScene.getObjectByName(placeName);
-
-      if (target && !triggeredPlaces.current.has(placeName)) {
-        if (isNear(playerPos, target.position)) {
-          triggeredPlaces.current.add(placeName);
-
-          const targetNode = storyNodes.find(n =>
-            n.data?.place === placeName &&
-            n.data?.vr === true &&
-            n.data?.vr_type === "ao entrar"
-          );
-
-          if (targetNode) {
-            setCurrentNode(targetNode);
-          }
+    if (method === "proximity") {
+      const interval = setInterval(() => {
+        const rig = sceneRef.current?.querySelector("#cameraRig");
+        const playerPos = rig?.object3D.position;
+        const mesh = modelRef.current.getObject3D('mesh')?.getObjectByName(targetName);
+        if (playerPos && mesh && !triggered.current.has(targetName) && isNear(playerPos, mesh.position)) {
+          triggered.current.add(targetName);
+          setHasTriggered(true);
         }
-      }
-    }, 1000);
+      }, 500);
+      return () => clearInterval(interval);
+    }
 
-    return () => clearInterval(interval);
-  }, [sceneLoaded, cameraPositioned, currentNode, storyNodes, setCurrentNode]);
+    if (method === "primary" || method === "secondary") {
+      const sceneEl = sceneRef.current;
+      const event = method === "primary" ? "click" : "contextmenu";
+      const handler = evt => {
+        const object = evt.detail?.intersection?.object;
+        if (object?.name === targetName && !hasTriggered) {
+          setHasTriggered(true);
+        }
+      };
+      sceneEl.addEventListener(event, handler);
+      return () => sceneEl.removeEventListener(event, handler);
+    }
 
-  // Mudar a fonte - didnt work
+  }, [sceneLoaded, cameraPositioned, currentNode, projectInfo, hasTriggered, setHasTriggered]);
+
+  // font patch
   useEffect(() => {
     const scene = document.querySelector("a-scene");
     if (!scene) return;
-
     scene.addEventListener("loaded", () => {
       AFRAME.components.text.schema.font.default = "/fonts/roboto-msdf.json";
       AFRAME.components.text.schema.shader.default = "msdf";
@@ -223,7 +170,6 @@ export default function VRSceneWrapper({
         physics="debug: true"
       >
         <a-entity ref={modelRef} gltf-model={glbUrl}></a-entity>
-
         <a-entity
           id="cameraRig"
           dynamic-body="mass: 1; shape: capsule; height: 1.6; radius: 0.35"
@@ -232,12 +178,8 @@ export default function VRSceneWrapper({
           look-controls
           position="0 1.6 0"
         >
-          <a-entity
-            camera
-            position="0 1.6 0"
-          ></a-entity>
+          <a-entity camera position="0 1.6 0"></a-entity>
         </a-entity>
-
         <a-sky color="#0000FF" />
         {children}
       </a-scene>
