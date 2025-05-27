@@ -182,6 +182,7 @@ export default function MainWindow(props) {
     if (projectId == undefined) return;
     try {
       const data = await repo.getProject(projectId);
+      console.log("[Data] Loaded project data:", data);
       setNodes(data.nodes);
       setEdges(data.edges);
       setMaps(data.maps);
@@ -238,6 +239,8 @@ export default function MainWindow(props) {
     narrator.description = defaultNarrator.description;
     narrator.image = defaultNarrator.image;
     localStorage.setItem("characters", JSON.stringify([defaultNarrator]));
+    localStorage.setItem("locations", JSON.stringify([]));
+    localStorage.setItem("interactions", JSON.stringify([]));
     try {
       const response = await repo.saveProject(
         "Adicone um título ao projeto",
