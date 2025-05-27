@@ -8,5 +8,7 @@ export interface Project {
     description?: string;
     experienceName? : string;
     tags?: any[];
+    locations: any;
+    interactions: any;
 
 }

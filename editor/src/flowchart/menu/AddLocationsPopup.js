@@ -3,19 +3,14 @@ import { Box } from "@mui/system";
 import * as React from "react";
 import PropTypes from 'prop-types';
 import { primaryColor, secondaryColor, textColor } from "../../themes";
+import { possibleMarkers } from "../../models/MarkerTypes"; // 👈 Import marker definitions
 
-/**
- * Popup for selecting and adding locations.
- * Replaces marker selection with a provided locations list.
- *
- * Props:
- * - open: boolean - whether the dialog is open
- * - onClose: function(selected) - callback with the selected location (or undefined if closed)
- * - locations: Array<{ id: string|number, name: string, icon?: React.node }> - list of locations to display
- */
 export default function AddLocationsPopup({ open, onClose, locations }) {
-  console.log("[AddLocationsPopup] open:", open);
-  console.log("[AddLocationsPopup] locations:", locations);
+  const getMarkerImage = (markerType) => {
+    const marker = possibleMarkers.find((m) => m.type === markerType);
+    return marker?.image || "ancora.svg";
+  };
+
   return (
     <Dialog
       id="add-location-popup"
@@ -100,16 +95,13 @@ export default function AddLocationsPopup({ open, onClose, locations }) {
                 }}
                 onClick={() => onClose(loc)}
               >
-                {loc.icon || (
-                  <Box sx={{ mb: 1 }}>
-                    {/* Default placeholder icon if none provided */}
-                    <img
-                      src="./assets/default_location.png"
-                      alt={loc.name}
-                      style={{ width: 50, height: 50 }}
-                    />
-                  </Box>
-                )}
+                <Box sx={{ mb: 1 }}>
+                  <img
+                    src={`./assets/${getMarkerImage(loc.markerType)}`}
+                    alt={loc.name}
+                    style={{ width: 50, height: 50 }}
+                  />
+                </Box>
                 <Typography
                   variant="body1"
                   component="div"
@@ -138,7 +130,7 @@ AddLocationsPopup.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       name: PropTypes.string.isRequired,
-      icon: PropTypes.node,
+      markerType: PropTypes.string, 
     })
   ).isRequired,
 };
