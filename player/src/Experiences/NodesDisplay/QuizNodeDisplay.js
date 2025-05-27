@@ -8,21 +8,20 @@ import { textColor } from "../../themes";
 
 export default function QuizNodeDisplay({
   node,
-  possibleNextNodes,
-  setNextNode,
-  outGoingEdges,
+  onNext,
   mode,
-  experienceName,
 }) {
   const repo = ApiDataRepository.getInstance();
-  const question = node.data.question;
-  const answers = node.data.answers;
+  const question = node.data.text;
+  const answers = node.data.options;
   const backgroundFileInfo = node.data.background;
   const character = node.data.character;
 
   const [backgroundURL, setBackgroundURL] = useState("");
   const [bgColor, setBgColor] = useState("#A9B388");
   const [characterImg, setCharacterImg] = useState("");
+
+  console.log("[QuizNodeDisplay] Rendering Quiz Node:", node);
 
   // Load character image
   useEffect(() => {
@@ -126,8 +125,6 @@ export default function QuizNodeDisplay({
 
         {answers.map((answer, index) => {
           const yOffset = -0.6 - index * 0.5;
-          const targetId = outGoingEdges.find(e => e.sourceHandle === index.toString())?.target;
-          const targetNode = possibleNextNodes.find(n => n.id === targetId);
 
           return (
             <a-box
@@ -140,11 +137,11 @@ export default function QuizNodeDisplay({
               class="clickable"
               onClick={() => {
                 console.log(`[Quiz] Answer ${index + 1} selected: ${answer}`);
-                if (targetNode) setNextNode(targetNode);
+                onNext?.(index);
               }}
             >
               <a-text
-                value={answer}
+                value={answer.label}
                 align="center"
                 color="white"
                 position="0 0 0.05"
@@ -215,15 +212,13 @@ export default function QuizNodeDisplay({
 
       <Box sx={{ pb: 9 }}>
         {answers.map((answer, index) => {
-          const edge = outGoingEdges.find(e => e.sourceHandle === index.toString());
-          const nextNode = possibleNextNodes.find(n => n.id === edge?.target);
 
           return (
             <ButtonBase
               key={index}
               sx={{ mb: 2, width: "90%", color: textColor }}
               onClick={() => {
-                if (nextNode) setNextNode(nextNode);
+                onNext?.(index);
               }}
             >
               <PlayerTextFinalDisplay

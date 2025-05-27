@@ -19,9 +19,10 @@ export default function ExperienceView({
     return (
       <VRExperiencePlayer
         glbUrl={glbUrl}
-        projectInfo={projectInfo}
+        experienceName={projectInfo?.experienceName}
         locations={projectInfo?.locations}
         characters={projectInfo?.characters}
+        interactions={projectInfo?.interactions}
         story={projectInfo?.story}
         setNextNode={setNextNodes}
         repo={repo}

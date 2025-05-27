@@ -17,13 +17,13 @@ import * as THREE from "three";
 export default function TextNodeDisplay({
   node,
   possibleNextNodes,
-  setNextNode,
+  onNext,
   mode,
 }) {
   const repo = ApiDataRepository.getInstance();
-  const text = node.data.name;
+  const text = node.data.text;
+  const character = node.actor;
   const textColor = node.data.color;
-  const character = node.data.character;
   const backgroundFileInfo = node.data.background;
 
   const ARTypeInfo = node.data.ar_type;
@@ -35,6 +35,8 @@ export default function TextNodeDisplay({
   const [backgroundURL, setBackgroundURL] = useState("");
   const [bgColor, setBgColor] = useState(defaultBg);
   const [markerSrc, setMarkerSrc] = useState("");
+
+  console.log("[TextNodeDisplay] character:", character);
 
   useEffect(() => {
     if (!character?.image?.filename) return;
@@ -156,7 +158,7 @@ useEffect(() => {
           color="#4caf50"
           class="clickable"
           onClick={() => {
-            if (possibleNextNodes[0]) setNextNode(possibleNextNodes[0]);
+            onNext?.();
           }}
         >
           <a-text
@@ -254,7 +256,7 @@ useEffect(() => {
 
       <GoToNextSlideButton
         possibleNextNodes={possibleNextNodes}
-        setNextNode={setNextNode}
+        onNext={onNext}
       />
     </Box>
   );

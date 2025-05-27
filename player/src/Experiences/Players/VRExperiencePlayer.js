@@ -10,9 +10,10 @@ import * as THREE from "three";
 
 export default function VRExperiencePlayer({
   glbUrl,
-  projectInfo,
+  experienceName,
   locations,
   characters,
+  interactions,
   story,
   setNextNode,
   setExperience,
@@ -22,10 +23,12 @@ export default function VRExperiencePlayer({
   const [hasTriggered, setHasTriggered] = useState(false);
   const [sceneEl, setSceneEl] = useState(null);
   const [cameraReady, setCameraReady] = useState(false);
+  const [startPosition, setStartPosition] = useState("0 1.6 0");
 
   useEffect(() => {
     const beginNode = story.find((node) => node.action === "begin");
     if (beginNode) {
+      setStartPosition(beginNode.location);
       setCurrentNode(beginNode);
       setNextNode?.(beginNode);
     }
@@ -49,21 +52,23 @@ export default function VRExperiencePlayer({
 
   const handleAdvance = (choiceIndex = null) => {
     const next = resolveNextNode(currentNode, choiceIndex);
+    console.log("[VR Advance] Advancing from node:", currentNode.id, "to:", next ? next.id : "none");
     if (next) setCurrentNode(next);
   };
 
   const renderNode = () => {
     if (!currentNode) return null;
 
+    console.log("[VR Render] Current node:", currentNode.id, "Action:", currentNode.action);
     switch (currentNode.action) {
       case "begin":
         return (
           <BeginNodeDisplay
             mode="vr"
-            spawnPoint={projectInfo.vrPlayerStart}
+            startPosition={startPosition}
             node={currentNode}
             onNext={handleAdvance}
-            experienceName={projectInfo.experienceName}
+            experienceName={experienceName}
           />
         );
       case "text":
@@ -71,7 +76,7 @@ export default function VRExperiencePlayer({
           <TextNodeDisplay
             mode="vr"
             node={currentNode}
-            setNextNode={handleAdvance}
+            onNext={handleAdvance}
           />
         );
       case "dialogue":
@@ -84,19 +89,10 @@ export default function VRExperiencePlayer({
         );
       case "choice":
         return (
-          <DialogueNodeDisplay
-            mode="vr"
-            node={currentNode}
-            setNextNode={handleAdvance}
-          />
-        );
-      case "quiz":
-        return (
           <QuizNodeDisplay
             mode="vr"
             node={currentNode}
-            setNextNode={handleAdvance}
-            experienceName={projectInfo.projectTitle}
+            onNext={handleAdvance}
           />
         );
       case "end":
@@ -104,16 +100,8 @@ export default function VRExperiencePlayer({
           <EndNodeDisplay
             mode="vr"
             node={currentNode}
-            experienceName={projectInfo.projectTitle}
-            setNextNode={() => {
-              repo?.markEndingObtained?.(
-                projectInfo.id,
-                currentNode.data.id,
-                projectInfo.projectTitle,
-                projectInfo.storyEndings
-              )
-              .then(() => setExperience(undefined))
-              .catch(console.error);
+            experienceName={experienceName}
+            setNextNode={() => {setExperience(undefined).catch(console.error);
             }}
           />
         );
@@ -129,13 +117,14 @@ export default function VRExperiencePlayer({
         story={story}
         currentNode={currentNode}
         setCurrentNode={setCurrentNode}
-        projectInfo={projectInfo}
         locations={locations}
         characters={characters}
+        interactions={interactions}
         onSceneLoaded={handleSceneLoaded}
         onSceneReady={() => setCameraReady(true)}
         hasTriggered={hasTriggered}
         setHasTriggered={setHasTriggered}
+        startPosition={startPosition}
       >
         {renderNode()}
       </VRSceneWrapper>

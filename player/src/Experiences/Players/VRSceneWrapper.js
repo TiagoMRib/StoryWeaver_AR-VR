@@ -6,10 +6,10 @@ import "aframe-extras";
 import * as THREE from "three";
 
 // Gets player start position from GLTF by name
-function getPlayerStartPosition(startName, gltfScene) {
-  const startNode = gltfScene.getObjectByName(startName);
-  if (startNode) {
-    const pos = startNode.location;
+function getPlayerStartPosition(start_location, gltfScene) {
+
+  if (start_location.threeDObject) {
+    const pos = start_location.threeDObject.position;
     return { position: `${pos.x} ${pos.y} ${pos.z}`, found: true };
   }
   return { position: "0 0.5 0", found: false };
@@ -28,13 +28,14 @@ export default function VRSceneWrapper({
   story,
   currentNode,
   setCurrentNode,
-  projectInfo,
   locations,
   characters,
+  interactions,
   onSceneLoaded,
   onSceneReady,
   hasTriggered,
   setHasTriggered,
+  startPosition,
   children,
 }) {
   const sceneRef = useRef(null);
@@ -76,7 +77,7 @@ export default function VRSceneWrapper({
             node.el.setAttribute("static-body", { shape: "box" });
           }
           // mark clickable
-          if (projectInfo.characters?.some(c => c.threeDObject === node.name)) {
+          if (characters?.some(c => c.threeDObject === node.name)) {
             node.el?.classList.add("clickable");
           }
         }
@@ -88,7 +89,7 @@ export default function VRSceneWrapper({
         return;
       }
 
-      const { position, found } = getPlayerStartPosition(projectInfo.vrPlayerStart, gltfScene);
+      const { position, found } = getPlayerStartPosition(startPosition, gltfScene);
       rig.setAttribute("position", position);
       setStatusMessage(found ? "" : "Atenção: posição inicial padrão usada.");
 
@@ -98,7 +99,7 @@ export default function VRSceneWrapper({
 
     entity.addEventListener("model-loaded", onLoad);
     return () => entity.removeEventListener("model-loaded", onLoad);
-  }, [glbUrl, cameraPositioned, projectInfo, onSceneReady]);
+  }, [glbUrl, cameraPositioned, onSceneReady]);
 
   // Generic trigger handling
   useEffect(() => {
@@ -107,15 +108,15 @@ export default function VRSceneWrapper({
     const { trigger } = currentNode;
     if (!trigger) return;
 
-    const interactionDef = projectInfo.interactions?.find(i => i.type === trigger.interaction);
+    const interactionDef = interactions?.find(i => i.type === trigger.interaction);
     if (!interactionDef) return;
 
     const method = interactionDef.methodVr;
     const targetLabel = trigger.target;
     // resolve 3D name
     const targetName = (
-      projectInfo.locations.find(l => l.name === targetLabel)?.threeDObject ||
-      projectInfo.characters.find(c => c.name === targetLabel)?.threeDObject ||
+      locations.find(l => l.name === targetLabel)?.threeDObject ||
+      characters.find(c => c.name === targetLabel)?.threeDObject ||
       targetLabel
     );
 
@@ -145,7 +146,7 @@ export default function VRSceneWrapper({
       return () => sceneEl.removeEventListener(event, handler);
     }
 
-  }, [sceneLoaded, cameraPositioned, currentNode, projectInfo, hasTriggered, setHasTriggered]);
+  }, [sceneLoaded, cameraPositioned, currentNode, hasTriggered, setHasTriggered]);
 
   // font patch
   useEffect(() => {
