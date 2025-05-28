@@ -38,6 +38,13 @@ export default function TextNodeDisplay({
 
   console.log("[TextNodeDisplay] character:", character);
 
+  function getTextScale(text) {
+    const length = text.length;
+    const scale = length < 50 ? 0.9 : length < 100 ? 0.6 : length < 200 ? 0.4 : 0.2;
+    console.log("[TextNodeDisplay] Calculated text scale:", scale);
+    return `${scale} ${scale} ${scale}`;
+  }
+
   useEffect(() => {
     if (!character?.image?.filename) return;
     if (character.image.inputType === "url") {
@@ -71,54 +78,54 @@ export default function TextNodeDisplay({
   }, [ARTypeInfo]);
 
   // === VR Positioning ===
-useEffect(() => {
-  if (mode !== "vr") return;
+  useEffect(() => {
+    if (mode !== "vr") return;
 
-  setTimeout(() => {
-    const scene = document.querySelector("a-scene");
-    const camEl = scene?.querySelector("[camera]");
-    const panelEl = scene?.querySelector("#text-panel");
+    setTimeout(() => {
+      const scene = document.querySelector("a-scene");
+      const camEl = scene?.querySelector("[camera]");
+      const panelEl = scene?.querySelector("#text-panel");
 
-    if (!camEl || !panelEl) {
-      console.warn("[TextNodeDisplay] Camera or panel not found");
-      return;
-    }
+      if (!camEl || !panelEl) {
+        console.warn("[TextNodeDisplay] Camera or panel not found");
+        return;
+      }
 
-    const camObj = camEl.object3D;
-    const panelObj = panelEl.object3D;
+      const camObj = camEl.object3D;
+      const panelObj = panelEl.object3D;
 
-    const distance = 2.5;
-    const minY = 1.5;
+      const distance = 2.5;
+      const minY = 1.5;
 
-    let targetPos = new THREE.Vector3();
-    let lookAtPos = new THREE.Vector3();
+      let targetPos = new THREE.Vector3();
+      let lookAtPos = new THREE.Vector3();
 
-    const charName = character?.name;
-    const characterEl = scene?.querySelector(`[id="${charName}"]`);
+      const charName = character?.name;
+      const characterEl = scene?.querySelector(`[id="${charName}"]`);
 
-    if (characterEl && characterEl.object3D) {
-      const charObj = characterEl.object3D;
-      charObj.getWorldPosition(targetPos);
-      targetPos.y += 1.5; // Raise above character
-      const forward = new THREE.Vector3();
-      charObj.getWorldDirection(forward);
-      targetPos.add(forward.multiplyScalar(1.5));
-      lookAtPos.copy(charObj.position);
+      if (characterEl && characterEl.object3D) {
+        const charObj = characterEl.object3D;
+        charObj.getWorldPosition(targetPos);
+        targetPos.y += 1.5; // Raise above character
+        const forward = new THREE.Vector3();
+        charObj.getWorldDirection(forward);
+        targetPos.add(forward.multiplyScalar(1.5));
+        lookAtPos.copy(charObj.position);
 
-      console.log("[TextNodeDisplay] Positioned near character:", charName);
-    } else {
-      camObj.getWorldPosition(lookAtPos);
-      const forward = new THREE.Vector3();
-      camObj.getWorldDirection(forward);
-      targetPos.copy(lookAtPos.clone().add(forward.multiplyScalar(-distance)));
-      console.warn("[TextNodeDisplay] Character not found, defaulting to camera");
-    }
+        console.log("[TextNodeDisplay] Positioned near character:", charName);
+      } else {
+        camObj.getWorldPosition(lookAtPos);
+        const forward = new THREE.Vector3();
+        camObj.getWorldDirection(forward);
+        targetPos.copy(lookAtPos.clone().add(forward.multiplyScalar(-distance)));
+        console.warn("[TextNodeDisplay] Character not found, defaulting to camera");
+      }
 
-    targetPos.y = Math.max(targetPos.y, minY);
-    panelObj.position.copy(targetPos);
-    panelObj.lookAt(lookAtPos);
-  }, 0);
-}, [mode, character]);
+      targetPos.y = Math.max(targetPos.y, minY);
+      panelObj.position.copy(targetPos);
+      panelObj.lookAt(lookAtPos);
+    }, 0);
+  }, [mode, character]);
 
   // === VR Mode ===
   if (mode === "vr") {
@@ -144,6 +151,7 @@ useEffect(() => {
           <a-text
             value={text}
             wrap-count="40"
+            scale={getTextScale(text)}
             color="black"
             align="center"
             position="0 0 0.01"
