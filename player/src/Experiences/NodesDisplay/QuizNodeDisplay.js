@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as THREE from "three";
 import { Box, ButtonBase, Typography } from "@mui/material";
 import { ApiDataRepository } from "../../api/ApiDataRepository";
+import VRCharacterPanel from "./util/VRCharacterPanel";
 import PlayerTextFinalDisplay from "./util/PlayerTextFinalDisplay";
 import Typewriter from "./util/TypeWriter";
 import { textColor } from "../../themes";
@@ -96,61 +97,39 @@ export default function QuizNodeDisplay({
   // === VR rendering ===
   if (mode === "vr") {
     return (
-      <a-entity id="quiz-panel-wrapper">
-        {characterImg && (
-          <a-image
-            src={characterImg}
-            position="-1 0.6 0"
-            width="0.8"
-            height="0.8"
-            material="shader: flat"
-          ></a-image>
-        )}
-
-        <a-plane
-          width="3"
-          height="1.2"
-          color="white"
-          material="side: double"
-          position="0 0.3 0"
-        >
-          <a-text
-            value={question}
-            wrap-count="40"
-            color="black"
-            align="center"
-            position="0 0 0.01"
-          ></a-text>
-        </a-plane>
-
-        {answers.map((answer, index) => {
-          const yOffset = -0.6 - index * 0.5;
-
-          return (
-            <a-box
-              key={index}
-              position={`0 ${yOffset} 0.01`}
-              width="2.5"
-              height="0.4"
-              depth="0.05"
-              color="#4caf50"
-              class="clickable"
-              onClick={() => {
-                console.log(`[Quiz] Answer ${index + 1} selected: ${answer}`);
-                onNext?.(index);
-              }}
-            >
-              <a-text
-                value={answer.label}
-                align="center"
-                color="white"
-                position="0 0 0.05"
-                wrap-count="30"
-              ></a-text>
-            </a-box>
-          );
-        })}
-      </a-entity>
+      <VRCharacterPanel
+        id="quiz-panel-wrapper"
+        characterImg={characterImg}
+        characterName={character?.name}
+        panelText={question}
+        buttonElements={
+          <>
+            {answers.map((answer, index) => {
+              const yOffset = -0.6 - index * 0.5;
+              return (
+                <a-box
+                  key={index}
+                  position={`0 ${yOffset} 0.01`}
+                  width="2.5"
+                  height="0.4"
+                  depth="0.05"
+                  color="#4caf50"
+                  class="clickable"
+                  onClick={() => onNext?.(index)}
+                >
+                  <a-text
+                    value={answer.label}
+                    align="center"
+                    color="white"
+                    position="0 0 0.05"
+                    wrap-count="30"
+                  ></a-text>
+                </a-box>
+              );
+            })}
+          </>
+        }
+      />
     );
   }
 

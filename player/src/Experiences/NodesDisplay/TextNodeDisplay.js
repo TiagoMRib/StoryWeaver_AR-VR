@@ -8,6 +8,7 @@ import { ApiDataRepository } from "../../api/ApiDataRepository";
 import LocationBasedARDisplay from "./LocationBasedARDisplay";
 import ImageTrackingBasedARDisplay from "./ImageTrackingBasedARDisplay";
 import PlayerTextFinalDisplay from "./util/PlayerTextFinalDisplay";
+import VRCharacterPanel from "./util/VRCharacterPanel";
 import GoToNextSlideButton from "./util/GoToNextSlideButton";
 import Typewriter from "./util/TypeWriter";
 import { AREntityTypes } from "../../models/AREntityTypes";
@@ -130,54 +131,31 @@ export default function TextNodeDisplay({
   // === VR Mode ===
   if (mode === "vr") {
     return (
-      <a-entity id="text-panel">
-        {characterImg && (
-          <a-image
-            src={characterImg}
-            position="-1 0.6 0"
-            width="0.8"
-            height="0.8"
-            material="shader: flat"
-          ></a-image>
-        )}
-
-        <a-plane
-          width="3"
-          height="1.2"
-          color="white"
-          material="side: double"
-          position="0 0.3 0"
-        >
-          <a-text
-            value={text}
-            wrap-count="40"
-            scale={getTextScale(text)}
-            color="black"
-            align="center"
-            position="0 0 0.01"
-          ></a-text>
-        </a-plane>
-
-        <a-box
-          position="0 -0.7 0.01"
-          width="2"
-          height="0.4"
-          depth="0.05"
-          color="#4caf50"
-          class="clickable"
-          onClick={() => {
-            onNext?.();
-          }}
-        >
-          <a-text
-            value="Continuar"
-            align="center"
-            color="white"
-            position="0 0 0.05"
-            wrap-count="20"
-          ></a-text>
-        </a-box>
-      </a-entity>
+      <VRCharacterPanel
+        id="text-panel"
+        characterImg={characterImg}
+        characterName={character?.name}
+        panelText={text}
+        buttonElements={
+          <a-box
+            position="0 -0.7 0.01"
+            width="2"
+            height="0.4"
+            depth="0.05"
+            color="#4caf50"
+            class="clickable"
+            onClick={() => onNext?.()}
+          >
+            <a-text
+              value="Continuar"
+              align="center"
+              color="white"
+              position="0 0 0.05"
+              wrap-count="20"
+            ></a-text>
+          </a-box>
+        }
+      />
     );
   }
 
