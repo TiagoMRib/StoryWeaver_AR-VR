@@ -65,6 +65,11 @@ export default function VRExperiencePlayer({
   const renderNode = () => {
     if (!currentNode) return null;
 
+      if (currentNode.trigger && !hasTriggered) {
+        console.log("[VR Render] Waiting for trigger to activate before rendering node", currentNode.id);
+        return null;
+      }
+
     console.log("[VR Render] Current node:", currentNode.id, "Action:", currentNode.action);
     switch (currentNode.action) {
       case "begin":

@@ -108,8 +108,12 @@ export default function VRSceneWrapper({
     const { trigger } = currentNode;
     if (!trigger) return;
 
+    console.log("[VRSceneWrapper] Trigger detected", trigger, "Current Node:", currentNode);
+
     const interactionDef = interactions?.find(i => i.type === trigger.interaction);
     if (!interactionDef) return;
+
+    console.log("[VRSceneWrapper] Interaction definition found:", interactionDef);
 
     const method = interactionDef.methodVr;
     const targetLabel = trigger.target;
@@ -128,6 +132,7 @@ export default function VRSceneWrapper({
         if (playerPos && mesh && !triggered.current.has(targetName) && isNear(playerPos, mesh.position)) {
           triggered.current.add(targetName);
           setHasTriggered(true);
+          console.log("[VRSceneWrapper] Proximity trigger activated for:", targetName);
         }
       }, 500);
       return () => clearInterval(interval);
@@ -140,6 +145,7 @@ export default function VRSceneWrapper({
         const object = evt.detail?.intersection?.object;
         if (object?.name === targetName && !hasTriggered) {
           setHasTriggered(true);
+          console.log("[VRSceneWrapper] Trigger activated by", method, "on:", targetName);
         }
       };
       sceneEl.addEventListener(event, handler);
