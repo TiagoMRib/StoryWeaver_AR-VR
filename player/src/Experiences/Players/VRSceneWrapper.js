@@ -67,18 +67,33 @@ export default function VRSceneWrapper({
     if (!glbUrl || cameraPositioned || !modelRef.current) return;
 
     const entity = modelRef.current;
+
+    function findCharacterGroup(node, characters) {
+      let current = node.parent;
+      while (current) {
+        if (characters.some(c => c.threeDObject === current.name)) {
+          return current;
+        }
+        current = current.parent;
+      }
+      return null;
+    }
+
     const onLoad = (e) => {
       const gltfScene = e.detail.model;
       gltfScene.traverse(node => {
         if (node.isMesh) {
+          console.log("[VRSceneWrapper] Processing node:", node.name);
           node.frustumCulled = false;
           if (node.material) node.material.side = THREE.DoubleSide;
           if (node.el && !node.el.hasAttribute("static-body")) {
             node.el.setAttribute("static-body", { shape: "box" });
           }
           // mark clickable
-          if (characters?.some(c => c.threeDObject === node.name)) {
-            node.el?.classList.add("clickable");
+          const parentGroup = findCharacterGroup(node, characters);
+          if (parentGroup?.el) {
+            console.log("[VRSceneWrapper] Marking parent group as clickable:", parentGroup.name);
+            parentGroup.el.classList.add("clickable");
           }
         }
       });
@@ -124,6 +139,17 @@ export default function VRSceneWrapper({
       targetLabel
     );
 
+    console.log("[VRSceneWrapper] Target name:", targetName);
+
+    const getNamedParent = (object, targetName) => {
+      let current = object;
+      while (current) {
+        if (current.name === targetName) return current;
+        current = current.parent;
+      }
+      return null;
+    };
+
     if (method === "proximity") {
       const interval = setInterval(() => {
         const rig = sceneRef.current?.querySelector("#cameraRig");
@@ -139,13 +165,21 @@ export default function VRSceneWrapper({
     }
 
     if (method === "primary" || method === "secondary") {
+
+      
       const sceneEl = sceneRef.current;
       const event = method === "primary" ? "click" : "contextmenu";
-      const handler = evt => {
-        const object = evt.detail?.intersection?.object;
-        if (object?.name === targetName && !hasTriggered) {
+      const handler = (evt) => {
+        const intersected = evt.detail?.intersection?.object;
+        if (!intersected || hasTriggered) return;
+
+        const targetObject = getNamedParent(intersected, targetName);
+
+        if (targetObject) {
+          console.log("[VRSceneWrapper] Triggered by clicking:", targetObject.name);
           setHasTriggered(true);
-          console.log("[VRSceneWrapper] Trigger activated by", method, "on:", targetName);
+        } else {
+          console.log("[VRSceneWrapper] Clicked on", intersected.name, "but no matching ancestor for", targetName);
         }
       };
       sceneEl.addEventListener(event, handler);
