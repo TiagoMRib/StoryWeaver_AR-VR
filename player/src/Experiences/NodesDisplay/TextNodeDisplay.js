@@ -18,6 +18,7 @@ import * as THREE from "three";
 export default function TextNodeDisplay({
   node,
   possibleNextNodes,
+  characters,
   onNext,
   mode,
 }) {
@@ -39,21 +40,22 @@ export default function TextNodeDisplay({
 
   console.log("[TextNodeDisplay] character:", character);
 
-  function getTextScale(text) {
-    const length = text.length;
-    const scale = length < 50 ? 0.9 : length < 100 ? 0.6 : length < 200 ? 0.4 : 0.2;
-    console.log("[TextNodeDisplay] Calculated text scale:", scale);
-    return `${scale} ${scale} ${scale}`;
-  }
-
   useEffect(() => {
-    if (!character?.image?.filename) return;
-    if (character.image.inputType === "url") {
-      setCharacterImg(character.image.filename);
+    if (!character) return;
+
+    const fullCharacter = characters.find(c => c.id === character.id || c.name === character.name);
+
+    if (!fullCharacter?.image?.filename) return;
+
+    if (fullCharacter.image.inputType === "url") {
+      setCharacterImg(fullCharacter.image.filename);
     } else {
-      repo.getFilePath(character.image.filename).then(setCharacterImg).catch(() => {});
+      repo
+        .getFilePath(fullCharacter.image.filename)
+        .then(setCharacterImg)
+        .catch(() => {});
     }
-  }, [character]);
+  }, [character, characters, repo]);
 
   useEffect(() => {
     if (!backgroundFileInfo) return;
@@ -101,8 +103,10 @@ export default function TextNodeDisplay({
       let targetPos = new THREE.Vector3();
       let lookAtPos = new THREE.Vector3();
 
-      const charName = character?.name;
-      const characterEl = scene?.querySelector(`[id="${charName}"]`);
+      const fullCharacter = characters.find(c => c.id === character.id || c.name === character.name);
+      console.log("[TextNodeDisplay] Full character:", fullCharacter);
+      const characterEl = scene?.querySelector(`[id="${fullCharacter.threeDObject}"]`);
+      console.log("[TextNodeDisplay] Character element:", characterEl);
 
       if (characterEl && characterEl.object3D) {
         const charObj = characterEl.object3D;
@@ -113,7 +117,7 @@ export default function TextNodeDisplay({
         targetPos.add(forward.multiplyScalar(1.5));
         lookAtPos.copy(charObj.position);
 
-        console.log("[TextNodeDisplay] Positioned near character:", charName);
+        console.log("[TextNodeDisplay] Positioned near character:", fullCharacter.threeDObject);
       } else {
         camObj.getWorldPosition(lookAtPos);
         const forward = new THREE.Vector3();
@@ -229,7 +233,7 @@ export default function TextNodeDisplay({
                 px: 3,
                 py: 1,
                 fontSize: 20,
-                color: textColor.color || "black",
+                color: textColor|| "black",
                 fontWeight: 200,
                 whiteSpace: "pre-wrap",
               }}
@@ -241,8 +245,8 @@ export default function TextNodeDisplay({
       )}
 
       <GoToNextSlideButton
-        possibleNextNodes={possibleNextNodes}
-        onNext={onNext}
+        currentNode={node}
+        onAdvance={() => onNext?.()}
       />
     </Box>
   );

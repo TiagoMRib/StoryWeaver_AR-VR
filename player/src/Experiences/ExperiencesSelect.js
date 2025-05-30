@@ -34,6 +34,9 @@ export default function ExperiencesSelect(props) {
         ...storyJson,
       };
 
+      console.log("worldJson", worldJson);
+      console.log("combined", combined);
+
       // Save to localStorage (related to the old way, not remving it for now)
       localStorage.setItem("platformType", platformType);
       localStorage.setItem("nodes", JSON.stringify(storyJson.nodes || []));

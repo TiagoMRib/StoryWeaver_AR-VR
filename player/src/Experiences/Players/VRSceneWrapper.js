@@ -5,13 +5,19 @@ import "aframe";
 import "aframe-extras";
 import * as THREE from "three";
 
-// Gets player start position from GLTF by name
 function getPlayerStartPosition(start_location, gltfScene) {
+  console.log("Start location:", start_location);
+  if (!start_location?.threeDObject || !gltfScene) {
+    return { position: "0 0.5 0", found: false };
+  }
 
-  if (start_location.threeDObject) {
-    const pos = start_location.threeDObject.position;
+  const object = gltfScene.getObjectByName(start_location.threeDObject);
+
+  if (object) {
+    const pos = object.position;
     return { position: `${pos.x} ${pos.y} ${pos.z}`, found: true };
   }
+
   return { position: "0 0.5 0", found: false };
 }
 
@@ -83,7 +89,6 @@ export default function VRSceneWrapper({
       const gltfScene = e.detail.model;
       gltfScene.traverse(node => {
         if (node.isMesh) {
-          console.log("[VRSceneWrapper] Processing node:", node.name);
           node.frustumCulled = false;
           if (node.material) node.material.side = THREE.DoubleSide;
           if (node.el && !node.el.hasAttribute("static-body")) {

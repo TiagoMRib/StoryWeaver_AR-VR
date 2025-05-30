@@ -18,7 +18,7 @@ import { ComponentState } from "../../models/ComponentState";
 import AudioPlayer from "mui-audio-player-plus";
 import GoToNextSlideButton from "./util/GoToNextSlideButton";
 import Typewriter from "./util/TypeWriter";
-import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
+import { useLocationCheck} from "./util/LocationCheck";
 
 export default function AudioNodeDisplay(props) {
   const repo = ApiDataRepository.getInstance();
@@ -254,8 +254,8 @@ export default function AudioNodeDisplay(props) {
             }}
           />
           <GoToNextSlideButton
-            possibleNextNodes={possibleNextNodes}
-            setNextNode={setNextNode}
+            currentNode={node}
+            onAdvance={() => onNext?.()}
           />
         </>
       )}

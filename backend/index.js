@@ -94,6 +94,10 @@ app.post("/save", async (req, res) => {
   const locations = req.body.locations || [];
   const interactions = req.body.interactions || [];
 
+  console.log("[Index] Posting characters:", characters);
+  console.log("[Index] Posting locations:", locations);
+  console.log("[Index] Posting interactions:", interactions);
+
   //save to database
   await client
     .db("projects")
@@ -107,13 +111,13 @@ app.post("/save", async (req, res) => {
           nodes: nodes,
           edges: edges,
           characters: characters,
-          maps: maps,
+          maps: maps,         
+          locations: locations,
+          interactions: interactions,
           exported: exported,
           experienceName: experienceName,
           description: description,
           tags: tags,
-          locations: locations,
-          interactions: interactions,
           lastModified: new Date().toISOString(),
         },
       },
@@ -182,14 +186,19 @@ app.post("/export", async (req, res) => {
   const edges = req.body.edges;
   const characters = req.body.characters;
   const maps = req.body.maps;
+  
+  const locations = req.body.locations || [];
+  const interactions = req.body.interactions || [];
+
   const experienceName = req.body.experienceName;
   const description = req.body.description;
   const tags = req.body.tags;
   let storyId = originalStoryId;
   const storyEndings = req.body.endings;
 
-  const locations = req.body.locations || [];
-  const interactions = req.body.interactions || [];
+  console.log("[Index] Posting characters:", characters);
+  console.log("[Index] Posting locations:", locations);
+  console.log("[Index] Posting interactions:", interactions);
 
   //save to story_structures database
   await client
@@ -205,12 +214,13 @@ app.post("/export", async (req, res) => {
           edges: edges,
           characters: characters,
           maps: maps,
+          
+          locations: locations,
+          interactions: interactions,
           experienceName: experienceName,
           description: description,
           tags: tags,
           storyEndings: storyEndings,
-          locations: locations,
-          interactions: interactions,
           lastModified: new Date().toISOString(),
         },
       },
@@ -230,12 +240,13 @@ app.post("/export", async (req, res) => {
           edges: edges,
           characters: characters,
           maps: maps,
+          locations: locations,
+          interactions: interactions,
+          
           experienceName: experienceName,
           description: description,
           tags: tags,
           storyEndings: storyEndings,
-          locations: locations,
-          interactions: interactions,
           lastModified: new Date().toISOString(),
         },
       },

@@ -1,7 +1,7 @@
 export function buildBaseManifest({ title, characters, locations, interactions }) {
   return {
     title,
-    characters: characters.map(({ id, name, description }) => ({ id, name, description })),
+    characters: characters.map(({ id, name, description, image }) => ({ id, name, description, image })),
     locations: locations.map(({ id, name, description }) => ({ id, name, description })),
     interactions: interactions.map(({ type, label }) => ({ type, label })),
   };
@@ -25,6 +25,7 @@ export function buildVRManifest({
       name: char.name,
       description: char.description,
       threeDObject: vrActorMapping?.[char.name] || null,
+      image: char.image || null,
     })),
     locations: locations.map((loc) => ({
       id: loc.id,

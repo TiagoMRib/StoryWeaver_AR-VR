@@ -1,8 +1,8 @@
 import { Icon, IconButton } from "@mui/material";
 import { backgroundColor, primaryColor, secondaryColor } from "../../../themes";
 
-export default function GoToNextSlideButton(props) {
-  const { setNextNode, possibleNextNodes } = props;
+export default function GoToNextSlideButton({ currentNode, onAdvance }) {
+  if (!currentNode?.goToStep) return null;
 
   return (
     <IconButton
@@ -22,9 +22,7 @@ export default function GoToNextSlideButton(props) {
           borderStyle: "solid",
         },
       }}
-      onClick={() => {
-        setNextNode(possibleNextNodes[0]);
-      }}
+      onClick={onAdvance}
     >
       <Icon
         color="inherit"

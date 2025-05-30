@@ -1,140 +1,135 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, ButtonBase, Typography } from "@mui/material";
-import { NodeType } from "../../models/NodeTypes";
-
 import BeginNodeDisplay from "../NodesDisplay/BeginNodeDisplay";
 import EndNodeDisplay from "../NodesDisplay/EndNodeDisplay";
-import QuizNodeDisplay from "../NodesDisplay/QuizNodeDisplay";
-import VideoNodeDisplay from "../NodesDisplay/VideoNodeDisplay";
-import ImageNodeDisplay from "../NodesDisplay/ImageNodeDisplay";
-import ThreeDModelDisplay from "../NodesDisplay/ThreeDModelDisplay";
-import DialogueNodeDisplay from "../NodesDisplay/DialogueNodeDisplay";
-import AudioNodeDisplay from "../NodesDisplay/AudioNodeDisplay";
-import PathNodeDisplay from "../NodesDisplay/PathNodeDisplay";
 import TextNodeDisplay from "../NodesDisplay/TextNodeDisplay";
+import QuizNodeDisplay from "../NodesDisplay/QuizNodeDisplay";
+import { useLocationCheck } from "../NodesDisplay/util/LocationCheck"; 
 
 export default function ARExperiencePlayer({
-  currentNode,
-  nextNodes,
-  projectInfo,
-  setCurrentNode,
+  projectData,
+  experienceName,
+  locations,
+  characters,
+  interactions,
+  story,
   setExperience,
   repo,
 }) {
+  const [currentNode, setCurrentNode] = useState(null);
+  const [hasTriggered, setHasTriggered] = useState(false);
+
+
+  useEffect(() => {
+    const beginNode = story.find((node) => node.action === "begin");
+    if (beginNode) {
+      setCurrentNode(beginNode);
+    }
+  }, [story]);
+
+  // Reset trigger when changing node
+  useEffect(() => {
+    setHasTriggered(false);
+  }, [currentNode]);
+
+
+
+  // This will always run the hook, but it only activates when valid
+  const gpsCoords =
+  currentNode?.trigger?.interaction === "gps"
+    ? locations.find((l) => l.name === currentNode.trigger.target)?.trigger_type
+    : null;
+
+  const distance = useLocationCheck(
+    gpsCoords ? { lat: gpsCoords.lat, lng: gpsCoords.lng } : null,
+    20,
+    setHasTriggered
+  );
+
+  const resolveNextNode = (fromNode, choiceIndex = null) => {
+    if (fromNode.action === "choice" && choiceIndex !== null) {
+      const goToId = fromNode.data.options[choiceIndex].goToStep;
+      return story.find(n => n.id === goToId);
+    }
+    return story.find(n => n.id === fromNode.goToStep);
+  };
+
+  const handleAdvance = (choiceIndex = null) => {
+    if (!currentNode) return;
+    if (currentNode.action === "end") {
+      setExperience?.(undefined);
+      return;
+    }
+
+    const next = resolveNextNode(currentNode, choiceIndex);
+    if (next) setCurrentNode(next);
+  };
+
   const renderNode = () => {
-    console.log("[ARPlayer] Rendering node:", currentNode);
-    switch (currentNode.type) {
-      case NodeType.beginNode:
+    if (!currentNode) return null;
+
+    console.log("Rendering node:", currentNode);
+
+    // Show wait screen if GPS hasn't triggered yet
+    if (currentNode.trigger?.interaction === "gps" && !hasTriggered) {
+      return (
+        <Box sx={centerBox}>
+          <Typography variant="h6">
+            Dirija-se até: <strong>{currentNode.trigger.target}</strong>
+          </Typography>
+          {distance !== null && (
+            <Typography sx={{ mt: 1 }}>
+              Distância: {distance.toFixed(1)}m
+            </Typography>
+          )}
+        </Box>
+      );
+    }
+
+    switch (currentNode.action) {
+      case "begin":
         return (
           <BeginNodeDisplay
+            mode="ar"
             node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={setCurrentNode}
-            experienceName={projectInfo.experienceName}
+            onNext={handleAdvance}
+            experienceName={experienceName}
           />
         );
-      case NodeType.endNode:
-        return (
-          <EndNodeDisplay
-            node={currentNode}
-            setNextNode={() => {
-              repo
-                .markEndingObtained(
-                  projectInfo.id,
-                  currentNode.data.id,
-                  projectInfo.experienceName,
-                  projectInfo.storyEndings
-                )
-                .then(() => setExperience(undefined))
-                .catch(console.log);
-            }}
-            experienceName={projectInfo.title}
-          />
-        );
-      case NodeType.videoNode:
-        return (
-          <VideoNodeDisplay
-            node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={setCurrentNode}
-            experienceName={projectInfo.title}
-          />
-        );
-      case NodeType.imageNode:
-        return (
-          <ImageNodeDisplay
-            node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={setCurrentNode}
-          />
-        );
-      case NodeType.quizNode:
-        return (
-          <QuizNodeDisplay
-            node={currentNode}
-            outGoingEdges={projectInfo.edges.filter(
-              (edge) => edge.source === currentNode.id
-            )}
-            possibleNextNodes={nextNodes}
-            setNextNode={setCurrentNode}
-          />
-        );
-      case NodeType.threeDModelNode:
-        return (
-          <ThreeDModelDisplay
-            node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={setCurrentNode}
-          />
-        );
-      case NodeType.characterNode:
-        return (
-          <DialogueNodeDisplay
-            node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={setCurrentNode}
-            outGoingEdges={projectInfo.edges.filter(
-              (edge) => edge.source === currentNode.id
-            )}
-          />
-        );
-      case NodeType.audioNode:
-        return (
-          <AudioNodeDisplay
-            node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={setCurrentNode}
-          />
-        );
-      case NodeType.pathNode:
-        return (
-          <PathNodeDisplay
-            node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={setCurrentNode}
-          />
-        );
-      case NodeType.textNode:
+      case "text":
         return (
           <TextNodeDisplay
+            mode="ar"
             node={currentNode}
-            possibleNextNodes={nextNodes}
-            setNextNode={setCurrentNode}
+            onNext={handleAdvance}
+            characters={characters}
+          />
+        );
+      case "choice":
+        return (
+          <QuizNodeDisplay
+            mode="ar"
+            node={currentNode}
+            onNext={handleAdvance}
+            characters={characters}
+          />
+        );
+      case "end":
+        return (
+          <EndNodeDisplay
+            mode="ar"
+            node={currentNode}
+            onNext={() => setExperience(undefined)}
           />
         );
       default:
         return (
-          <Box>
-            <p>Node type not supported</p>
-            <ButtonBase
-              onClick={() => {
-                const beginNode = projectInfo.nodes.find(
-                  (node) => node.type === NodeType.beginNode
-                );
-                if (beginNode) setCurrentNode(beginNode);
-              }}
-            >
-              <Typography variant="h4">Voltar ao início</Typography>
+          <Box sx={centerBox}>
+            <Typography>
+              Passo não suportado: {currentNode.action}
+            </Typography>
+            <ButtonBase sx={buttonStyle} onClick={() => setExperience(undefined)}>
+              Sair
             </ButtonBase>
           </Box>
         );
@@ -142,18 +137,28 @@ export default function ARExperiencePlayer({
   };
 
   return (
-    <Box
-      key={currentNode.id}
-      sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <Box sx={{ width: "100%", height: "100%" }}>
       {renderNode()}
     </Box>
   );
 }
+
+// UI Styles
+const centerBox = {
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  p: 3,
+};
+
+const buttonStyle = {
+  backgroundColor: "#4caf50",
+  color: "white",
+  fontSize: "18px",
+  p: 2,
+  borderRadius: 3,
+  m: 2,
+};

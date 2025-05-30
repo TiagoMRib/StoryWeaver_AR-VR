@@ -1,4 +1,4 @@
-For the next student picking this project up:
+For the next student picking this project up: (UPDATE: Honestly after all the changes in the last month of the delivery, idk if this is useful for anything, but here you go, brother)
 
 To add to a node the option of being triggered by reaching a location, add:
 

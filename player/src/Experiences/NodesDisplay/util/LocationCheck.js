@@ -1,43 +1,36 @@
 import { useEffect, useState } from "react";
-import { ApiDataRepository } from "../../../api/ApiDataRepository";
 
-export function useLocationCheck(map, place, tolerance, setIsOnLocation) {
-  const repo = ApiDataRepository.getInstance();
+export function useLocationCheck(targetCoords, tolerance, setIsOnLocation) {
   const [distance, setDistance] = useState(null);
 
   useEffect(() => {
-    if (!map || !place) return;
+    if (!targetCoords) return;
 
-    repo
-      .getMapPlaceCoords(map, place)
-      .then((coords) => {
-        const interval = setInterval(() => {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const currentCoords = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              };
+    const interval = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const currentCoords = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
 
-              const distanceMeters = getDistanceBetweenCoords(
-                currentCoords.lat,
-                currentCoords.lng,
-                coords.lat,
-                coords.lng
-              );
-
-              setDistance(distanceMeters);
-              setIsOnLocation(distanceMeters < tolerance);
-            },
-            (error) => console.error("Error getting location:", error),
-            { enableHighAccuracy: true }
+          const distanceMeters = getDistanceBetweenCoords(
+            currentCoords.lat,
+            currentCoords.lng,
+            targetCoords.lat,
+            targetCoords.lng
           );
-        }, 3000);
 
-        return () => clearInterval(interval);
-      })
-      .catch((error) => console.error("Error getting map coords:", error));
-  }, [map, place]);
+          setDistance(distanceMeters);
+          setIsOnLocation(distanceMeters < tolerance);
+        },
+        (error) => console.error("Error getting location:", error),
+        { enableHighAccuracy: true }
+      );
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [targetCoords]);
 
   return distance;
 }
@@ -47,46 +40,17 @@ function degreesToRadians(degrees) {
 }
 
 export function getDistanceBetweenCoords(lat1, lon1, lat2, lon2) {
-  var earthRadiusKm = 6371;
+  const earthRadiusKm = 6371;
 
-  console.log("Coords 1: ", lat1, lon1);
-  console.log("Coords 2: ", lat2, lon2);
-  var dLat = degreesToRadians(lat2 - lat1);
-  var dLon = degreesToRadians(lon2 - lon1);
-
+  const dLat = degreesToRadians(lat2 - lat1);
+  const dLon = degreesToRadians(lon2 - lon1);
   lat1 = degreesToRadians(lat1);
   lat2 = degreesToRadians(lat2);
 
-  var a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  console.log("Distance: ", (earthRadiusKm * c) * 1000);
-  return (earthRadiusKm * c) * 1000; //return in meters
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return earthRadiusKm * c * 1000; // meters
 }
-
-export function getDirectionToDestination(destLat, destLon, setDirection) {
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const userLat = position.coords.latitude;
-      const userLon = position.coords.longitude;
-
-      const dLat = destLat - userLat;
-      const dLon = destLon - userLon;
-
-      let direction = "";
-
-      if (Math.abs(dLat) > Math.abs(dLon)) {
-        direction = dLat > 0 ? "Norte" : "Sul";
-      } else {
-        direction = dLon > 0 ? "Este" : "Oeste";
-      }
-
-      setDirection(direction);
-    },
-    (error) => console.error("Error getting user location:", error),
-    { enableHighAccuracy: true }
-  );
-}
-
-

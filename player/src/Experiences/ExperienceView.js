@@ -34,10 +34,12 @@ export default function ExperienceView({
   return (
     <ARExperiencePlayer
       projectData={projectInfo}
-      currentNode={currentNode}
-      nextNodes={nextNodes}
-      setCurrentNode={setCurrentNode}
-      setNextNodes={setNextNodes}
+      experienceName={projectInfo?.experienceName}
+      locations={projectInfo?.locations}
+      characters={projectInfo?.characters}
+      interactions={projectInfo?.interactions}
+      story={projectInfo?.story}
+      setNextNode={setNextNodes}
       repo={repo}
       setExperience={setExperience}
     />

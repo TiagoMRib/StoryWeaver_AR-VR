@@ -88,6 +88,7 @@ export default function VRExperiencePlayer({
             mode="vr"
             node={currentNode}
             onNext={handleAdvance}
+            characters={characters}
           />
         );
       case "dialogue":
@@ -104,6 +105,7 @@ export default function VRExperiencePlayer({
             mode="vr"
             node={currentNode}
             onNext={handleAdvance}
+            characters={characters}
           />
         );
       case "end":

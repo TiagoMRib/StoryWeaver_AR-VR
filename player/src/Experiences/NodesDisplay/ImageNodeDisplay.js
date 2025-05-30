@@ -15,7 +15,7 @@ import LocationBasedARDisplay from "./LocationBasedARDisplay";
 import { ARTriggerMode } from "../../models/ARTriggerModes";
 import PlayerTextFinalDisplay from "./util/PlayerTextFinalDisplay";
 import Typewriter from "./util/TypeWriter";
-import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
+import { useLocationCheck} from "./util/LocationCheck";
 import GoToNextSlideButton from "./util/GoToNextSlideButton";
 
 export default function ImageNodeDisplay(props) {
@@ -63,11 +63,7 @@ export default function ImageNodeDisplay(props) {
     setIsOnLocation
   );
 
-  useEffect(() => {
-      if (isSiteTriggered && siteType.map) {
-        getDirectionToDestination(siteType.map.lat, siteType.map.lng, setDirection);
-      }
-    }, [isSiteTriggered, siteType]);
+
 
 
   useEffect(() => {
@@ -281,7 +277,10 @@ export default function ImageNodeDisplay(props) {
                 }}
               />
             )}
-            <GoToNextSlideButton setNextNode={setNextNode} possibleNextNodes={possibleNextNodes} />
+            <GoToNextSlideButton
+              currentNode={node}
+              onAdvance={() => onNext?.()}
+            />
           </Box>
         )}
       </Box>

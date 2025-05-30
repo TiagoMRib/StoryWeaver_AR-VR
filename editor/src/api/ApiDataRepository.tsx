@@ -146,9 +146,10 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
                 nodes,
                 edges,
                 characters,
-                maps,
                 locations,
-                interactions
+                interactions,
+                maps,
+                
             }).then(transform).then((response) => {
                 localStorage.setItem('storyId', response.data.storyId);
             });
@@ -213,11 +214,12 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         edges: any, 
         characters: any, 
         maps: any, 
+        locations: any[],
+        interactions: any[],
         experienceName: string, 
         experienceDescription: string, 
         experienceTags: any,
-        locations: any[],
-        interactions: any[],
+        
     ): Promise<any> => {
         
         const instance = this.createInstance();
@@ -238,9 +240,10 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
                     edges: edges,
                     characters : characters,
                     maps:  maps,
-                    endings: endingsWithoutDuplicates,
                     locations,
-                    interactions
+                    interactions,
+                    endings: endingsWithoutDuplicates,
+                    
                 }
             ).then(transform);
             return result;

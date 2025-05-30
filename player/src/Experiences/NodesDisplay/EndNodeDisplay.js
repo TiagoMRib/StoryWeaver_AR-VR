@@ -131,7 +131,7 @@ export default function EndNodeDisplay({
           }}
         >
           <Typewriter
-            text={`Obrigado por ter experienciado,\nVocê obteve o final ${endName}`}
+            text={`Obrigado,\n obtiveste o final ${endName}`}
             delay={100}
           />
         </Typography>

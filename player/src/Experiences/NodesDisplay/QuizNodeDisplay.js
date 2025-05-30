@@ -10,6 +10,7 @@ import { textColor } from "../../themes";
 export default function QuizNodeDisplay({
   node,
   onNext,
+  characters,
   mode,
 }) {
   const repo = ApiDataRepository.getInstance();
@@ -26,13 +27,21 @@ export default function QuizNodeDisplay({
 
   // Load character image
   useEffect(() => {
-    if (!character?.image?.filename) return;
-    if (character.image.inputType === "url") {
-      setCharacterImg(character.image.filename);
+    if (!character) return;
+
+    const fullCharacter = characters.find(c => c.id === character.id || c.name === character.name);
+
+    if (!fullCharacter?.image?.filename) return;
+
+    if (fullCharacter.image.inputType === "url") {
+      setCharacterImg(fullCharacter.image.filename);
     } else {
-      repo.getFilePath(character.image.filename).then(setCharacterImg).catch(() => {});
+      repo
+        .getFilePath(fullCharacter.image.filename)
+        .then(setCharacterImg)
+        .catch(() => {});
     }
-  }, [character]);
+  }, [character, characters, repo]);
 
   // Load background
   useEffect(() => {
@@ -62,8 +71,9 @@ export default function QuizNodeDisplay({
       const camObj = camEl.object3D;
       const panelObj = panelEl.object3D;
 
-      const charName = character?.name;
-      const characterEl = scene.querySelector(`[id="${charName}"]`);
+      const fullCharacter = characters.find(c => c.id === character.id || c.name === character.name);
+
+      const characterEl = scene.querySelector(`[id="${fullCharacter.threeDObject}"]`);
       const distance = 2.5;
 
       let targetPos = new THREE.Vector3();
@@ -78,7 +88,7 @@ export default function QuizNodeDisplay({
         targetPos.add(forward.multiplyScalar(1.5));
         lookAtPos.copy(charObj.position);
 
-        console.log("[QuizNodeDisplay] Panel near character:", charName);
+        console.log("[QuizNodeDisplay] Panel near character:", fullCharacter.threeDObject);
       } else {
         camObj.getWorldPosition(lookAtPos);
         const forward = new THREE.Vector3();

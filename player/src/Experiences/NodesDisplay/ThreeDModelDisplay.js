@@ -24,7 +24,7 @@ import ImageTrackingBasedARDisplay from "./ImageTrackingBasedARDisplay";
 import { ThreeDModelTypes } from "../../models/ThreeDModelTypes";
 import GoToNextSlideButton from "./util/GoToNextSlideButton";
 import Typewriter from "./util/TypeWriter";
-import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
+import { useLocationCheck} from "./util/LocationCheck";
 const { FS } = fs;
 
 export default function ThreeDModelDisplay(props) {
@@ -333,9 +333,9 @@ export default function ThreeDModelDisplay(props) {
               </Frame>
             )}
             <GoToNextSlideButton
-              possibleNextNodes={possibleNextNodes}
-              setNextNode={setNextNode}
-            ></GoToNextSlideButton>
+              currentNode={node}
+              onAdvance={() => onNext?.()}
+            />
           </Box>
         )}
       </Box>

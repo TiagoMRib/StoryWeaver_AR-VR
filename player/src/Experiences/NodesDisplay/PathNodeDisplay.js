@@ -18,7 +18,7 @@ import { ComponentState } from "../../models/ComponentState";
 import { ARTriggerMode } from "../../models/ARTriggerModes";
 import Typewriter from "./util/TypeWriter";
 import GoToNextSlideButton from "./util/GoToNextSlideButton";
-import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
+import { useLocationCheck} from "./util/LocationCheck";
 
 function degreesToRadians(degrees) {
   return (degrees * Math.PI) / 180;
@@ -86,11 +86,7 @@ export default function PathNodeDisplay(props) {
       setIsOnLocation
     );
   
-    useEffect(() => {
-        if (isSiteTriggered && siteType.map) {
-          getDirectionToDestination(siteType.map.lat, siteType.map.lng, setDirection);
-        }
-      }, [isSiteTriggered, siteType]);
+
 
   useEffect(() => {
     if (character.image.filename == "") {
@@ -284,14 +280,9 @@ export default function PathNodeDisplay(props) {
             ></PlayerTextFinalDisplay>
           )}
           <GoToNextSlideButton
-            possibleNextNodes={possibleNextNodes}
-            setNextNode={(node) => {
-              intervalID.current.forEach((id) => {
-                clearInterval(id);
-              });
-              setNextNode(node);
-            }}
-          ></GoToNextSlideButton>
+            currentNode={node}
+            onAdvance={() => onNext?.()}
+          />
         </>
       )}
     </Box>

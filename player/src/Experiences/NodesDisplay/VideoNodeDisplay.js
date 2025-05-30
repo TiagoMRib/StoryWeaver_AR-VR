@@ -17,7 +17,7 @@ import ImageTrackingBasedARDisplay from "./ImageTrackingBasedARDisplay";
 import PlayerTextFinalDisplay from "./util/PlayerTextFinalDisplay";
 import GoToNextSlideButton from "./util/GoToNextSlideButton";
 import Typewriter from "./util/TypeWriter";
-import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
+import { useLocationCheck} from "./util/LocationCheck";
 
 export default function VideoNodeDisplay(props) {
   const repo = ApiDataRepository.getInstance();
@@ -317,9 +317,9 @@ export default function VideoNodeDisplay(props) {
               </>
             )}
             <GoToNextSlideButton
-              setNextNode={setNextNode}
-              possibleNextNodes={possibleNextNodes}
-            ></GoToNextSlideButton>
+              currentNode={node}
+              onAdvance={() => onNext?.()}
+            />
           </Box>
         )}
       </Box>

@@ -6,7 +6,7 @@ import { DialogNodeType } from "../../models/DialogNodeTypes";
 import Typewriter from "./util/TypeWriter";
 import CharacterDialogueDisplay from "./util/CharacterDialogueDisplay";
 import ChoiceDialogueDisplay from "./util/ChoiceDialogueDisplay";
-import { useLocationCheck, getDirectionToDestination } from "./util/LocationCheck";
+import { useLocationCheck} from "./util/LocationCheck";
 import { ComponentState } from "../../models/ComponentState";
 
 export default function DialogueNodeDisplay({
@@ -21,7 +21,6 @@ export default function DialogueNodeDisplay({
   const siteType = dialogueNode.data.site_type;
 
   const [isOnLocation, setIsOnLocation] = useState(!isSiteTriggered);
-  const [direction, setDirection] = useState(null);
   const [componentState, setComponentState] = useState(ComponentState.LOADING);
   const [backgroundURL, setBackgroundURL] = useState("");
   const [backgroundColor, setBackgroundColor] = useState(defaultBg);
@@ -38,11 +37,7 @@ export default function DialogueNodeDisplay({
     setIsOnLocation
   );
 
-  useEffect(() => {
-    if (isSiteTriggered && siteType.map) {
-      getDirectionToDestination(siteType.map.lat, siteType.map.lng, setDirection);
-    }
-  }, [isSiteTriggered, siteType]);
+
 
   useEffect(() => {
     const beginNode = dialogNodes.find((node) => node.type === DialogNodeType.beginDialogNode);
@@ -175,7 +170,6 @@ const findNextDialogueNode = (dialogNode, choice) => {
           {distance !== null ? (
             <>
               Está a <strong>{distance.toFixed(2)}</strong> metros do local. <br />
-              {direction ? `Siga para ${direction}.` : "Calculando direção..."}
             </>
           ) : (
             "Calculando distância..."
