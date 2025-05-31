@@ -3,10 +3,8 @@ import { Box, Typography } from "@mui/material";
 import BeginNodeDisplay from "../NodesDisplay/BeginNodeDisplay";
 import EndNodeDisplay from "../NodesDisplay/EndNodeDisplay";
 import QuizNodeDisplay from "../NodesDisplay/QuizNodeDisplay";
-import DialogueNodeDisplay from "../NodesDisplay/DialogueNodeDisplay";
 import TextNodeDisplay from "../NodesDisplay/TextNodeDisplay";
 import VRSceneWrapper from "./VRSceneWrapper";
-import * as THREE from "three";
 
 export default function VRExperiencePlayer({
   glbUrl,
@@ -45,32 +43,36 @@ export default function VRExperiencePlayer({
   const resolveNextNode = (fromNode, choiceIndex = null) => {
     if (fromNode.action === "choice" && choiceIndex !== null) {
       const goToId = fromNode.data.options[choiceIndex].goToStep;
-      return story.find(n => n.id === goToId);
+      return story.find((n) => n.id === goToId);
     }
-    return story.find(n => n.id === fromNode.goToStep);
+    return story.find((n) => n.id === fromNode.goToStep);
   };
 
   const handleAdvance = (choiceIndex = null) => {
-    if (currentNode?.action === "end") {
-      console.log("[VR Advance] Reached end node, exiting experience");
+    if (!currentNode) return;
+
+    if (currentNode.action === "end") {
       setExperience?.(undefined);
       return;
     }
 
     const next = resolveNextNode(currentNode, choiceIndex);
-    console.log("[VR Advance] Advancing from node:", currentNode.id, "to:", next ? next.id : "none");
     if (next) setCurrentNode(next);
   };
 
   const renderNode = () => {
     if (!currentNode) return null;
 
-      if (currentNode.trigger && !hasTriggered) {
-        console.log("[VR Render] Waiting for trigger to activate before rendering node", currentNode.id);
-        return null;
-      }
+    if (currentNode.trigger && !hasTriggered) {
+      return null;
+    }
 
-    console.log("[VR Render] Current node:", currentNode.id, "Action:", currentNode.action);
+    // Skip begin-dialogue / end-dialogue immediately
+    if (currentNode.action === "begin-dialogue" || currentNode.action === "end-dialogue") {
+      handleAdvance();
+      return null;
+    }
+
     switch (currentNode.action) {
       case "begin":
         return (
@@ -91,14 +93,6 @@ export default function VRExperiencePlayer({
             characters={characters}
           />
         );
-      case "dialogue":
-        return (
-          <DialogueNodeDisplay
-            mode="vr"
-            node={currentNode}
-            setNextNode={handleAdvance}
-          />
-        );
       case "choice":
         return (
           <QuizNodeDisplay
@@ -117,7 +111,11 @@ export default function VRExperiencePlayer({
           />
         );
       default:
-        return <Typography>Esta cena não é suportada no modo VR. ({currentNode.action})</Typography>;
+        return (
+          <Typography>
+            Esta cena não é suportada no modo VR. ({currentNode.action})
+          </Typography>
+        );
     }
   };
 

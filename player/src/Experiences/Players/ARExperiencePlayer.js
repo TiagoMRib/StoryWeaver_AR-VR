@@ -4,7 +4,7 @@ import BeginNodeDisplay from "../NodesDisplay/BeginNodeDisplay";
 import EndNodeDisplay from "../NodesDisplay/EndNodeDisplay";
 import TextNodeDisplay from "../NodesDisplay/TextNodeDisplay";
 import QuizNodeDisplay from "../NodesDisplay/QuizNodeDisplay";
-import { useLocationCheck } from "../NodesDisplay/util/LocationCheck"; 
+import { useLocationCheck } from "../NodesDisplay/util/LocationCheck";
 
 export default function ARExperiencePlayer({
   projectData,
@@ -19,7 +19,6 @@ export default function ARExperiencePlayer({
   const [currentNode, setCurrentNode] = useState(null);
   const [hasTriggered, setHasTriggered] = useState(false);
 
-
   useEffect(() => {
     const beginNode = story.find((node) => node.action === "begin");
     if (beginNode) {
@@ -27,18 +26,20 @@ export default function ARExperiencePlayer({
     }
   }, [story]);
 
-  // Reset trigger when changing node
   useEffect(() => {
     setHasTriggered(false);
+
+    // Auto-advance for skipped types
+    if (currentNode?.action === "begin-dialogue" || currentNode?.action === "end-dialogue") {
+      const next = resolveNextNode(currentNode);
+      if (next) setTimeout(() => setCurrentNode(next), 100); // slight delay for safety
+    }
   }, [currentNode]);
 
-
-
-  // This will always run the hook, but it only activates when valid
   const gpsCoords =
-  currentNode?.trigger?.interaction === "gps"
-    ? locations.find((l) => l.name === currentNode.trigger.target)?.trigger_type
-    : null;
+    currentNode?.trigger?.interaction === "gps"
+      ? locations.find((l) => l.name === currentNode.trigger.target)?.trigger_type
+      : null;
 
   const distance = useLocationCheck(
     gpsCoords ? { lat: gpsCoords.lat, lng: gpsCoords.lng } : null,
@@ -56,6 +57,7 @@ export default function ARExperiencePlayer({
 
   const handleAdvance = (choiceIndex = null) => {
     if (!currentNode) return;
+
     if (currentNode.action === "end") {
       setExperience?.(undefined);
       return;
@@ -68,9 +70,7 @@ export default function ARExperiencePlayer({
   const renderNode = () => {
     if (!currentNode) return null;
 
-    console.log("Rendering node:", currentNode);
-
-    // Show wait screen if GPS hasn't triggered yet
+    // Handle GPS-based waiting
     if (currentNode.trigger?.interaction === "gps" && !hasTriggered) {
       return (
         <Box sx={centerBox}>
@@ -122,6 +122,9 @@ export default function ARExperiencePlayer({
             onNext={() => setExperience(undefined)}
           />
         );
+      case "begin-dialogue":
+      case "end-dialogue":
+        return null; // handled automatically in useEffect
       default:
         return (
           <Box sx={centerBox}>
