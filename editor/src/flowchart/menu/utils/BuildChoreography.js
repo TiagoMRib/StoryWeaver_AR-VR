@@ -115,6 +115,8 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
             goToStep: getDialogueGoToStep(dialogueEdges, dId, index),
           }));
 
+          console.log("Dialogue Choice", dData);
+
           story.push({
             id: dId,
             action: "choice",
@@ -123,7 +125,7 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
               name: dData.character?.name,
             },
             data: {
-              text: dData.question || dData.text || "",
+              text: dData.prompt || dData.text || "",
               options,
             },
           });

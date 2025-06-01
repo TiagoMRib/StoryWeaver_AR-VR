@@ -137,6 +137,10 @@ export default function VRSceneWrapper({
 
     const method = interactionDef.methodVr;
     const targetLabel = trigger.target;
+
+    console.log("Finding target:", targetLabel);
+    console.log("Locations:", locations);
+    console.log("Characters:", characters);
     // resolve 3D name
     const targetName = (
       locations.find(l => l.name === targetLabel)?.threeDObject ||

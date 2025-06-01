@@ -17,7 +17,7 @@ export default function QuizNodeDisplay({
   const question = node.data.text;
   const answers = node.data.options;
   const backgroundFileInfo = node.data.background;
-  const character = node.data.character;
+  const character = node.actor;
 
   const [backgroundURL, setBackgroundURL] = useState("");
   const [bgColor, setBgColor] = useState("#A9B388");
