@@ -35,10 +35,17 @@ export default function QuizNodeDisplay({
 
     if (fullCharacter.image.inputType === "url") {
       setCharacterImg(fullCharacter.image.filename);
+    } else if (fullCharacter.image.blob) {
+      // Use already loaded blob (editor may have injected it)
+      setCharacterImg(fullCharacter.image.blob);
     } else {
+      // Load from backend if not preloaded
       repo
-        .getFilePath(fullCharacter.image.filename)
-        .then(setCharacterImg)
+        .getFile(fullCharacter.image.filename)
+        .then((blob) => {
+          const objectUrl = URL.createObjectURL(blob);
+          setCharacterImg(objectUrl);
+        })
         .catch(() => {});
     }
   }, [character, characters, repo]);

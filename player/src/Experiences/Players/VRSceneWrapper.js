@@ -5,13 +5,21 @@ import "aframe";
 import "aframe-extras";
 import * as THREE from "three";
 
-function getPlayerStartPosition(start_location, gltfScene) {
-  console.log("Start location:", start_location);
-  if (!start_location?.threeDObject || !gltfScene) {
+function getPlayerStartPosition(start_location_name, gltfScene, locations) {
+  console.log("Start location name:", start_location_name);
+
+  // Find location by name
+  const location = locations?.find(loc => loc.name === start_location_name);
+  console.log("Start Location found:", location);
+  const targetObjectName = location?.threeDObject;
+
+  if (!targetObjectName || !gltfScene) {
     return { position: "0 0.5 0", found: false };
   }
 
-  const object = gltfScene.getObjectByName(start_location.threeDObject);
+  const object = gltfScene.getObjectByName(targetObjectName);
+
+  console.log("Start object found:", object);
 
   if (object) {
     const pos = object.position;
@@ -109,7 +117,7 @@ export default function VRSceneWrapper({
         return;
       }
 
-      const { position, found } = getPlayerStartPosition(startPosition, gltfScene);
+      const { position, found } = getPlayerStartPosition(startPosition, gltfScene, locations);
       rig.setAttribute("position", position);
       setStatusMessage(found ? "" : "Atenção: posição inicial padrão usada.");
 
