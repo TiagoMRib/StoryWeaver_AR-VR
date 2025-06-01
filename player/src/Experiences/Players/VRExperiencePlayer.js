@@ -137,7 +137,7 @@ export default function VRExperiencePlayer({
 
     const pos = new THREE.Vector3();
     targetObject.getWorldPosition(pos);
-    pos.y += 1.5;
+    pos.y += 1.8;
 
     return (
       <a-entity position={`${pos.x} ${pos.y} ${pos.z}`}>
