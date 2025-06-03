@@ -13,6 +13,7 @@ import { NodeType } from "../models/NodeTypes";
 
 import TopAppBar from "./AppBar";
 import MapWindow from "../map/MapWindow";
+import ARMarkerManager from "../map/ARMarkerManager";
 import VRWorldWindow from "../world/VRWorldWindow";
 import ARWorldWindow from "../world/ARWorldWindow";
 import maps from "../data/maps";
@@ -620,14 +621,25 @@ export default function MainWindow(props) {
             />
           ) : null
         ) : displayedWindow === "Tracking AR" ? (
-          <Box sx={{ p: 4 }}>
-            <Typography variant="h6">
-              🚧 TrackingWindow ainda não implementado.
-            </Typography>
-            <Typography>
-              Aqui será possível configurar QR codes e image tracking para AR.
-            </Typography>
-          </Box>
+          <ARMarkerManager
+            characters={characters}
+            locations={locations}
+            onSave={(type, updatedEntity) => {
+              if (type === "location") {
+                setLocations(prev => {
+                  const updated = prev.map(l => l.id === updatedEntity.id ? updatedEntity : l);
+                  localStorage.setItem("locations", JSON.stringify(updated));
+                  return updated;
+                });
+              } else {
+                setCharacters(prev => {
+                  const updated = prev.map(c => c.id === updatedEntity.id ? updatedEntity : c);
+                  localStorage.setItem("characters", JSON.stringify(updated));
+                  return updated;
+                });
+              }
+            }}
+          />
         ) : displayedWindow.startsWith("Diálogo") ? (
           <DialogueTree
             characters={characters}

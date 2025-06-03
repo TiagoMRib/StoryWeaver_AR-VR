@@ -57,6 +57,7 @@ const PORT = process.env.PORT || 8080;
 // Set storage engine for multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    console.log("[Destination] Received file upload request:", req.body);
     let destinationPath = path.join("files", req.body.projectID);
 
     if (!fs.existsSync(destinationPath)) {
@@ -290,6 +291,7 @@ app.post(
   "/upload",
   upload.fields([{ name: "file" }, { name: "projectID" }]),
   (req, res) => {
+    console.log("[UPLOAD POST] Received upload:", req.body, req.files);
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Headers", "content-type");
@@ -336,19 +338,26 @@ app.get("/generateMarker/:storyID/:filename", async (req, res) => {
   const storyID = req.params.storyID;
   const filePath = path.join(__dirname, "files", storyID, filename);
   const fileNameWithoutExtension = filename.split(".")[0];
-  if (
-    fs.existsSync(
-      path.join(__dirname, "files", storyID, fileNameWithoutExtension + ".fset")
-    )
-  ) {
-    console.log("Marker files already exist for this image");
-    res.json({ success: true });
-    return;
+  const markerPath = path.join(__dirname, "files", storyID, fileNameWithoutExtension + ".fset");
+
+  console.log(`[generateMarker] Called with: storyID=${storyID}, filename=${filename}`);
+  console.log(`[generateMarker] Checking image exists: ${filePath}`);
+  console.log(`[generateMarker] Checking marker already exists: ${markerPath}`);
+
+  if (fs.existsSync(markerPath)) {
+    console.log("[generateMarker] Marker already exists. Skipping generation.");
+    return res.json({ success: true });
   }
-  const worker = new Worker("./nft-creator.js", {
+
+  if (!fs.existsSync(filePath)) {
+    console.error("[generateMarker] ERROR: Source image does not exist:", filePath);
+    return res.status(404).send("Image file not found.");
+  }
+
+  const worker = new Worker(path.join(__dirname, "nft-creator.js"), {
     workerData: {
       imageURL: filePath,
-      outputPath: "/files/" + storyID + "/",
+      outputPath: path.join(__dirname, "files", storyID),
       iParam: true,
       noConfParam: false,
       zftParam: false,
@@ -357,15 +366,12 @@ app.get("/generateMarker/:storyID/:filename", async (req, res) => {
   });
 
   worker.on("message", (data) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Headers", "content-type");
+    console.log("[generateMarker] Worker completed successfully.");
     res.status(200).send(data);
   });
+
   worker.on("error", (msg) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Headers", "content-type");
+    console.error("[generateMarker] Worker error:", msg);
     res.status(404).send(`An error occurred: ${msg}`);
   });
 });

@@ -65,29 +65,60 @@ export function buildARManifest({
   locations,
   interactions,
   maps,
-  arActorMapping,
+  arActorMapping = {},
   arInteractionMapping,
 }) {
   const arLocationMapping = buildArLocationMappingFromMaps(maps);
 
   return {
     title,
-    characters: characters.map((char) => ({
-      id: char.id,
-      name: char.name,
-      description: char.description,
-      trigger_type: arActorMapping?.[char.name] || null,
-    })),
-    locations: locations.map((loc) => ({
-      id: loc.id,
-      name: loc.name,
-      description: loc.description,
-      trigger_type: arLocationMapping?.[loc.id] || null,
-    })),
+
+    characters: characters.map((char) => {
+      const ar = char.ar_type || {};
+      let trigger_type = null;
+
+      if (ar.trigger_mode === "QR-Code" && ar.qr_code) {
+        trigger_type = { type: "qr", value: ar.qr_code };
+      } else if (ar.trigger_mode === "Image Tracking" && ar.image?.filename) {
+        trigger_type = { type: "image", value: ar.image.filename };
+      }
+
+      return {
+        id: char.id,
+        name: char.name,
+        description: char.description,
+        trigger_type,
+      };
+    }),
+
+    locations: locations.map((loc) => {
+      const ar = loc.ar_type || {};
+      let trigger_type = null;
+
+      if (ar.trigger_mode === "QR-Code" && ar.qr_code) {
+        trigger_type = { type: "qr", value: ar.qr_code };
+      } else if (ar.trigger_mode === "Image Tracking" && ar.image?.filename) {
+        trigger_type = { type: "image", value: ar.image.filename };
+      } else if (arLocationMapping[loc.id]) {
+        trigger_type = {
+          type: "gps",
+          lat: arLocationMapping[loc.id].lat,
+          lng: arLocationMapping[loc.id].lng,
+        };
+      }
+
+      return {
+        id: loc.id,
+        name: loc.name,
+        description: loc.description,
+        trigger_type,
+      };
+    }),
+
     interactions: interactions.map(({ type, label, methodAr }) => ({
       type,
       label,
-      methodAr: methodAr
+      methodAr
     })),
   };
 }

@@ -97,26 +97,39 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
     }
 
     public uploadFile = async (file: File): Promise<any> => {
-        const formData = new FormData();
-      
-        formData.append("projectID",  localStorage.getItem('storyId')!);
-        formData.append("file", file, file.name)
-
-        const instance = this.createInstance();
-
-        try{
-            const result = await instance.post(`${BASE_URL}/upload`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            }).then(transform);
-            return result;
-        }
-        catch(error){
-            console.log(error); 
-            throw error;
-        }
+    console.log("[uploadFile] Preparing to upload file:", file.name);
+    
+    const storyId = localStorage.getItem('storyId');
+    if (!storyId) {
+        console.warn("[uploadFile] No story ID found in localStorage!");
+    } else {
+        console.log("[uploadFile] Using storyId:", storyId);
     }
+
+    const formData = new FormData();
+    formData.append("projectID", localStorage.getItem("storyId") || "");
+    formData.append("file", file, file.name);
+
+    const instance = this.createInstance();
+
+    try {
+        console.log("[uploadFile] Sending POST request to:", `${BASE_URL}/upload`);
+        const result = await instance.post(`${BASE_URL}/upload`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+        });
+
+        console.log("[uploadFile] Upload successful. Server response:", result);
+        return transform(result);
+    } catch (error: any) {
+        console.error("[uploadFile] Upload failed:", error.message || error);
+        if (error.response) {
+        console.error("[uploadFile] Server responded with:", error.response.status, error.response.data);
+        }
+        throw error;
+    }
+    };
 
     public deleteFile = async (fileName: string): Promise<any> => {
         const instance = this.createInstance();
@@ -283,6 +296,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
     public requestGenerateMarkerFiles = async (fileName: string): Promise<any> => {
         const instance = this.createInstance();
         const storyID = localStorage.getItem('storyId');
+        console.log(`Requesting marker files for story ID: ${storyID} and file name: ${fileName}`);
         try{
             const result = await instance.get(`${BASE_URL}/generateMarker/${storyID}/${fileName}`).then(transform);
             return result;
