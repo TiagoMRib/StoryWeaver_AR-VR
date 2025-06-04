@@ -218,7 +218,7 @@ export default function QuizNodeDisplay({
               }}
             >
               <PlayerTextFinalDisplay
-                text={answer}
+                text={answer.label}
                 messageType={`Opção ${index + 1}`}
                 style={{ width: "90%" }}
               />

@@ -64,29 +64,36 @@ export default function ARMarkerManager({ characters, locations, onSave }) {
   const handleGenerateQR = () => {
     if (!qrValue) return;
 
+    console.log("=== QR CODE GENERATION DEBUG ===");
+    console.log("1. Starting QR code generation for value:", qrValue);
+
     htmlToImage.toBlob(qrRef.current, { skipFonts: true })
       .then((blob) => {
         if (!blob) {
           console.error("Failed to generate QR code image");
           return;
         }
+        console.log("2. QR code blob generated successfully");
 
         const file = new File([blob], `${qrValue}.png`, { type: "image/png" });
+        console.log("3. Created file object:", file.name);
 
         repo.uploadFile(file)
           .then(() => {
-            console.log("QR image uploaded. Waiting briefly before requesting marker generation...");
+            console.log("4. File uploaded successfully");
+            console.log("5. Starting marker generation after delay...");
 
             setMarkerStatus("Started");
 
             setTimeout(() => {
+              console.log("6. Requesting marker file generation for:", file.name);
               repo.requestGenerateMarkerFiles(file.name)
                 .then(() => {
-                  console.log("Marker generation completed.");
+                  console.log("7. Marker generation completed successfully");
                   setMarkerStatus("Complete");
                 })
                 .catch((err) => {
-                  console.error("Marker generation failed:", err);
+                  console.error("7. Marker generation failed:", err);
                   // Only mark error if no other success has been recorded
                   if (markerStatus !== "Complete") {
                     setMarkerStatus("Error");
@@ -95,12 +102,12 @@ export default function ARMarkerManager({ characters, locations, onSave }) {
             }, 500);
           })
           .catch((err) => {
-            console.error("File upload failed:", err);
+            console.error("4. File upload failed:", err);
             setMarkerStatus("Error");
           });
       })
       .catch((error) => {
-        console.error("QR code generation failed:", error);
+        console.error("2. QR code generation failed:", error);
       });
   };
 

@@ -33,7 +33,7 @@ export default function ExperienceView({
 
   return (
     <ARExperiencePlayer
-      projectData={projectInfo}
+      projectId={projectInfo.projectId}
       experienceName={projectInfo?.experienceName}
       locations={projectInfo?.locations}
       characters={projectInfo?.characters}

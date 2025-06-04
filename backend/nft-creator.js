@@ -5,9 +5,67 @@ const readlineSync = require("readline-sync");
 const inkjet = require("inkjet");
 const im = require("imagemagick");
 const PNG = require("pngjs").PNG;
-var artoolkit_wasm_url = "./libs/NftMarkerCreator_wasm.wasm";
-var Module = require("./libs/NftMarkerCreator_wasm.js");
+
+// Fix WASM path to be relative to this file
+const artoolkit_wasm_url = path.join(__dirname, "libs", "NftMarkerCreator_wasm.wasm");
+const Module = require("./libs/NftMarkerCreator_wasm.js");
 const { workerData, parentPort } = require("worker_threads");
+
+// Global state
+let imageData = {
+  sizeX: 0,
+  sizeY: 0,
+  nc: 0,
+  dpi: 0,
+  array: null
+};
+
+// Main worker function
+(async function() {
+  try {
+    console.log("=== NFT MARKER CREATOR DEBUG ===");
+    console.log("1. Worker started with data:", workerData);
+    
+    const { imageURL, outputPath } = workerData;
+    if (!imageURL || !outputPath) {
+      throw new Error("Missing required parameters: imageURL or outputPath");
+    }
+
+    console.log("2. Reading image file:", imageURL);
+    const imageBuffer = fs.readFileSync(imageURL);
+    
+    // Process image based on type
+    const ext = path.extname(imageURL).toLowerCase();
+    if (ext === '.jpg' || ext === '.jpeg') {
+      await useJPG(imageBuffer);
+    } else if (ext === '.png') {
+      await usePNG(imageBuffer);
+    } else {
+      throw new Error("Unsupported image format. Only JPG and PNG are supported.");
+    }
+
+    console.log("3. Image processed successfully");
+    console.log("   - Size:", imageData.sizeX, "x", imageData.sizeY);
+    console.log("   - Channels:", imageData.nc);
+    console.log("   - DPI:", imageData.dpi);
+
+    // Generate markers
+    console.log("4. Generating markers...");
+    const result = await generateMarkers(
+      imageURL,
+      workerData.iParam,
+      workerData.noConfParam,
+      workerData.zftParam,
+      workerData.onlyConfidenceParam
+    );
+
+    console.log("5. Marker generation complete");
+    parentPort.postMessage(result);
+  } catch (error) {
+    console.error("ERROR in NFT Marker Creator:", error);
+    parentPort.postMessage({ error: error.message });
+  }
+})();
 
 async function useJPG(buf) {
   inkjet.decode(buf, function (err, decoded) {
@@ -370,23 +428,11 @@ var foundInputPath = {
   i: -1,
 };
 
-var foundOutputPath = {
-  b: false,
-  i: -1,
-};
 
 var noConf = false;
 var withDemo = false;
 var onlyConfidence = false;
 var isZFT = false;
-
-var imageData = {
-  sizeX: 0,
-  sizeY: 0,
-  nc: 0,
-  dpi: 0,
-  array: [],
-};
 
 const imageURL = workerData.imageURL;
 var outputPath = workerData.outputPath;
@@ -424,12 +470,6 @@ async function generateMarkers(
     srcImage = imageURL;
   }
   console.log("Set input path: " + srcImage);
-  if (foundOutputPath.b) {
-    outputPath = process.argv[foundOutputPath.i];
-    if (!outputPath.startsWith("/")) outputPath = "/" + outputPath;
-    if (!outputPath.endsWith("/")) outputPath += "/";
-    console.log("Set output path: " + outputPath);
-  }
 
   let fileNameWithExt = path.basename(srcImage);
   let fileName = path.parse(fileNameWithExt).name;
@@ -462,10 +502,9 @@ async function generateMarkers(
   }
 
   console.log("Check output path: " + path.join(__dirname, outputPath));
-  if (!fs.existsSync(path.join(__dirname, outputPath))) {
-    fs.mkdirSync(path.join(__dirname, outputPath));
+  if (!fs.existsSync(outputPath)) {
+    fs.mkdirSync(outputPath);
   }
-
   if (extName.toLowerCase() === ".jpg" || extName.toLowerCase() === ".jpeg") {
     await useJPG(buffer);
   } else if (extName.toLowerCase() === ".png") {
@@ -566,7 +605,7 @@ async function generateMarkers(
     let contentBin = Module.FS.readFile("tempBinFile.bin");
 
     fs.writeFileSync(
-      path.join(__dirname, "/output/") + fileName + ".zft",
+      path.join(__dirname, "output", fileName + ".zft"),
       contentBin
     );
 
@@ -607,15 +646,15 @@ async function generateMarkers(
   } else {
     console.log("CREATING ISET, FSET AND FSET3 FILES");
     fs.writeFileSync(
-      path.join(__dirname, outputPath) + fileName + ext,
+      path.join(outputPath, fileName + ext),
       content
     );
     fs.writeFileSync(
-      path.join(__dirname, outputPath) + fileName + ext2,
+      path.join(outputPath) + fileName + ext2,
       contentFset
     );
     fs.writeFileSync(
-      path.join(__dirname, outputPath) + fileName + ext3,
+      path.join(outputPath) + fileName + ext3,
       contentFset3
     );
 

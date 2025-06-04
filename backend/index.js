@@ -57,13 +57,27 @@ const PORT = process.env.PORT || 8080;
 // Set storage engine for multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    console.log("[Destination] Received file upload request:", req.body);
+    console.log("=== UPLOAD DEBUG ===");
+    console.log("1. Upload request received");
+    console.log("   - Request body:", req.body);
+    console.log("   - File:", file);
+    
     let destinationPath = path.join("files", req.body.projectID);
-
-    if (!fs.existsSync(destinationPath)) {
-      fs.mkdirSync(destinationPath);
+    const absolutePath = path.join(__dirname, destinationPath);
+    
+    console.log("2. Paths:");
+    console.log("   - Relative path:", destinationPath);
+    console.log("   - Absolute path:", absolutePath);
+    
+    if (!fs.existsSync(absolutePath)) {
+      console.log("3. Creating directory:", absolutePath);
+      fs.mkdirSync(absolutePath, { recursive: true });
+    } else {
+      console.log("3. Directory already exists");
     }
-    cb(null, destinationPath);
+    
+    console.log("===================");
+    cb(null, destinationPath);  // Use relative path for multer
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -292,6 +306,13 @@ app.post(
   upload.fields([{ name: "file" }, { name: "projectID" }]),
   (req, res) => {
     console.log("[UPLOAD POST] Received upload:", req.body, req.files);
+    
+    // Log the final file location
+    if (req.files && req.files.file && req.files.file[0]) {
+      const uploadedFile = req.files.file[0];
+      console.log("Uploaded file location:", path.resolve(uploadedFile.path));
+    }
+    
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Headers", "content-type");
@@ -333,47 +354,75 @@ app.get("/unzip/:storyID/:filename", async (req, res) => {
   });
 });
 
-app.get("/generateMarker/:storyID/:filename", async (req, res) => {
-  const filename = req.params.filename;
-  const storyID = req.params.storyID;
-  const filePath = path.join(__dirname, "files", storyID, filename);
-  const fileNameWithoutExtension = filename.split(".")[0];
-  const markerPath = path.join(__dirname, "files", storyID, fileNameWithoutExtension + ".fset");
+// Function to generate marker files using Worker
+async function generateMarkerFiles(imagePath) {
+  return new Promise((resolve, reject) => {
+    console.log("=== GENERATE MARKER FILES DEBUG ===");
+    console.log("1. Starting worker with image path:", imagePath);
+    
+    const outputPath = path.join(path.dirname(imagePath));
+    console.log("2. Output path:", outputPath);
+    
+    const worker = new Worker(path.join(__dirname, "nft-creator.js"), {
+      workerData: {
+        imageURL: imagePath,
+        outputPath: outputPath,
+        iParam: true,
+        noConfParam: false,
+        zftParam: false,
+        onlyConfidenceParam: false,
+      },
+    });
 
-  console.log(`[generateMarker] Called with: storyID=${storyID}, filename=${filename}`);
-  console.log(`[generateMarker] Checking image exists: ${filePath}`);
-  console.log(`[generateMarker] Checking marker already exists: ${markerPath}`);
+    worker.on("message", (data) => {
+      console.log("3. Worker completed successfully:", data);
+      resolve(data);
+    });
 
-  if (fs.existsSync(markerPath)) {
-    console.log("[generateMarker] Marker already exists. Skipping generation.");
-    return res.json({ success: true });
+    worker.on("error", (error) => {
+      console.error("3. Worker error:", error);
+      reject(error);
+    });
+
+    worker.on("exit", (code) => {
+      if (code !== 0) {
+        console.error(`3. Worker stopped with exit code ${code}`);
+        reject(new Error(`Worker stopped with exit code ${code}`));
+      }
+    });
+  });
+}
+
+// Generate marker files endpoint
+app.get("/generateMarker/:storyID/:fileName", async (req, res) => {
+  console.log("=== MARKER GENERATION DEBUG ===");
+  console.log("1. Request received:", req.params);
+  
+  const { storyID, fileName } = req.params;
+  const filePath = path.join("files", storyID, fileName);
+  const absoluteFilePath = path.join(__dirname, filePath);
+  
+  console.log("2. Paths:");
+  console.log("   - Relative path:", filePath);
+  console.log("   - Absolute path:", absoluteFilePath);
+  
+  // Check if file exists
+  if (!fs.existsSync(absoluteFilePath)) {
+    console.log("3. Error: File not found at", absoluteFilePath);
+    return res.status(404).json({ error: "File not found" });
   }
-
-  if (!fs.existsSync(filePath)) {
-    console.error("[generateMarker] ERROR: Source image does not exist:", filePath);
-    return res.status(404).send("Image file not found.");
+  
+  console.log("3. File found, proceeding with marker generation");
+  
+  try {
+    // Generate marker files
+    const markerFiles = await generateMarkerFiles(absoluteFilePath);
+    console.log("4. Marker generation successful:", markerFiles);
+    res.json({ success: true, files: markerFiles });
+  } catch (error) {
+    console.error("4. Error generating marker:", error);
+    res.status(500).json({ error: "Failed to generate marker files" });
   }
-
-  const worker = new Worker(path.join(__dirname, "nft-creator.js"), {
-    workerData: {
-      imageURL: filePath,
-      outputPath: path.join(__dirname, "files", storyID),
-      iParam: true,
-      noConfParam: false,
-      zftParam: false,
-      onlyConfidenceParam: false,
-    },
-  });
-
-  worker.on("message", (data) => {
-    console.log("[generateMarker] Worker completed successfully.");
-    res.status(200).send(data);
-  });
-
-  worker.on("error", (msg) => {
-    console.error("[generateMarker] Worker error:", msg);
-    res.status(404).send(`An error occurred: ${msg}`);
-  });
 });
 
 // Define a route to handle DELETE requests for files by name

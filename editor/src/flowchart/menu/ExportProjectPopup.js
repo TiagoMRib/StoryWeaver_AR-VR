@@ -413,6 +413,7 @@ export default function ExportProjectPopup(props) {
               onClick={() => {
                 const manifest = buildBaseManifest({
                   title: experienceName || projectTitle,
+                  id: localStorage.getItem("storyId"),
                   characters,
                   locations,
                   interactions,

@@ -1,6 +1,7 @@
-export function buildBaseManifest({ title, characters, locations, interactions }) {
+export function buildBaseManifest({ title, id, characters, locations, interactions }) {
   return {
     title,
+    projectId: id,
     characters: characters.map(({ id, name, description, image }) => ({ id, name, description, image })),
     locations: locations.map(({ id, name, description }) => ({ id, name, description })),
     interactions: interactions.map(({ type, label }) => ({ type, label })),

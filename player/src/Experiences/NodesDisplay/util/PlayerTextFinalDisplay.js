@@ -3,14 +3,15 @@ import { primaryColor, textColor } from "../../../themes";
 import { Box, Typography } from "@mui/material";
 
 export default function PlayerTextFinalDisplay(props) {
-  const text = props.text;
+  console.log("[PlayerTextFinalDisplay] props", props);
+  const text = props.text?.toString() || "";
   const messageType = props.messageType;
   const style = props.style;
   const icon = props.icon;
   return (
     <Box
       sx={{
-        display: text == "" ? "none" : "block",
+        display: text === "" ? "none" : "block",
         ...style,
       }}
     >

@@ -296,13 +296,20 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
     public requestGenerateMarkerFiles = async (fileName: string): Promise<any> => {
         const instance = this.createInstance();
         const storyID = localStorage.getItem('storyId');
-        console.log(`Requesting marker files for story ID: ${storyID} and file name: ${fileName}`);
+        console.log("=== GENERATE MARKER REQUEST DEBUG ===");
+        console.log("1. Parameters:", { storyID, fileName });
+        console.log("2. Request URL:", `${BASE_URL}/generateMarker/${storyID}/${fileName}`);
+        console.log("3. Instance headers:", instance.defaults.headers);
+        console.log("===================================");
+        
         try{
+            console.log("4. Sending request...");
             const result = await instance.get(`${BASE_URL}/generateMarker/${storyID}/${fileName}`).then(transform);
+            console.log("5. Request successful:", result);
             return result;
         }
         catch(error){
-            console.log(error); 
+            console.error("5. Request failed:", error); 
             throw error;
         }
     }
