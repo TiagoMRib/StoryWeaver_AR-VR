@@ -18,7 +18,7 @@ export default function ARMarkerManager({ characters, locations, onSave }) {
   const qrRef = useRef(null);
 
   // === State ===
-  const [targetType, setTargetType] = useState("location"); // location or character
+  const [targetType, setTargetType] = useState("character"); // location or character
   const [selectedId, setSelectedId] = useState(""); // selected entity ID
   const [triggerType, setTriggerType] = useState("QR-Code"); // "QR-Code" or "Image Tracking"
   const [qrValue, setQrValue] = useState(""); // value for QR code

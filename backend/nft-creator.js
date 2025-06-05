@@ -6,39 +6,56 @@ const inkjet = require("inkjet");
 const im = require("imagemagick");
 const PNG = require("pngjs").PNG;
 
-// Fix WASM path to be relative to this file
-const artoolkit_wasm_url = path.join(__dirname, "libs", "NftMarkerCreator_wasm.wasm");
-const Module = require("./libs/NftMarkerCreator_wasm.js");
 const { workerData, parentPort } = require("worker_threads");
 
-// Global state
+if (typeof global.fetch !== "function") {
+  global.fetch = async (url) => {
+    const fs = require("fs");
+    const path = require("path");
+    const wasmPath = path.resolve(__dirname, "libs", "NftMarkerCreator_wasm.wasm");
+    return {
+      arrayBuffer: async () => fs.promises.readFile(wasmPath),
+    };
+  };
+}
+
+// Load WASM module
+const Module = require("./libs/NftMarkerCreator_wasm.js");
+
 let imageData = {
   sizeX: 0,
   sizeY: 0,
   nc: 0,
   dpi: 0,
-  array: null
+  array: null,
 };
 
-// Main worker function
-(async function() {
+let srcImage;
+let buffer;
+
+const imageURL = workerData.imageURL;
+let outputPath = workerData.outputPath;
+const iParam = workerData.iParam;
+const noConfParam = workerData.noConfParam;
+const zftParam = workerData.zftParam;
+const onlyConfidenceParam = workerData.onlyConfidenceParam;
+
+Module.onRuntimeInitialized = async () => {
   try {
     console.log("=== NFT MARKER CREATOR DEBUG ===");
     console.log("1. Worker started with data:", workerData);
-    
-    const { imageURL, outputPath } = workerData;
+
     if (!imageURL || !outputPath) {
       throw new Error("Missing required parameters: imageURL or outputPath");
     }
 
     console.log("2. Reading image file:", imageURL);
     const imageBuffer = fs.readFileSync(imageURL);
-    
-    // Process image based on type
+
     const ext = path.extname(imageURL).toLowerCase();
-    if (ext === '.jpg' || ext === '.jpeg') {
+    if (ext === ".jpg" || ext === ".jpeg") {
       await useJPG(imageBuffer);
-    } else if (ext === '.png') {
+    } else if (ext === ".png") {
       await usePNG(imageBuffer);
     } else {
       throw new Error("Unsupported image format. Only JPG and PNG are supported.");
@@ -53,10 +70,10 @@ let imageData = {
     console.log("4. Generating markers...");
     const result = await generateMarkers(
       imageURL,
-      workerData.iParam,
-      workerData.noConfParam,
-      workerData.zftParam,
-      workerData.onlyConfidenceParam
+      iParam,
+      noConfParam,
+      zftParam,
+      onlyConfidenceParam
     );
 
     console.log("5. Marker generation complete");
@@ -65,7 +82,7 @@ let imageData = {
     console.error("ERROR in NFT Marker Creator:", error);
     parentPort.postMessage({ error: error.message });
   }
-})();
+};
 
 async function useJPG(buf) {
   inkjet.decode(buf, function (err, decoded) {
@@ -413,33 +430,6 @@ function addNewMarker(text, name) {
     }
   }
 }
-
-// GLOBAL VARs - THREAD START HERE
-var params = [];
-
-var validImageExt = [".jpg", ".jpeg", ".png"];
-
-var srcImage;
-
-var buffer;
-
-var foundInputPath = {
-  b: false,
-  i: -1,
-};
-
-
-var noConf = false;
-var withDemo = false;
-var onlyConfidence = false;
-var isZFT = false;
-
-const imageURL = workerData.imageURL;
-var outputPath = workerData.outputPath;
-const iParam = workerData.iParam;
-const noConfParam = workerData.noConfParam;
-const zftParam = workerData.zftParam;
-const onlyConfidenceParam = workerData.onlyConfidenceParam;
 
 async function generateMarkers(
   imageURL,
