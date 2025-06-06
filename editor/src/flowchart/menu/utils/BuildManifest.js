@@ -24,14 +24,11 @@ export function buildVRManifest({
     characters: characters.map((char) => ({
       id: char.id,
       name: char.name,
-      description: char.description,
       threeDObject: vrActorMapping?.[char.name] || null,
-      image: char.image || null,
     })),
     locations: locations.map((loc) => ({
       id: loc.id,
       name: loc.name,
-      description: loc.description,
       threeDObject: vrLocationMapping?.[loc.name] || null,
     })),
     interactions: interactions.map(({ type, label, methodVr }) => ({
@@ -87,7 +84,6 @@ export function buildARManifest({
       return {
         id: char.id,
         name: char.name,
-        description: char.description,
         trigger_type,
       };
     }),
@@ -111,7 +107,6 @@ export function buildARManifest({
       return {
         id: loc.id,
         name: loc.name,
-        description: loc.description,
         trigger_type,
       };
     }),
