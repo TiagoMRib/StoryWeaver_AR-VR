@@ -48,6 +48,8 @@ export default function ARMarkerManager({ characters, locations, onSave }) {
     } else {
       // If file is found in backend, override to 'Complete'
       const checkFile = `${arType.qr_code}.fset`; // backend marker filename
+      console.log(`[MarkerManager] Checking file existence: ${checkFile}`);
+      console.log(`[MarkerManager] Story ID: ${localStorage.getItem("storyId")}`);
       fetch(`/files/${localStorage.getItem("storyId")}/${checkFile}`)
         .then(res => {
           if (res.ok) {
@@ -157,6 +159,7 @@ export default function ARMarkerManager({ characters, locations, onSave }) {
         <Typography>Selecionar:</Typography>
         <Select fullWidth sx={{ color: "black" }} value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
           {selectedList.map((e) => {
+            console.log(`[Entity Selection] ${e.ar_type}`);
             const marker = e.ar_type?.marker_generation || {};
             const statusQr = marker.qr_code;
             const statusImg = marker.image;

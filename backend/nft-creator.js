@@ -33,6 +33,18 @@ let imageData = {
 let srcImage;
 let buffer;
 
+let foundInputPath = {
+  b: false,
+  i: -1,
+};
+let noConf = false;
+let withDemo = false;
+let onlyConfidence = false;
+let isZFT = false;
+
+const validImageExt = [".jpg", ".jpeg", ".png"];
+let params = [];
+
 const imageURL = workerData.imageURL;
 let outputPath = workerData.outputPath;
 const iParam = workerData.iParam;
@@ -231,22 +243,6 @@ function extractExif(buf) {
             imageData.sizeX = metadata["Image Width"].value;
             imageData.sizeY = metadata["Image Height"].value;
           }
-          // if (metadata['Color Components'].value == null || metadata['Image Width'].value === undefined) {
-          //     // var answer = readlineSync.question('The image does not contain the number of channels(nc), do you want to inform it?[y/n]\n');
-
-          //     // if(answer == "y"){
-          //     //     var answer2 = readlineSync.question('Inform the number of channels(nc):(black and white images have NC=1, colored images have NC=3) e.g NC=3 \n');
-
-          //     //     let vals = getValues(answer2, "nc");
-          //     //     imageData.nc = vals;
-          //     // }else{
-          //     //     console.log("It's not possible to proceed without the number of channels!")
-          //     //     return;
-          //     // }
-          // } else {
-          //    // imageData.nc = metadata[ 'Bits Per Sample'].value ;
-          //     imageData.nc = metadata[ 'Color Components'].value ;
-          // }
           imageData.nc = metadata["Color Components"].value;
           imageData.dpi = dpi;
         }
@@ -640,11 +636,11 @@ async function generateMarkers(
       content
     );
     fs.writeFileSync(
-      path.join(outputPath) + fileName + ext2,
+      path.join(outputPath, fileName + ext2),
       contentFset
     );
     fs.writeFileSync(
-      path.join(outputPath) + fileName + ext3,
+      path.join(outputPath, fileName + ext3),
       contentFset3
     );
 
