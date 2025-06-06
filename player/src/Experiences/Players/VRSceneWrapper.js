@@ -9,6 +9,7 @@ function getPlayerStartPosition(start_location_name, gltfScene, locations) {
   console.log("Start location name:", start_location_name);
 
   // Find location by name
+  console.log("Available locations:", locations);
   const location = locations?.find(loc => loc.name === start_location_name);
   console.log("Start Location found:", location);
   const targetObjectName = location?.threeDObject;

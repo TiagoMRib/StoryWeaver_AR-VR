@@ -41,7 +41,7 @@ export default function VRExperiencePlayer({
     if (!currentNode || !sceneEl) return;
 
     const { trigger } = currentNode;
-    if (!trigger || trigger.interaction !== "go_near" || hasTriggered) return;
+    if (!trigger || hasTriggered) return;
 
     const interval = setInterval(() => {
       if (isPlayerNearObject(trigger.target)) {
@@ -200,6 +200,11 @@ export default function VRExperiencePlayer({
 
     if (trigger && !hasTriggered) {
       const { interaction, target } = trigger;
+
+      console.log("[VRPlayer] interaction type:", interaction);
+      console.log("[VRPlayer] Current node trigger:", trigger);
+
+      console.log("[VRPlayer] Interactions available:", interactions);
 
       // Get the interaction definition by type
       const interactionDef = interactions.find((i) => i.type === interaction);

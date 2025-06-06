@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Box } from "@mui/material";
 import Frame from "react-frame-component";
+import { BASE_URL } from "../../../data/constants";
 
 /**
  * ARCodeScanner - Uses AR.js (NFT) in A-Frame to detect image markers.
@@ -11,6 +12,7 @@ import Frame from "react-frame-component";
  */
 export default function ARCodeScanner({ storyId,characters, locations, onTrigger }) {
   const iframeRef = useRef(null);
+
 
   useEffect(() => {
     const iframe = iframeRef.current?.node?.contentWindow;

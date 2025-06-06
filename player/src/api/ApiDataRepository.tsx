@@ -41,7 +41,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.get(`${BASE_URL}/user-info/${localStorage.getItem('userEmail')}`).then(transform);
+            const result = await instance.get(`/user-info/${localStorage.getItem('userEmail')}`).then(transform);
             return result.data;
         }
         catch(error){
@@ -53,7 +53,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.post(`${BASE_URL}/finish-story`,{
+            const result = await instance.post(`/finish-story`,{
                 storyId: projectId,
                 userEmail : localStorage.getItem('userEmail'),
                 ending : endingName,
@@ -91,7 +91,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         if (this.currentProject === null){
             throw new Error("No project loaded");
          }
-        return `${BASE_URL}/files/${this.currentProject?.id}/${fileName}`;
+        return `/files/${this.currentProject?.id}/${fileName}`;
     }
     public getThreeDModelPath = async (fileName: string, modelType: ThreeDModelTypes): Promise<string> => {
          
@@ -103,9 +103,9 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         }
 
         if(modelType == ThreeDModelTypes.gltf){
-            return `${BASE_URL}/files/${storyID}/${fileNameWithoutExtension}/scene.gltf`;
+            return `/files/${storyID}/${fileNameWithoutExtension}/scene.gltf`;
         }else if(modelType == ThreeDModelTypes.obj){
-            return `${BASE_URL}/files/${storyID}/${fileNameWithoutExtension}/${fileNameWithoutUUID}.obj`;
+            return `/files/${storyID}/${fileNameWithoutExtension}/${fileNameWithoutUUID}.obj`;
         }
 
         return '';
@@ -121,7 +121,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.get(`${BASE_URL}/files/${this.currentProject?.id}/${fileName}`, config).then(transform);
+            const result = await instance.get(`/files/${this.currentProject?.id}/${fileName}`, config).then(transform);
             
             return result.data;
         }
@@ -138,7 +138,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.get(`${BASE_URL}/load/${projectId}`).then(transform);
+            const result = await instance.get(`/load/${projectId}`).then(transform);
             this.currentProject = result.data;
             return result.data;
         }
@@ -152,7 +152,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.get(`${BASE_URL}/exported-projects`).then(transform);
+            const result = await instance.get(`/exported-projects`).then(transform);
             return result.data;
         }
         catch(error){
@@ -166,7 +166,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.get(`${BASE_URL}/projects`).then(transform);
+            const result = await instance.get(`/projects`).then(transform);
             return result.data;
         }
         catch(error){
@@ -179,7 +179,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.get(`${BASE_URL}/projects/${searchText}`).then(transform);
+            const result = await instance.get(`/projects/${searchText}`).then(transform);
             return result.data;
         }
         catch(error){
@@ -192,7 +192,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.post(`${BASE_URL}/user/authenticated/getAll`,
+            const result = await instance.post(`/user/authenticated/getAll`,
 
             {
                 loginToken: localStorage.getItem('loginToken')
@@ -210,7 +210,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.post(`${BASE_URL}/login/user`, bodyObject).then(transform);
+            const result = await instance.post(`/login/user`, bodyObject).then(transform);
             return result.data;
         }
         catch(error){
@@ -223,7 +223,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.get(`${BASE_URL}/logout/user`).then(transform);
+            const result = await instance.get(`/logout/user`).then(transform);
             return result.data;
         }
         catch(error){
@@ -236,7 +236,7 @@ export class ApiDataRepository extends HttpClient implements IDataRepository{
         const instance = this.createInstance();
 
         try{
-            const result = await instance.post(`${BASE_URL}/user/checkLoginStatus`,
+            const result = await instance.post(`/user/checkLoginStatus`,
             {
                 loginToken: localStorage.getItem('loginToken')
             }
