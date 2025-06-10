@@ -133,7 +133,7 @@ export default function ARExperiencePlayer({
       : null;
 
     // commented gps to easier testing: "gps", 
-    const isARTriggeredNode = trigger && ["qr_code", "image_tracking"].includes(interactionMethod);
+    const isARTriggeredNode = trigger && ["gps","qr_code", "image_tracking"].includes(interactionMethod);
     // === Show waiting instruction (e.g., GPS or QR) if not yet triggered
     if (isARTriggeredNode && !hasTriggered) {
       console.log("[ARPlayer] Waiting for trigger:", trigger);

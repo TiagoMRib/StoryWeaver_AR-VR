@@ -1,14 +1,34 @@
-import { Box, Typography, ButtonBase } from "@mui/material";
 import React, { useState } from "react";
-import { primaryColor, textColor } from "../themes";
+import {
+  Box,
+  Typography,
+  ButtonBase,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  Button,
+} from "@mui/material";
+import { primaryColor } from "../themes";
 
-export default function ExperiencesSelect(props) {
-  const setExperience = props.setExperience;
-
+export default function ExperiencesSelect({ setExperience }) {
   const [platformType, setPlatformType] = useState(undefined);
   const [worldFile, setWorldFile] = useState(null);
   const [platformFile, setPlatformFile] = useState(null);
   const [storyFile, setStoryFile] = useState(null);
+  const [combinedJsonFile, setCombinedJsonFile] = useState(null);
+  const [combinedData, setCombinedData] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleCombinedLoad = async () => {
+    try {
+      const text = await combinedJsonFile.text();
+      const json = JSON.parse(text);
+      setExperience(json);
+    } catch (err) {
+      alert("Erro ao carregar o ficheiro combinado.");
+      console.error(err);
+    }
+  };
 
   const handleFilesLoad = async () => {
     if (!worldFile || !platformFile || !storyFile || !platformType) {
@@ -34,22 +54,42 @@ export default function ExperiencesSelect(props) {
         ...storyJson,
       };
 
-      console.log("worldJson", worldJson);
-      console.log("combined", combined);
-
-      // Save to localStorage (related to the old way, not remving it for now)
-      localStorage.setItem("platformType", platformType);
-      localStorage.setItem("nodes", JSON.stringify(storyJson.nodes || []));
-      localStorage.setItem("edges", JSON.stringify(storyJson.edges || []));
-      localStorage.setItem("characters", JSON.stringify(worldJson.characters || []));
-      localStorage.setItem("locations", JSON.stringify(worldJson.locations || []));
-      localStorage.setItem("projectTitle", worldJson.projectTitle || "Experiência Local");
-
-      setExperience(combined);
+      setCombinedData(combined);
+      setOpenDialog(true);
     } catch (err) {
       alert("Erro ao carregar os ficheiros JSON.");
       console.error(err);
     }
+  };
+
+  const downloadCombinedJson = () => {
+    const blob = new Blob([JSON.stringify(combinedData, null, 2)], {
+      type: "application/json",
+    });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${combinedData.title }.json`;
+    link.click();
+  };
+
+  const proceedWithExperience = () => {
+    if (!combinedData) return;
+    localStorage.setItem("platformType", combinedData.platformType);
+    localStorage.setItem("nodes", JSON.stringify(combinedData.nodes || []));
+    localStorage.setItem("edges", JSON.stringify(combinedData.edges || []));
+    localStorage.setItem(
+      "characters",
+      JSON.stringify(combinedData.characters || [])
+    );
+    localStorage.setItem(
+      "locations",
+      JSON.stringify(combinedData.locations || [])
+    );
+    localStorage.setItem(
+      "projectTitle",
+      combinedData.projectTitle || "Experiência Local"
+    );
+    setExperience(combinedData);
   };
 
   return (
@@ -59,6 +99,27 @@ export default function ExperiencesSelect(props) {
       </Typography>
 
       <Box sx={{ mt: 4 }}>
+        <Typography variant="h6">OU carregue ficheiro combinado:</Typography>
+        <input
+          type="file"
+          accept=".json"
+          onChange={(e) => setCombinedJsonFile(e.target.files[0])}
+        />
+        <Button
+          variant="contained"
+          disabled={!combinedJsonFile}
+          onClick={handleCombinedLoad}
+          sx={{ mt: 1 }}
+        >
+          Usar ficheiro combinado
+        </Button>
+      </Box>
+
+      <Typography variant="h6" sx={{ mt: 5 }}>
+        OU selecione ficheiros manualmente:
+      </Typography>
+
+      <Box sx={{ mt: 2 }}>
         <Typography variant="h6">Escolha a plataforma:</Typography>
         <Box sx={{ display: "flex", gap: 2, my: 2 }}>
           <ButtonBase
@@ -79,15 +140,27 @@ export default function ExperiencesSelect(props) {
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6">Carregue os ficheiros JSON</Typography>
 
-        <input type="file" accept=".json" onChange={(e) => setWorldFile(e.target.files[0])} />
+        <input
+          type="file"
+          accept=".json"
+          onChange={(e) => setWorldFile(e.target.files[0])}
+        />
         <Typography sx={{ mb: 2 }}>Manifesto do Mundo</Typography>
 
-        <input type="file" accept=".json" onChange={(e) => setPlatformFile(e.target.files[0])} />
+        <input
+          type="file"
+          accept=".json"
+          onChange={(e) => setPlatformFile(e.target.files[0])}
+        />
         <Typography sx={{ mb: 2 }}>
-          Manifesto da Plataforma ({platformType || "Escolha a plataforma primeiro"})
+          Manifesto da Plataforma ({platformType || "Escolha a plataforma"})
         </Typography>
 
-        <input type="file" accept=".json" onChange={(e) => setStoryFile(e.target.files[0])} />
+        <input
+          type="file"
+          accept=".json"
+          onChange={(e) => setStoryFile(e.target.files[0])}
+        />
         <Typography sx={{ mb: 2 }}>Coreografia</Typography>
       </Box>
 
@@ -107,11 +180,34 @@ export default function ExperiencesSelect(props) {
           <Typography variant="body1">Iniciar Experiência</Typography>
         </Box>
       </Box>
+
+      {/* === Dialog === */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Deseja exportar a experiência combinada?</DialogTitle>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              downloadCombinedJson();
+              proceedWithExperience();
+              setOpenDialog(false);
+            }}
+          >
+            Exportar e Prosseguir
+          </Button>
+          <Button
+            onClick={() => {
+              proceedWithExperience();
+              setOpenDialog(false);
+            }}
+          >
+            Prosseguir
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
 
-// Button styling for selected/unselected
 const platformButtonStyle = (selected) => ({
   backgroundColor: selected ? "#2196f3" : "#eeeeee",
   color: selected ? "white" : "#333",
