@@ -87,7 +87,7 @@ export default function ExperiencesSelect({ setExperience }) {
     );
     localStorage.setItem(
       "projectTitle",
-      combinedData.projectTitle || "Experiência Local"
+      combinedData.title
     );
     setExperience(combinedData);
   };
@@ -95,11 +95,11 @@ export default function ExperiencesSelect({ setExperience }) {
   return (
     <Box sx={{ width: "100%", pb: 10, px: 3 }}>
       <Typography variant="h4" sx={{ pt: 2, textAlign: "center" }}>
-        Experiência Local
+        Carregar Experiência
       </Typography>
 
       <Box sx={{ mt: 4 }}>
-        <Typography variant="h6">OU carregue ficheiro combinado:</Typography>
+        <Typography variant="h6">Carregue ficheiro completo:</Typography>
         <input
           type="file"
           accept=".json"
@@ -111,7 +111,7 @@ export default function ExperiencesSelect({ setExperience }) {
           onClick={handleCombinedLoad}
           sx={{ mt: 1 }}
         >
-          Usar ficheiro combinado
+          Usar ficheiro completo
         </Button>
       </Box>
 
@@ -183,7 +183,7 @@ export default function ExperiencesSelect({ setExperience }) {
 
       {/* === Dialog === */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Deseja exportar a experiência combinada?</DialogTitle>
+        <DialogTitle>Deseja exportar a experiência completa?</DialogTitle>
         <DialogActions>
           <Button
             onClick={() => {
