@@ -451,12 +451,6 @@ const TextProps = {
       conditional: "isTriggered",
       label: "Gatilho de entrada",
       name: "entry_trigger",
-    }, 
-    {
-      type: [InputFieldType.checkbox],
-      label: "Permitir AR? ",
-      initialValue: false,
-      name: "ar",
     }
   ],
 };

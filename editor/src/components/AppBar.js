@@ -513,7 +513,7 @@ export default function TopAppBar(props) {
             }}
           >
             <img
-              src="./assets/ancora.svg" 
+              src="./assets/ancora_green.png" 
               alt="Localizações"
               style={{ width: "50px", height: "50px" }}
             />
@@ -529,7 +529,7 @@ export default function TopAppBar(props) {
             }}
           >
             <img
-              src="./assets/info.svg"
+              src="./assets/hand.png"
               alt="Interações"
               style={{ width: "50px", height: "50px" }}
             />

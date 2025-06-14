@@ -492,7 +492,7 @@ export default function MainWindow(props) {
         handleLoadServer={handleLoadServer}
         handleNewProject={handleNewProject}
       ></TopAppBar>
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1, height: '100vh', overflowY: 'auto' }}>
         <Box
           sx={{
             display: "flex",
