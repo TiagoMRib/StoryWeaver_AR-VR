@@ -94,48 +94,53 @@ export default function ExperiencesSelect({ setExperience }) {
 
   return (
     <Box sx={{ width: "100%", pb: 10, px: 3 }}>
-      <Typography variant="h4" sx={{ pt: 2, textAlign: "center" }}>
-        Carregar Experiência
-      </Typography>
+  <Typography variant="h4" sx={{ pt: 2, textAlign: "center" }}>
+    Carregar Experiência
+  </Typography>
 
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h6">Carregue ficheiro completo:</Typography>
-        <input
-          type="file"
-          accept=".json"
-          onChange={(e) => setCombinedJsonFile(e.target.files[0])}
-        />
-        <Button
-          variant="contained"
-          disabled={!combinedJsonFile}
-          onClick={handleCombinedLoad}
-          sx={{ mt: 1 }}
-        >
-          Usar ficheiro completo
-        </Button>
-      </Box>
+  {/* Ficheiro completo */}
+  <Box sx={{ mt: 4 }}>
+    <Typography variant="h6">Carregue ficheiro completo:</Typography>
+    <Box sx={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center", mt: 1 }}>
+      <input
+        type="file"
+        accept=".json"
+        onChange={(e) => setCombinedJsonFile(e.target.files[0])}
+      />
+      <Button
+        variant="contained"
+        disabled={!combinedJsonFile}
+        onClick={handleCombinedLoad}
+        sx={{ mt: 1 }}
+      >
+        Usar ficheiro completo
+      </Button>
+    </Box>
+  </Box>
 
-      <Typography variant="h6" sx={{ mt: 5 }}>
-        OU selecione ficheiros manualmente:
-      </Typography>
+  <Typography variant="h6" sx={{ mt: 5 }}>
+    OU selecione ficheiros manualmente:
+  </Typography>
 
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="h6">Escolha a plataforma:</Typography>
-        <Box sx={{ display: "flex", gap: 2, my: 2 }}>
-          <ButtonBase
-            onClick={() => setPlatformType("AR")}
-            sx={platformButtonStyle(platformType === "AR")}
-          >
-            AR
-          </ButtonBase>
-          <ButtonBase
-            onClick={() => setPlatformType("VR")}
-            sx={platformButtonStyle(platformType === "VR")}
-          >
-            VR
-          </ButtonBase>
-        </Box>
-      </Box>
+  {/* Plataforma toggle */}
+  <Box sx={{ mt: 2 }}>
+    <Typography variant="h6">Escolha a plataforma:</Typography>
+    <Box sx={{ display: "flex", justifyContent: "center", gap: 2, my: 2 }}>
+      <ButtonBase
+        onClick={() => setPlatformType("AR")}
+        sx={platformButtonStyle(platformType === "AR")}
+      >
+        AR
+      </ButtonBase>
+      <ButtonBase
+        onClick={() => setPlatformType("VR")}
+        sx={platformButtonStyle(platformType === "VR")}
+      >
+        VR
+      </ButtonBase>
+    </Box>
+  </Box>
+
 
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6">Carregue os ficheiros JSON</Typography>
