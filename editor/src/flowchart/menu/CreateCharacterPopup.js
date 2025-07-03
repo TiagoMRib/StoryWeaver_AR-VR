@@ -43,20 +43,22 @@ export default function CreateCharacterPopup(props) {
   }, [name, description, sprite]);
 
   React.useEffect(() => {
-    if (selectedCharacter) {
-      setName(selectedCharacter.name);
-      setDescription(selectedCharacter.description);
-      setSprite(selectedCharacter.image);
-    } else {
-      setName("");
-      setDescription("");
-      setSprite({
-        inputType: "url",
-        filename: "",
-        blob: null,
-      });
+    if (open) {
+      if (selectedCharacter) {
+        setName(selectedCharacter.name);
+        setDescription(selectedCharacter.description);
+        setSprite(selectedCharacter.image);
+      } else {
+        setName("");
+        setDescription("");
+        setSprite({
+          inputType: "url",
+          filename: "",
+          blob: null,
+        });
+      }
     }
-  }, [selectedCharacter]);
+  }, [open, selectedCharacter]);
 
   return (
     <Dialog

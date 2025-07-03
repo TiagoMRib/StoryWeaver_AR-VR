@@ -19,6 +19,15 @@ import { textColor, primaryColor, secondaryColor } from "../themes";
 export default function VRWorldWindow({ characters, locations, setCharacters, setLocations, vrActorMapping, setvrActorMapping, vrLocationMapping, setvrLocationMapping }) {
   const [jsonPreview, setJsonPreview] = useState(null);
 
+  React.useEffect(() => {
+    if (!jsonPreview && (Object.keys(vrActorMapping).length > 0 || Object.keys(vrLocationMapping).length > 0)) {
+      setJsonPreview({
+        actors: Object.values(vrActorMapping).filter(v => v && v !== "custom"),
+        locations: Object.values(vrLocationMapping).filter(v => v && v !== "custom")
+      });
+    }
+  }, []);
+
   const handleFileUpload = (e) => {
     const fileReader = new FileReader();
     fileReader.onload = (event) => {

@@ -36,7 +36,7 @@ function EditInteractionPopup({ open, onClose, interaction, onSave }) {
           sx={{ mb: 2, width: '100%' }}
         />
         <TextField
-          label="ID (type)"
+          label="ID"
           variant="filled"
           value={edited.type}
           onChange={(e) => setEdited({ ...edited, type: e.target.value })}
@@ -85,6 +85,11 @@ export default function InteractionsPopup({ open, onClose, interactions, setInte
     const updated = [...interactions, { ...newInteraction }];
     setInteractions(updated);
     setNewInteraction({ type: "", label: "", methodAr: "", methodVr: "" });
+  };
+
+  const handleDeleteInteraction = (indexToDelete) => {
+    const updated = interactions.filter((_, i) => i !== indexToDelete);
+    setInteractions(updated);
   };
 
   const saveEdit = (edited) => {
@@ -187,6 +192,13 @@ export default function InteractionsPopup({ open, onClose, interactions, setInte
                     >
                       <Edit fontSize="small" />
                     </IconButton>
+                    <IconButton
+                      size="small"
+                      sx={{ position: 'absolute', top: 8, right: 40 }}
+                      onClick={() => handleDeleteInteraction(index)}
+                    >
+                      <Icon fontSize="small">delete</Icon>
+                    </IconButton>
                   </Box>
                 </Grid>
               ))
@@ -206,7 +218,7 @@ export default function InteractionsPopup({ open, onClose, interactions, setInte
               sx={{ mr: 2 }}
             />
             <TextField
-              label="ID (type)"
+              label="ID"
               variant="filled"
               value={newInteraction.type}
               onChange={(e) => setNewInteraction({ ...newInteraction, type: e.target.value })}
