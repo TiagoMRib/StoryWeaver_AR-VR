@@ -82,17 +82,20 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
       const dialogueNodes = data.dialog.nodes || [];
       const dialogueEdges = data.dialog.edges || [];
 
-      // Use the characterNode's own ID for the entrypoint
       const beginDialogueNode = dialogueNodes.find(n => n.type === "beginDialogNode");
+      const firstDialogueNodeId = getDialogueGoToStep(dialogueEdges, beginDialogueNode?.id);
+
+      // Track trigger to be passed down
+      const inheritedTrigger = getTrigger(data.entry_trigger);
+
       if (beginDialogueNode) {
         story.push({
-          id: id, // this is the key: reuse characterNode's ID
+          id: id,
           action: "begin-dialogue",
-          goToStep: getDialogueGoToStep(dialogueEdges, beginDialogueNode.id),
+          goToStep: firstDialogueNodeId,
         });
       }
 
-      // Process all nested dialogue nodes
       for (const dNode of dialogueNodes) {
         const { id: dId, type: dType, data: dData } = dNode;
 
@@ -104,6 +107,7 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
               id: dData.character?.id,
               name: dData.character?.name,
             },
+            trigger: dId === firstDialogueNodeId ? inheritedTrigger : undefined,
             data: { text: dData.text },
             goToStep: getDialogueGoToStep(dialogueEdges, dId),
           });
@@ -115,8 +119,6 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
             goToStep: getDialogueGoToStep(dialogueEdges, dId, index),
           }));
 
-          console.log("Dialogue Choice", dData);
-
           story.push({
             id: dId,
             action: "choice",
@@ -124,6 +126,7 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
               id: dData.character?.id,
               name: dData.character?.name,
             },
+            trigger: dId === firstDialogueNodeId ? inheritedTrigger : undefined,
             data: {
               text: dData.prompt || dData.text || "",
               options,
@@ -135,7 +138,7 @@ export function buildChoreography({ nodes, edges, characters, locations, title, 
           story.push({
             id: dId,
             action: "end-dialogue",
-            goToStep: getGoToStep(id), // links back to flow after characterNode
+            goToStep: getGoToStep(id),
           });
         }
       }
