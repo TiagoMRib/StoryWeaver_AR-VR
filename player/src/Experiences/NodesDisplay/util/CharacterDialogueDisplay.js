@@ -21,6 +21,7 @@ export default function CharacterDialogueDisplay({
 
   // Load character image
   useEffect(() => {
+    console.log("[CharacterDialogueDisplay] Loading character image:", character?.image);
     if (!character?.image?.filename) return;
 
     if (character.image.inputType === "url") {
@@ -33,7 +34,7 @@ export default function CharacterDialogueDisplay({
           setCharacterImg(""); // Fallback: no image
         });
     }
-}, [character]);
+  }, [character]);
 
   // Load audio
   useEffect(() => {
@@ -155,8 +156,8 @@ export default function CharacterDialogueDisplay({
           <a-image
             src={characterImg}
             position="-1 0.5 0"
-            width="0.8"
-            height="0.8"
+            width="0.5"
+            height="0.5"
             material="shader: flat"
           ></a-image>
         )}

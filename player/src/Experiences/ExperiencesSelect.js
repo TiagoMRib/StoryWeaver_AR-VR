@@ -30,6 +30,21 @@ export default function ExperiencesSelect({ setExperience }) {
     }
   };
 
+  function mergeById(...arrays) {
+    const mergedMap = new Map();
+
+    arrays.forEach(array => {
+      if (!Array.isArray(array)) return;
+      array.forEach(item => {
+        if (!item || item.id === undefined) return;
+        const existing = mergedMap.get(item.id) || {};
+        mergedMap.set(item.id, { ...existing, ...item });
+      });
+    });
+
+    return Array.from(mergedMap.values());
+  }
+
   const handleFilesLoad = async () => {
     if (!worldFile || !platformFile || !storyFile || !platformType) {
       alert("Por favor selecione todos os ficheiros e o tipo de plataforma.");
@@ -47,11 +62,16 @@ export default function ExperiencesSelect({ setExperience }) {
       const platformJson = JSON.parse(platformText);
       const storyJson = JSON.parse(storyText);
 
+      const mergedCharacters = mergeById(worldJson.characters, platformJson.characters, storyJson.characters);
+      const mergedLocations = mergeById(worldJson.locations, platformJson.locations, storyJson.locations);
+
       const combined = {
         platformType,
         ...worldJson,
         ...platformJson,
         ...storyJson,
+        characters: mergedCharacters,
+        locations: mergedLocations,
       };
 
       setCombinedData(combined);

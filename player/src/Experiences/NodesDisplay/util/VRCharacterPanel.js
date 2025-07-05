@@ -67,9 +67,9 @@ export default function VRCharacterPanel({
       {characterImg && (
         <a-image
           src={characterImg}
-          position="-1 0.6 0"
-          width="0.8"
-          height="0.8"
+          position="-1 0.7 0"
+          width="0.4"
+          height="0.4"
           material="shader: flat"
         ></a-image>
       )}
