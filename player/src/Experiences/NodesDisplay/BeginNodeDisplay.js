@@ -106,7 +106,7 @@ export default function BeginNodeDisplay(props) {
           event-set__leave="_event: mouseleave; color: #007BFF"
         >
           <a-text
-            value="Começar"
+            value="Start"
             align="center"
             color="white"
             position="0 0 0.05"

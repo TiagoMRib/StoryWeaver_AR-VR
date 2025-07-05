@@ -221,7 +221,7 @@ export default function VRExperiencePlayer({
       if (method === "proximity") {
         return (
           <>
-            {renderPromptInFront(`Dirije-te até: ${target}`)}
+            {renderPromptInFront(`Dirije-te a: ${target}`)}
             {renderTriggerIndicator(target)}
           </>
         );
