@@ -132,8 +132,10 @@ export default function ARExperiencePlayer({
       ? interactions.find(i => i.type === trigger.interaction)?.methodAr
       : null;
 
+    console.log("[ARPlayer] interactionMethod:", interactionMethod);
+
     // commented gps to easier testing: "gps", 
-    const isARTriggeredNode = trigger && ["gps","qr_code", "image_tracking"].includes(interactionMethod);
+    const isARTriggeredNode = trigger && ["gps", "qr_code", "image_tracking"].includes(interactionMethod);
     // === Show waiting instruction (e.g., GPS or QR) if not yet triggered
     if (isARTriggeredNode && !hasTriggered) {
       console.log("[ARPlayer] Waiting for trigger:", trigger);
@@ -141,12 +143,14 @@ export default function ARExperiencePlayer({
       return (
         <Box sx={centerBox}>
           <Typography variant="h6">
-            Aguarde por: <strong>{trigger.target}</strong>
+            <strong>{interactionMethod.toUpperCase()}</strong> <strong>{trigger.target}</strong>
           </Typography>
   
-          {interactionMethod === "gps" && distance !== null && (
+          {interactionMethod === "gps" && (
             <Typography sx={{ mt: 1 }}>
-              Distância: {distance.toFixed(1)}m
+              {distance !== null
+                ? `Distância até o destino: ${distance.toFixed(1)}m`
+                : "Localizando posição..."}
             </Typography>
           )}
   
